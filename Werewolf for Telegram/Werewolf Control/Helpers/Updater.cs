@@ -49,22 +49,15 @@ namespace Werewolf_Control.Helpers
             var beta = updateType.StartsWith("beta");
             var control = !updateType.Contains("node");
             var node = !updateType.Contains("control");
-            var website = updateType.Contains("website");
 
             msg += "Build Definition(s) to Use:";
             var definitions = new List<string>();
             var env = beta ? "Beta" : "Release";
             //var what = control ? node ? "Both" : "Control" : "Node";
-            if (website)
-                definitions.Add("Website");
-            else
-            {
-                if (control)
-                    definitions.Add($"{env} Control");
-                if (node)
-                    definitions.Add($"{env} Node");
-            }
-            
+            if (control)
+                definitions.Add($"{env} Control");
+            if (node)
+                definitions.Add($"{env} Node");
 
             msg = definitions.Aggregate(msg, (current, a) => current + "\n" + a);
             Thread.Sleep(500);
@@ -193,7 +186,7 @@ namespace Werewolf_Control.Helpers
         {
             try
             {
-                var url = "https://greywolfdev.visualstudio.com/DefaultCollection/";
+                var url = "https://parabola949.VisualStudio.com/DefaultCollection/";
                 var build = new BuildHttpClient(new Uri(url), new VssCredentials(new VssBasicCredential("", RegHelper.GetRegValue("VSTSToken"))));
 
                 // First we get project's GUID and buildDefinition's ID.

@@ -22,13 +22,12 @@ namespace Werewolf_Control
 #if BETA
         internal static long[] BetaGroups = new[]
             {
-                -1001056839438,
-                -1001062784541,
+                -1001056839438, 
+                -1001062784541, -1001030085238,
                 -1001052793672, -1001066860506, -1001038785894,
-                -1001066860506,
+                -1001094614730, -1001066860506,
                 -1001080774621, -1001036952250, -1001082421542, -1001073943101, -1001071193124,
-                -1001094155678, -1001077134233, -1001229366250,
-                -1001268085464, -1001322721489
+                -1001094155678, -1001077134233, -1001229366250
             };
 #endif
 
@@ -37,16 +36,14 @@ namespace Werewolf_Control
             return db.Players.FirstOrDefault(x => x.TelegramId == id);
         }
 
-        private static void StartGame(bool chaos, Update update)
+        private static void AddNotify(Update update)
         {
-            //int debugid = 295152997;
-            //bool debuglog = update.Message.From.Id == debugid;
+            var node = Bot.GetBestAvailableNode();
+            node.Notify.Add(update.Message.From.Id);
+        }
 
-            //if (debuglog)
-            //{
-            //    Bot.Send($"CONTROL: Received start{(chaos ? "chaos" : "game")} command.", debugid).Wait();
-            //}
-
+        private static void StartGame(int gmode, Update update)
+        {
             if (update.Message.Chat.Type == ChatType.Private)
             {
                 //PM....  can't do that here
@@ -56,13 +53,11 @@ namespace Werewolf_Control
 
             //-1001052326089,
 #if BETA
-            /*
             if (!BetaGroups.Contains(update.Message.Chat.Id) & !UpdateHelper.Devs.Contains(update.Message.From.Id))
             {
                 Bot.Api.LeaveChatAsync(update.Message.Chat.Id);
                 return;
             }
-            */
 #endif
     
 
@@ -77,26 +72,18 @@ namespace Werewolf_Control
 
 #endif
 
-            Group grp;
+            /*Group grp;
             using (var db = new WWContext())
             {
                 grp = db.Groups.FirstOrDefault(x => x.GroupId == update.Message.Chat.Id);
                 if (grp == null)
                 {
-                    //if (debuglog) Bot.Send("CONTROL: No database group found, creating one", debugid).Wait();
                     grp = MakeDefaultGroup(update.Message.Chat.Id, update.Message.Chat.Title, "StartGame");
                     db.Groups.Add(grp);
                 }
                 grp.Name = update.Message.Chat.Title;
                 grp.UserName = update.Message.Chat.Username;
                 grp.BotInGroup = true;
-#if BETA
-                if (grp.BetaGroup != true & !UpdateHelper.Devs.Contains(update.Message.From.Id) & !Program.BetaUnlocked)
-                {
-                    Bot.Api.LeaveChatAsync(update.Message.Chat.Id);
-                    return;
-                }
-#endif
                 if (grp.CreatedBy == "BAN")
                 {
                     Bot.Api.LeaveChatAsync(grp.GroupId);
@@ -118,11 +105,10 @@ namespace Werewolf_Control
                     }
                 }
                 db.SaveChanges();
-            }
+            }*/ // DATABASE
             //check nodes to see if player is in a game
             var node = GetPlayerNode(update.Message.From.Id);
             var game = GetGroupNodeAndGame(update.Message.Chat.Id);
-            //if (debuglog) Bot.Send($"CONTROL: Player Node{(node == null ? " not" : "")} found. Group Game{(game == null ? " not" : "")} found.", debugid).Wait();
             if (game != null || node != null)
             {
                 //try grabbing the game again...
@@ -134,13 +120,14 @@ namespace Werewolf_Control
                     {
                         //player is already in a game, and alive
                         Send(
-                            GetLocaleString("AlreadyInGame", grp?.Language ?? "English",
+                            GetLocaleString("AlreadyInGame", /*grp?.Language ?? */ "Spanish", // DATABASE
                                 game.ChatGroup.ToBold()), update.Message.Chat.Id);
                         return;
                     }
                 }
 
-                //player is not in game in another group, let's give them a join button!
+                //player is not in game, they need to join, if they can
+                //game?.AddPlayer(update);
                 game?.ShowJoinButton();
                 if (game == null)
                     Program.Log($"{update.Message.From.FirstName} tried to join a game on node {node?.ClientId}, but game object was null", true);
@@ -148,13 +135,24 @@ namespace Werewolf_Control
             }
             //no game found, start one
             node = Bot.GetBestAvailableNode();
-            //if (debuglog) Bot.Send($"CONTROL: Available node{(node == null ? " not" : "")} found.", debugid).Wait();
             if (node != null)
             {
-                node.StartGame(update, chaos);
-                Program.Analytics.TrackAsync("creategame", new { chaos = chaos, groupid = update.Message.Chat.Id }, update.Message.From.Id.ToString());
+                node.StartGame(update, gmode);
+                node.nextHela = false;
+                node.nextJiro = false;
+                node.nextLara = false;
+                node.nextAlex = false;
+                foreach (var n in node.Notify)
+                {
+                    if (n != update.Message.From.Id)
+                        Send(GetLocaleString("NotifyNewGame", "Spanish", "Aullido de Lobo"), n);
+                    Thread.Sleep(500);
+                }
+                node.Notify.Clear();
+
+                //Program.Analytics.TrackAsync("creategame", new { chaos = chaos, groupid = update.Message.Chat.Id }, update.Message.From.Id.ToString());
                 //notify waiting players
-                using (var db = new WWContext())
+                /*using (var db = new WWContext())
                 {
                     var notify = db.NotifyGames.Where(x => x.GroupId == update.Message.Chat.Id).ToList();
                     var groupName = update.Message.Chat.Title.ToBold();
@@ -172,11 +170,11 @@ namespace Werewolf_Control
                     //just to be sure...
                     //db.Database.ExecuteSqlCommand($"DELETE FROM NotifyGame WHERE GroupId = {update.Message.Chat.Id}");
                     db.SaveChanges();
-                }
+                }*/ //DATABASE
             }
             else
             {
-                Send(GetLocaleString("NoNodes", grp.Language), update.Message.Chat.Id);
+                Send(GetLocaleString("NoNodes", /*grp.Language*/ "Spanish"), update.Message.Chat.Id); //DATABASE
 
             }
         }
@@ -276,6 +274,8 @@ namespace Werewolf_Control
         /// <returns></returns>
         public static string GetLanguage(long id)
         {
+            return "Spanish";
+
             using (var db = new WWContext())
             {
                 Player p = null;
@@ -298,6 +298,8 @@ namespace Werewolf_Control
         /// <returns></returns>
         public static string GetLanguage(int id)
         {
+            return "Spanish";
+
             using (var db = new WWContext())
             {
                 var p = db.Players.FirstOrDefault(x => x.TelegramId == id);
@@ -334,20 +336,16 @@ namespace Werewolf_Control
             var strings = doc.Descendants("string").FirstOrDefault(x => x.Attribute("key").Value.ToLower() == args[0].ToLower());
             if (strings == null)
             {
-                strings = Bot.English.Descendants("string").FirstOrDefault(x => x.Attribute("key").Value.ToLower() == args[0].ToLower());
+                var efile = XDocument.Load(Path.Combine(Bot.LanguageDirectory, "English.xml"));
+                strings =
+                    efile.Descendants("string")
+                        .FirstOrDefault(x => x.Attribute("key").Value.ToLower() == args[0].ToLower());
             }
             if (strings == null)
                 return null;
             var values = strings.Descendants("value");
             var choice = Bot.R.Next(values.Count());
             var selected = values.ElementAt(choice);
-            if (String.IsNullOrWhiteSpace(selected.Value))
-            {
-                strings = Bot.English.Descendants("string").FirstOrDefault(x => x.Attribute("key").Value.ToLower() == args[0].ToLower());
-                values = strings.Descendants("value");
-                choice = Bot.R.Next(values.Count());
-                selected = values.ElementAt(choice);
-            }
             return String.Format(selected.Value.FormatHTML(), args).Replace("\\n", Environment.NewLine);
         }
 

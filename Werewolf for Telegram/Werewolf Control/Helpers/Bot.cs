@@ -97,7 +97,6 @@ namespace Werewolf_Control.Helpers
                         c.Trigger = ca.Trigger;
                         c.Method = (ChatCommandMethod)Delegate.CreateDelegate(typeof(ChatCommandMethod), m);
                         c.InGroupOnly = ca.InGroupOnly;
-                        c.LangAdminOnly = ca.LangAdminOnly;
                         Commands.Add(c);
                     }
                 }
@@ -110,7 +109,19 @@ namespace Werewolf_Control.Helpers
             //Api.OnReceiveGeneralError += ApiOnOnReceiveGeneralError;
             Api.StatusChanged += ApiOnStatusChanged;
             //Api.UpdatesReceived += ApiOnUpdatesReceived;
-            Me = Api.GetMeAsync().Result;
+            //Me = Api.GetMeAsync().Result;
+            for (int i = 0; i < 10; i++)
+            {
+                try
+                {
+                    Me = Api.GetMeAsync().Result;
+                    break;
+                }
+                catch (AggregateException agge) // /fuckit@werewolfbot
+                {
+                    if (i == 9) throw agge;
+                }
+            }
             //Api.OnMessage += ApiOnOnMessage;
             Console.Title += " " + Me.Username;
             if (!String.IsNullOrEmpty(updateid))
@@ -168,6 +179,8 @@ namespace Werewolf_Control.Helpers
         {
             try
             {
+                return;
+
                 using (var db = new WWContext())
                 {
                     var id =

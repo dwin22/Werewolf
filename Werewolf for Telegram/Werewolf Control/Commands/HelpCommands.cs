@@ -44,7 +44,7 @@ namespace Werewolf_Control
             //now determine what languages are available in public groups.
             try
             {
-                string[] disabledLangs = new string[] { /*"فارسی"*/ }; // Language bases of which no grouplist is accessible
+                string[] disabledLangs = new string[] { "فارسی" }; // Language bases of which no grouplist is accessible
                 var langs = PublicGroups.GetBaseLanguages().Where(x => !disabledLangs.Contains(x)); // do not fetch disabled langs
                 //create a menu out of this
                 List<InlineKeyboardCallbackButton> buttons = langs.OrderBy(x => x).Select(x => new InlineKeyboardCallbackButton(x, $"groups|{update.Message.From.Id}|{x}|null")).ToList();
@@ -90,16 +90,16 @@ namespace Werewolf_Control
             //    "/AboutVG - Villager\n/AboutSeer - Seer\n/AboutWw - Werewolf\n/AboutHarlot - Harlot\n/AboutDrunk - Drunk\n/AboutCursed - Cursed\n/AboutTraitor - Traitor\n/AboutGA - Guardian Angel\n/AboutDetective - Detective\n/AboutGunner - Gunner\n/AboutTanner - Tanner\n/AboutFool - Fool\n/AboutCult - Cultist\n/AboutCH - Cultist Hunter\n/AboutWC - Wild Child\n/AboutAppS - Apprentice seer\n/AboutBH - Beholder\n/AboutMason - Mason\n/AboutDG - Doppelgänger\n/AboutCupid - Cupid\n/AboutHunter - Hunter\n/AboutSK - Serial Killer";
 
             var reply = "";
-            reply += "/aboutVG - " + GetLocaleString("Villager", lang) + "\n";
-            reply += "/aboutWW - " + GetLocaleString("Wolf", lang) + "\n";
-            reply += "/aboutDrunk " + GetLocaleString("Drunk", lang) + "\n";
-            reply += "/aboutSeer " + GetLocaleString("Seer", lang) + "\n";
-            reply += "/aboutCursed " + GetLocaleString("Cursed", lang) + "\n";
-            reply += "/aboutHarlot " + GetLocaleString("Harlot", lang) + "\n";
-            reply += "/aboutBH " + GetLocaleString("Beholder", lang) + "\n";
-            reply += "/aboutGunner " + GetLocaleString("Gunner", lang) + "\n";
-            reply += "/aboutTraitor " + GetLocaleString("Traitor", lang) + "\n";
-            reply += "/aboutGA - " + GetLocaleString("GuardianAngel", lang) + "\n";
+            reply += "/aboutVG - Villager 👱\n";
+            reply += "/aboutWW - Werewolf 🐺\n";
+            reply += "/aboutDrunk - Drunk 🍻\n";
+            reply += "/aboutSeer - Seer 👳\n";
+            reply += "/aboutCursed - Cursed 😾\n";
+            reply += "/aboutHarlot - Harlot 💋\n";
+            reply += "/aboutBH - Beholder 👁\n";
+            reply += "/aboutGunner - Gunner 🔫\n";
+            reply += "/aboutTraitor - Traitor 🖕\n";
+            reply += "/aboutGA - Guardian Angel 👼\n";
             try
             {
                 var result = Bot.Api.SendTextMessageAsync(update.Message.From.Id, reply).Result;
@@ -112,38 +112,51 @@ namespace Werewolf_Control
                 return;
             }
             Thread.Sleep(300);
-            reply = "/aboutDetective - " + GetLocaleString("Detective", lang) + "\n";
-            reply += "/aboutAppS - " + GetLocaleString("ApprenticeSeer", lang) + "\n";
-            reply += "/aboutCult - " + GetLocaleString("Cultist", lang) + "\n";
-            reply += "/aboutCH - " + GetLocaleString("CultistHunter", lang) + "\n";
-            reply += "/aboutWC - " + GetLocaleString("WildChild", lang) + "\n";
-            reply += "/aboutFool - " + GetLocaleString("Fool", lang) + "\n";
-            reply += "/aboutMason - " + GetLocaleString("Mason", lang) + "\n";
-            reply += "/aboutDG - " + GetLocaleString("Doppelgänger", lang) + "\n";
-            reply += "/aboutCupid - " + GetLocaleString("Cupid", lang) + "\n";
-            reply += "/aboutHunter - " + GetLocaleString("Hunter", lang) + "\n";
+            reply = "/aboutDetective - Detective 🕵\n";
+            reply += "/aboutAppS - Apprentice Seer 🙇\n";
+            reply += "/aboutCult - Cultist 👤\n";
+            reply += "/aboutCH - Cultist Hunter 💂\n";
+            reply += "/aboutWC - Wild Child 👶\n";
+            reply += "/aboutFool - Fool 🃏\n";
+            reply += "/aboutMason - Mason 👷\n";
+            reply += "/aboutDG - Doppelgänger 🎭\n";
+            reply += "/aboutCupid - Cupid 🏹\n";
+            reply += "/aboutHunter - Hunter 🎯\n";
             Send(reply, update.Message.From.Id);
             Thread.Sleep(300);
-            reply = "/aboutSK - " + GetLocaleString("SerialKiller", lang) + "\n";
-            reply += "/aboutTanner - " + GetLocaleString("Tanner", lang) + "\n";
-            reply += "/aboutMayor - " + GetLocaleString("Mayor", lang) + "\n";
-            reply += "/aboutPrince - " + GetLocaleString("Prince", lang) + "\n";
-            reply += "/aboutSorcerer - " + GetLocaleString("Sorcerer", lang) + "\n";
-            reply += "/aboutClumsy - " + GetLocaleString("ClumsyGuy", lang) + "\n";
-            reply += "/aboutBlacksmith - " + GetLocaleString("Blacksmith", lang) + "\n";
-            reply += "/aboutAlphaWolf - " + GetLocaleString("AlphaWolf", lang) + "\n";
-            reply += "/aboutWolfCub - " + GetLocaleString("WolfCub", lang) + "\n";
+            reply = "/aboutSK - Serial Killer 🔪\n";
+            reply += "/aboutTanner - Tanner 👺\n";
+            reply += "/aboutMayor - Mayor 🎖\n";
+            reply += "/aboutPrince - Prince 👑\n";
+            reply += "/aboutSorcerer - Sorcerer 🔮\n";
+            reply += "/aboutClumsy - ClumsyGuy 🤕\n";
+            reply += "/aboutBlacksmith - Blacksmith ⚒\n";
+            reply += "/aboutAlphaWolf - AlphaWolf ⚡️\n";
+            reply += "/aboutWolfCub - WolfCub 🐶\n";
             Send(reply, update.Message.From.Id);
             Thread.Sleep(300);
-            reply = "/aboutSandman - " + GetLocaleString("Sandman", lang) + "\n";
-            reply += "/aboutOracle - " + GetLocaleString("Oracle", lang) + "\n";
-            reply += "/aboutWolfMan - " + GetLocaleString("WolfMan", lang) + "\n";
-            reply += "/aboutLycan - " + GetLocaleString("Lycan", lang) + "\n";
-            reply += "/aboutPacifist - " + GetLocaleString("Pacifist", lang) + "\n";
-            reply += "/aboutWiseElder - " + GetLocaleString("WiseElder", lang) + "\n";
-            reply += "/aboutThief - " + GetLocaleString("Thief", lang) + "\n";
+            //reply = "/aboutThief - Thief 😈\n";
+            //reply += "/aboutPacifist - Pacifist ☮️\n";
+            //reply += "/aboutWiseElder - Wise Elder 📚\n";
+            reply = "/aboutSandman - Sandman 💤\n";
+            reply += "/aboutOracle - Oracle 🌀\n";
+            reply += "/aboutWolfMan - Wolf Man 👱‍🌚\n";
+            reply += "/aboutLycan - Lycan 🐺🌝\n";
             Send(reply, update.Message.From.Id);
-
+            Thread.Sleep(300);
+            reply = "/aboutSurvivor - Superviviente ⛺️\n";
+            reply += "/aboutAtheist - Ateo 👦\n";
+            reply += "/aboutSheriff - Sheriff 🤠\n";
+            reply += "/aboutPolice - Policía 👮\n";
+            reply += "/aboutHungryWolf - Lobo Voraz 🍽\n";
+            reply += "/aboutPyro - Pirómano 🔥\n";
+            reply += "/aboutImposter - Impostor ❌\n";
+            reply += "/aboutBaker - Panadero 🍞\n";
+            Send(reply, update.Message.From.Id);
+            Thread.Sleep(300);
+            reply = "/aboutHealer - Curandero 🌟\n";
+            reply += "/aboutRabidWolf - Lobo Rabioso 🐺🤢\n";
+            Send(reply, update.Message.From.Id);
         }
     }
 }

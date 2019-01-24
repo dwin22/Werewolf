@@ -44,28 +44,20 @@ namespace BuildAutomation.Controllers
                         //what was released
                         var beta = obj.resource.environment.name.Contains("Beta");
                         var node = obj.resource.environment.name.Contains("Node");
-                        var website = obj.resource.environment.name.Contains("Website");
+
 
 
                         var msg = obj.detailedMessage.markdown;
                         InlineKeyboardMarkup menu = null;
                         if (obj.resource.environment.status == "succeeded")
                         {
-                            if (website)
+                            msg += "\nDo you want me to copy the files and update?";
+                            menu = new InlineKeyboardMarkup(new[]
                             {
-                                msg += "The website will now be deployed.";
-                                menu = null;
-                            }
-                            else
-                            {
-                                msg += "\nDo you want me to copy the files and update?";
-                                menu = new InlineKeyboardMarkup(new[]
-                                {
                                 new InlineKeyboardCallbackButton("Yes",
                                     $"update|{(beta ? "beta" : "release")}{(node ? "node" : "control")}"),
                                 new InlineKeyboardCallbackButton("No", "update|no")
-                                });
-                            }
+                            });
                         }
 
 
@@ -116,7 +108,6 @@ namespace BuildAutomation.Controllers
 
                     //check what was built
                     var beta = push._ref.Contains("beta"); //beta or master - refs/head/<branch>
-                    var master = push._ref.Contains("master");
                     //now check if control was changed
                     var control =
                         push.commits.Any(
@@ -125,7 +116,7 @@ namespace BuildAutomation.Controllers
                         push.commits.Any(
                             x => x.modified.Union(x.added).Union(x.removed).Any(c => c.Contains("Werewolf Node")));
 
-                    if ((!beta && !master) || (!control && !node)) //nothing to build
+                    if (!control && !node) //nothing to build
                     {
                         bot.SendTextMessageAsync(GroupId, msg, parseMode: ParseMode.Html,
                             disableWebPagePreview: true);
@@ -188,13 +179,6 @@ namespace BuildAutomation.Controllers
                     var r = bot.SendTextMessageAsync(GroupId, msg, replyMarkup: menu, parseMode: ParseMode.Html,
                         disableWebPagePreview: true).Result;
 
-                    if (beta)
-                    {
-                        var m = "Changes on beta branch. Do you want to build the website too?";
-                        var websiteYes = new InlineKeyboardCallbackButton("Yes", "build|website");
-                        menu = new InlineKeyboardMarkup(new[] { websiteYes, none });
-                        bot.SendTextMessageAsync(GroupId, m, replyMarkup: menu, parseMode: ParseMode.Html, disableWebPagePreview: true);
-                    }
 
                 }
 

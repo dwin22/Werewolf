@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Database;
@@ -43,8 +44,8 @@ namespace Werewolf_Control
         {
             if (args[1] == null) //only send the message if there is no extra args (otherwise it's more likely for other bots)
             {
-                Bot.Api.SendTextMessageAsync(update.Message.Chat.Id, "[Website](http://www.tgwerewolf.com/?referrer=help)\n/rolelist (don't forget to /setlang first!)\n[Telegram Werewolf Support Group](http://telegram.me/werewolfsupport)\n[Telegram Werewolf Dev Channel](https://telegram.me/greywolfdev)",
-                                                            parseMode: ParseMode.Markdown, disableWebPagePreview: true);
+                Bot.Api.SendTextMessageAsync(update.Message.Chat.Id, "[Website](http://www.tgwerewolf.com/?referrer=help)\n/rolelist (don't forget to /setlang first!)\n[Telegram Werewolf Support Group](http://telegram.me/werewolfsupport)\n[Telegram Werewolf Dev Channel](https://telegram.me/werewolfdev)",
+                                                            parseMode: ParseMode.Markdown);
             }
         }
 
@@ -58,7 +59,7 @@ namespace Werewolf_Control
         [Command(Trigger = "changelog")]
         public static void ChangeLog(Update update, string[] args)
         {
-            Send("Changelog moved to <a href=\"www.tgwerewolf.com/#changes?referrer=changelog\">here</a>\nAlso check out the dev channel @greywolfdev", update.Message.Chat.Id);
+            Send("Changelog moved to <a href=\"www.tgwerewolf.com/#changes?referrer=changelog\">here</a>\nAlso check out the dev channel @werewolfdev", update.Message.Chat.Id);
         }
 
         [Command(Trigger = "runinfo")]
@@ -184,7 +185,7 @@ namespace Werewolf_Control
         {
             if (u.Message.Chat.Type == ChatType.Private && u.Message.From != null)
             {
-                using (var db = new WWContext())
+                /*using (var db = new WWContext())
                 {
                     var p = GetDBPlayer(u.Message.From.Id, db);
                     if (p == null)
@@ -208,7 +209,7 @@ namespace Werewolf_Control
 #elif BETA
                         p.HasDebugPM = true;
 #endif
-                    db.SaveChanges();
+                    db.SaveChanges();*/
 
                     if (String.IsNullOrEmpty(args[1]))
                     {
@@ -216,7 +217,7 @@ namespace Werewolf_Control
                                   $"\nJoin the main group @werewolfgame, or to find a group to play in, you can use /grouplist." +
                                   $"\nFor role information, use /rolelist." +
                                   $"\nIf you want to set your default language, use /setlang." +
-                                  $"\nBe sure to stop by <a href=\"https://telegram.me/werewolfsupport\">Werewolf Support</a> for any questions, and subscribe to @greywolfdev for updates from the developer." +
+                                  $"\nBe sure to stop by <a href=\"https://telegram.me/werewolfsupport\">Werewolf Support</a> for any questions, and subscribe to @werewolfdev for updates from the developer." +
                                   $"\nMore infomation can be found <a href=\"https://www.tgwerewolf.com/?referrer=start\">here</a>!";
                         Bot.Send(msg, u.Message.Chat.Id);
                         return;
@@ -227,142 +228,127 @@ namespace Werewolf_Control
                         GetDonationInfo(m: u.Message);
                         return;
                     }
-                    
-                    if (args[1] == "xsolla")
-                    {
-                        GetXsollaLink(m: u.Message);
-                        return;
-                    }
 
-                    if (args[1].StartsWith("join") && args[1].Length == 48) // 22 node id + 22 game id + 4 "join"
+                    //okay, they are joining a game.
+                    string nodeid = "";
+                    string gameid = "";
+                    Models.Node node = null;
+                    Models.GameInfo game = null;
+                    ChatMemberStatus status = ChatMemberStatus.Creator;
+                    try
                     {
-                        //okay, they are joining a game.
-                        string nodeid = "";
-                        string gameid = "";
-                        Models.Node node = null;
-                        Models.GameInfo game = null;
-                        ChatMember chatmember = null;
-                        try
+                        nodeid = args[1].Substring(0, 32);
+                        gameid = args[1].Substring(32);
+
+                        //try to get the guid of the game they want to join
+                        Guid g, n;
+                        if (!(Guid.TryParse(nodeid, out n) && Guid.TryParse(gameid, out g)))
+                            return;
+
+                        //first get the node where to search for the game
+                        
+                        for (var i = 0; i < 3; i++)
                         {
-                            nodeid = args[1].Substring(4, 22);
-                            gameid = args[1].Substring(26, 22);
-
-                            // check that they aren't ingame in another group
-                            node = GetPlayerNode(u.Message.From.Id);
-                            if (node != null)
-                            {
-                                game = node.Games.ToList().FirstOrDefault(x => x.Users.Contains(u.Message.From.Id));
-                                if (game == null)
-                                    game = node.Games.ToList().FirstOrDefault(x => x.Users.Contains(u.Message.From.Id));
-                                if (game == null)
-                                    game = node.Games.ToList().FirstOrDefault(x => x.Users.Contains(u.Message.From.Id));
-
-                                if (game != null)
-                                {
-                                    if (node.ClientId != nodeid || game.Guid != gameid)
-                                    {
-                                        // they are in game in another group, can't join here
-                                        var pl = db.Players.FirstOrDefault(x => x.TelegramId == u.Message.From.Id);
-                                        Send(GetLocaleString("AlreadyInGame", pl?.Language ?? "English", game.ChatGroup.ToBold()), u.Message.Chat.Id);
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        // do nothing, they are in the game, they are just being spammy
-                                        return;
-                                    }
-                                }
-                            }
-
-                            node = null;
-                            game = null;
-
-                            //first get the node where to search for the game
-
-                            for (var i = 0; i < 3; i++)
-                            {
-                                node = Bot.Nodes.ToList().FirstOrDefault(x => x.ClientId == nodeid);
-                                if (node != null) break;
-                            }
-                            if (node == null)
-                            {
-                                //log it
-                                //Bot.Send($"{u.Message.From.Id} (@{u.Message.From.Username ?? ""}) didn't find node with guid {n.ToString()} while attempting to play in {g.ToString()}", -1001098399855);
-                                return;
-                            }
-
-                            //we have the node, get the game
-
-                            for (var i = 0; i < 5; i++)
-                            {
-                                game = node.Games.ToList().FirstOrDefault(x => x.Guid == gameid);
-                                if (game != null) break;
-                            }
-                            if (game == null)
-                            {
-                                //log it
-                                //Bot.Send($"{u.Message.From.Id} (@{u.Message.From.Username ?? ""}) found node with guid {n.ToString()} but not the game {g.ToString()}", -1001098399855);
-                                return;
-                            }
-
-                            //ok we got the game, now join 
-                            //make sure they are member
-                            chatmember = Bot.Api.GetChatMemberAsync(game.GroupId, u.Message.From.Id).Result;
-                            if (chatmember.Status == ChatMemberStatus.Left || chatmember.Status == ChatMemberStatus.Kicked || (chatmember.Status == ChatMemberStatus.Restricted && !chatmember.CanSendMessages))
-                            {
-                                Bot.Send(
-                                    GetLocaleString("NotMember", GetLanguage(u.Message.From.Id), game.ChatGroup.ToBold()),
-                                    u.Message.Chat.Id);
-                                return;
-                            }
-
-                            game.AddPlayer(u, gameid);
+                            node = Bot.Nodes.ToList().FirstOrDefault(x => x.ClientId == n);
+                            if (node != null) break;
+                        }
+                        if (node == null)
+                        {
+                            //log it
+                            //Bot.Send($"{u.Message.From.Id} (@{u.Message.From.Username ?? ""}) didn't find node with guid {n.ToString()} while attempting to play in {g.ToString()}", -1001098399855);
                             return;
                         }
-                        catch (AggregateException e)
+
+                        //we have the node, get the game
+                        
+                        for (var i = 0; i < 5; i++)
                         {
-                            var ex = e.InnerExceptions[0];
-                            while (ex.InnerException != null)
-                                ex = ex.InnerException;
-
-                            Send(ex.Message, u.Message.Chat.Id);
-                            Send($"Error in START:\n" +
-                                 $"{u.Message.Text}\n" +
-                                 $"Node: {nodeid}\n" +
-                                 $"Game: {gameid}\n" +
-                                 $"Found Node: {node?.ClientId}\n" +
-                                 $"Found Game: {game?.Guid}\n" +
-                                 $"Chat Member Status: {chatmember?.Status.ToString() ?? "NULL"}\n" +
-                                 $"{ex.Message}\n{ex.StackTrace}",
-                                Settings.ErrorGroup);
-
+                            game = node.Games.ToList().FirstOrDefault(x => x.Guid == g);
+                            if (game != null) break;
                         }
-                        catch (Exception ex)
+                        if (game == null)
                         {
-                            while (ex.InnerException != null)
-                                ex = ex.InnerException;
-
-                            Send(ex.Message, u.Message.Chat.Id);
-                            Send($"Error in START:\n" +
-                                 $"{u.Message.Text}\n" +
-                                 $"Node: {nodeid}\n" +
-                                 $"Game: {gameid}\n" +
-                                 $"Found Node: {node?.ClientId}\n" +
-                                 $"Found Game: {game?.Guid}\n" +
-                                 $"Chat Member Status: {chatmember?.Status.ToString() ?? "NULL"}\n" +
-                                 $"{ex.Message}\n{ex.StackTrace}",
-                                Settings.ErrorGroup);
+                            //log it
+                            //Bot.Send($"{u.Message.From.Id} (@{u.Message.From.Username ?? ""}) found node with guid {n.ToString()} but not the game {g.ToString()}", -1001098399855);
+                            return;
                         }
+
+                        //ok we got the game, now join 
+                        //make sure they are member
+                        status = Bot.Api.GetChatMemberAsync(game.GroupId, u.Message.From.Id).Result.Status;
+                        if (status == ChatMemberStatus.Left || status == ChatMemberStatus.Kicked)
+                        {
+                            Bot.Send(
+                                GetLocaleString("NotMember", GetLanguage(u.Message.From.Id), game.ChatGroup.ToBold()),
+                                u.Message.Chat.Id);
+                            return;
+                        }
+
+                        game.AddPlayer(u);
+                        return;
+                    }
+                    catch (AggregateException e)
+                    {
+                        var ex = e.InnerExceptions[0];
+                        while (ex.InnerException != null)
+                            ex = ex.InnerException;
+
+                        Send(ex.Message, u.Message.Chat.Id);
+                        Send($"Error in START:\n" +
+                             $"{u.Message.Text}\n" +
+                             $"Node: {nodeid}\n" +
+                             $"Game: {gameid}\n" +
+                             $"Found Node: {node?.ClientId}\n" +
+                             $"Found Game: {game?.Guid}\n" +
+                             $"Chat Member Status: {status}\n" +
+                             $"{ex.Message}\n{ex.StackTrace}",
+                            Settings.ErrorGroup);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        while (ex.InnerException != null)
+                            ex = ex.InnerException;
+
+                        Send(ex.Message, u.Message.Chat.Id);
+                        Send($"Error in START:\n" +
+                             $"{u.Message.Text}\n" +
+                             $"Node: {nodeid}\n" +
+                             $"Game: {gameid}\n" +
+                             $"Found Node: {node?.ClientId}\n" +
+                             $"Found Game: {game?.Guid}\n" +
+                             $"Chat Member Status: {status}\n" +
+                             $"{ex.Message}\n{ex.StackTrace}",
+                            Settings.ErrorGroup);
                     }
                 }
-            }
+            //}
         }
 
         [Command(Trigger = "nextgame", Blockable = true, InGroupOnly = true)]
         public static void NextGame(Update update, string[] args)
         {
             var id = update.Message.Chat.Id;
-            using (var db = new WWContext())
+
+            //check nodes to see if player is in a game
+            //node = GetPlayerNode(update.Message.From.Id);
+            var game = GetGroupNodeAndGame(update.Message.Chat.Id);
+            if (game != null && (game?.Users.Contains(update.Message.From.Id) ?? false) && game?.GroupId != update.Message.Chat.Id)
+            {
+                //player is already in a game, and alive
+                Send(
+                    GetLocaleString("AlreadyInGame", "Spanish",
+                        game.ChatGroup.ToBold()), update.Message.Chat.Id);
+                return;
+            }
+
+            //add player here
+            AddNotify(update);
+
+            Send(GetLocaleString("AddedToWaitList", "Spanish", update.Message.Chat.Title.ToBold()),
+                update.Message.From.Id);
+
+            /*using (var db = new WWContext())
             {
                 var grp = db.Groups.FirstOrDefault(x => x.GroupId == id);
                 if (grp == null)
@@ -400,41 +386,12 @@ namespace Werewolf_Control
                     Send(GetLocaleString("AddedToWaitList", grp.Language, grp.Name.ToBold()),
                         update.Message.From.Id, customMenu: button);
                 }
-            }
+            }*/
         }
 
         [Command(Trigger = "getlang")]
         public static void GetLang(Update update, string[] args)
         {
-            if (!string.IsNullOrEmpty(args[1]))
-            {
-                string pattern = args[1];
-
-                if (pattern.ToLower().EndsWith(".xml")) pattern = pattern.Remove(pattern.Length - 4);
-                if (pattern.Contains("*") || pattern.Contains("\\") || pattern.Contains("."))
-                {
-                    Bot.Send("Invalid language file name. Make sure you enter the <b>filename</b> of the file you wish to download.", update.Message.Chat.Id);
-                    return;
-                }
-
-                var lang = Directory.GetFiles(Bot.LanguageDirectory, pattern + ".xml");
-
-                switch (lang.Length)
-                {
-                    case 0:
-                        Bot.Send("No matching language file found. Make sure you enter the <b>filename</b> of the file you wish to download.", update.Message.Chat.Id);
-                        return;
-
-                    case 1:
-                        LanguageHelper.SendFileByFilepath(update.Message.Chat.Id, lang[0]);
-                        return;
-
-                    default: //shouldn't happen, but you never know...
-                        Bot.Send("Multiple matching language files found. Make sure you enter the <b>filename</b> of the file you wish to download.", update.Message.Chat.Id);
-                        return;
-                }
-            }
-            
             var langs = Directory.GetFiles(Bot.LanguageDirectory, "*.xml").Select(x => new LangFile(x)).ToList();
 
             List<InlineKeyboardCallbackButton> buttons = langs.Select(x => x.Base).Distinct().OrderBy(x => x).Select(x => new InlineKeyboardCallbackButton(x, $"getlang|{update.Message.From.Id}|{x}|null|base")).ToList();

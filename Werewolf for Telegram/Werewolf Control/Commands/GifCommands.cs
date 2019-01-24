@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Database;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineKeyboardButtons;
@@ -31,23 +28,34 @@ namespace Werewolf_Control
             //    "\n\nDonations help us pay to keep the expensive servers running and the game online. Every donation you make helps to keep us going for another month. For more information please contact @werewolfsupport", ParseMode.Html, true);
             var menu = new Menu();
             if (u.Message.Chat.Type == ChatType.Private)
-            {
-#if RELEASE
                 menu.Buttons.Add(new InlineKeyboardCallbackButton("Telegram", "donatetg"));
-                menu.Buttons.Add(new InlineKeyboardCallbackButton("Xsolla", "xsolla"));
-#else
-                menu.Buttons.Add(new InlineKeyboardUrlButton("Telegram", $"https://t.me/werewolfbot?start=donatetg"));
-                menu.Buttons.Add(new InlineKeyboardUrlButton("Xsolla", $"https://t.me/werewolfbot?start=xsolla"));
-#endif
-            }
             else
             {
-                menu.Buttons.Add(new InlineKeyboardUrlButton("Telegram", $"https://t.me/werewolfbot?start=donatetg"));
-                menu.Buttons.Add(new InlineKeyboardUrlButton("Xsolla", $"https://t.me/werewolfbot?start=xsolla"));
+                menu.Buttons.Add(new InlineKeyboardUrlButton("Telegram", $"https://t.me/{Bot.Me.Username}?start=donatetg"));
             }
+            menu.Buttons.Add(new InlineKeyboardUrlButton("PayPal", "https://PayPal.me/greywolfdevelopment"));
             var markup = menu.CreateMarkupFromMenu();
-            var txt = $"Want to help keep Werewolf Moderator online? Donate now and gets: {"Custom gifs".ToBold()} and {"Badges".ToBold()}!\n\nClick the button below to donate!!\n\nMore Info: https://telegra.ph/Custom-Gif-Packs-and-Donation-Levels-06-27";
-            Bot.Api.SendTextMessageAsync(u.Message.Chat.Id, txt, replyMarkup: markup, parseMode: ParseMode.Html, disableWebPagePreview: true);
+            var gif = "Donate $10USD or more to unlock a custom gif pack that you can choose.  "; //"Custom gif packs are not available at this time, watch the update channel for more news!  ";
+            //using (var db = new WWContext())
+            //{
+            //    var count = db.Players.Count(x => x.GifPurchased == true);
+            //    if (count < 100)
+            //        gif = "Donate $10USD or more to unlock a custom gif pack that you can choose.  ";
+
+            //}
+            Bot.Api.SendTextMessageAsync(u.Message.Chat.Id,
+                "Want to help keep Werewolf online?\n" +
+                "We now offer some rewards for donating!\n" +
+                gif + "There are also donation badges you can get in game.  These badges are added to the end of your name in game, so everyone can see you donated!\n\n" +
+                "•$10 USD: 🥉\n" +
+                "•$50 USD: 🥈\n" +
+                "•$100 USD: 🥇\n\n" +
+                "You might also see this special badge: 💎\nThis is reserved for people who donated prior to there being any rewards for donating\n" +
+                "We also accept Bitcoin donations at: 13QvBKfAattcSxSsW274fbgnKU5ASpnK3A\n" +
+                "If you donate via PayPal or Bitcoin, you will need to contact @werewolfsupport to claim your prize.  If you donate via Telegram, it's automated, no need to contact an admin :)\n" +
+                "More information about the Custom Gif Packs: http://telegra.ph/Custom-Gif-Packs-and-Donation-Levels-07-31\n" +
+                "How would you like to donate?",
+                replyMarkup: markup);
         }
 
         [Attributes.Command(Trigger = "customgif")]
@@ -124,7 +132,7 @@ namespace Werewolf_Control
         public static InlineKeyboardMarkup GetGifMenu(CustomGifData d)
         {
             var m = new Menu(2);
-            var images = new[] { "Villager Eaten", "Lone Wolf Wins", "Wolf Pack Win", "Village Wins", "Tanner Wins", "Cult Wins", "Serial Killer Wins", "Lovers Win", "No Winner", "Normal Game Start", "Chaos Game Start", "SK Killed" };
+            var images = new[] { "Villager Eaten", "Lone Wolf Wins", "Wolf Pack Win", "Village Wins", "Tanner Wins", "Cult Wins", "Serial Killer Wins", "Lovers Win", "No Winner", "Normal Game Start", "Chaos Game Start" };
             foreach (var img in images)
             {
                 var i = img;
@@ -167,9 +175,6 @@ namespace Werewolf_Control
                         case "Chaos":
                             added = d.StartChaosGame != null;
                             break;
-                        case "SK":
-                            added = d.SKKilled != null;
-                            break;
                     }
                     i += (added ? " ✅" : " 🚫");
                 }
@@ -199,16 +204,6 @@ namespace Werewolf_Control
                     {
                         var json = p?.CustomGifSet;
                         var data = JsonConvert.DeserializeObject<CustomGifData>(json);
-                        if (data.Approved != null)
-                        {
-                            Bot.Send($"Your current GIF pack has already been {(data.Approved == true ? "" : "dis")}approved! You can't submit it again without any changes!", q.From.Id, customMenu: GetGifMenu(data));
-                            return;
-                        }
-                        if (new[] { data.CultWins, data.LoversWin, data.NoWinner, data.SerialKillerWins, data.SKKilled, data.StartChaosGame, data.StartGame, data.TannerWin, data.VillagerDieImage, data.VillagersWin, data.WolfWin, data.WolvesWin }.All(x => string.IsNullOrEmpty(x)))
-                        {
-                            Bot.Send($"Please set at least one GIF before you submit your pack!", q.From.Id, customMenu: GetGifMenu(data));
-                            return;
-                        }
                         data.Submitted = true;
                         p.CustomGifSet = JsonConvert.SerializeObject(data);
                         db.SaveChanges();
@@ -216,11 +211,11 @@ namespace Werewolf_Control
                 }
                 var menu = new Menu(2);
                 menu.Buttons.Add(new InlineKeyboardCallbackButton("Review", "reviewgifs|" + q.From.Id));
-                menu.Buttons.Add(new InlineKeyboardCallbackButton("Dismiss", $"dismiss|" + q.From.Id));
+                menu.Buttons.Add(new InlineKeyboardCallbackButton("Dismiss", "cancel|cancel|cancel"));
                 menu.Buttons.Add(new InlineKeyboardCallbackButton("Approved: SFW", "approvesfw|" + q.From.Id));
                 menu.Buttons.Add(new InlineKeyboardCallbackButton("Approved: NSFW", "approvensfw|" + q.From.Id));
                 Bot.Send($"User {q.From.Id} - @{q.From.Username} - has submitted a gif pack for approval", Settings.AdminChatId, customMenu: menu.CreateMarkupFromMenu());
-                Bot.Send("Your pack has been submitted for approval to the admins.  Please wait while we review.",
+                Bot.Send("Your pack has been submitted for approval to the admin.  Please wait while we review.",
                     q.From.Id);
                 return;
             }
@@ -234,7 +229,7 @@ namespace Werewolf_Control
                     data.ShowBadge = !data.ShowBadge;
                     p.CustomGifSet = JsonConvert.SerializeObject(data);
                     db.SaveChanges();
-                    Bot.Send($"Your badge will {(data.ShowBadge ? "" : "not ")}be shown.", q.From.Id, customMenu: GetGifMenu(data));
+                    Bot.Send($"You badge will {(data.ShowBadge ? "" : "not ")}be shown.", q.From.Id, customMenu: GetGifMenu(data));
                     return;
                 }
             }
@@ -312,9 +307,6 @@ namespace Werewolf_Control
                     case "Chaos":
                         data.StartChaosGame = id;
                         break;
-                    case "SK":
-                        data.SKKilled = id;
-                        break;
                 }
                 data.Approved = null;
                 data.ApprovedBy = 0;
@@ -328,60 +320,6 @@ namespace Werewolf_Control
         public static void SubmitGifs(Update u, string[] args)
         {
 
-        }
-
-        public static string CreateXsollaJson(User from)
-        {
-            var data = new Models.Xsolla.XsollaData();
-            data.User.Id.Value = from.Id.ToString();
-            data.User.Name.Value = from.FirstName;
-            data.Settings.Currency = "USD";
-            data.Settings.ProjectId = Program.xsollaProjId.Value;
-            data.Settings.Ui.Theme = "dark";
-            var res = JsonConvert.SerializeObject(data, 
-                new JsonSerializerSettings
-                {
-                    ContractResolver = new DefaultContractResolver
-                    {
-                        NamingStrategy = new SnakeCaseNamingStrategy()
-                    },
-                    NullValueHandling = NullValueHandling.Ignore
-                });
-            return res;
-        }
-
-        public static void LogException(Exception e, string reason, Chat chat)
-        {
-            Send($"=={reason}==\n\nChatId: {chat.Id}\n\n{e.Message}\n{e.StackTrace}", Helpers.Settings.ErrorGroup);
-        }
-
-        public static void GetXsollaLink(CallbackQuery q = null, Message m = null)
-        {
-            var from = q?.From ?? m?.From;
-            var txt = "";
-            InlineKeyboardMarkup markup = null;
-            try
-            {
-                var res = Program.xsollaClient.PostAsync(Program.XsollaLink, new StringContent(CreateXsollaJson(from), Encoding.UTF8, "application/json")).Result;
-                var token = JsonConvert.DeserializeObject<Dictionary<string, string>>(res.Content.ReadAsStringAsync().Result)["token"];
-                txt = $"Please click the button below to donate via Xsolla.\nPlease note that this link is ONLY for you and valid for 24 hours.";
-                markup = new InlineKeyboardMarkup(new InlineKeyboardButton[][] { new InlineKeyboardButton[] { new InlineKeyboardUrlButton("Donate Now!", $"https://tgwerewolf.com/donate/xsolla?uid={from.Id}&token={token}") } });
-            }
-            catch (Exception e)
-            {
-                txt = "Error Occurred. This incident has been reported to the devs. Please try again later or seek help at @werewolfsupport.";
-                LogException(e, "Xsolla", m.Chat);
-            }
-            
-
-            if (q != null)
-            {
-                Bot.Api.EditMessageTextAsync(q.Message.Chat.Id, q.Message.MessageId, txt, disableWebPagePreview: true, replyMarkup: markup);
-            }
-            else if (m != null)
-            {
-                Bot.Api.SendTextMessageAsync(from.Id, txt, disableWebPagePreview: true, replyMarkup: markup, replyToMessageId: m.MessageId);
-            }
         }
 
         public static void GetDonationInfo(CallbackQuery q = null, Message m = null)

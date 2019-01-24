@@ -178,7 +178,7 @@ namespace Werewolf_Control
             try
             {
                 var nodeid = args[1];
-                var node = Bot.Nodes.FirstOrDefault(x => x.ClientId == nodeid);
+                var node = Bot.Nodes.FirstOrDefault(x => x.ClientId == Guid.Parse(nodeid));
                 node?.ShutDown();
                 if (node != null)
                     Send($"Node {node.ClientId} will stop accepting games", u.Message.Chat.Id);
@@ -199,7 +199,7 @@ namespace Werewolf_Control
             try
             {
                 var nodeid = args[1];
-                var node = Bot.Nodes.FirstOrDefault(x => x.ClientId == nodeid);
+                var node = Bot.Nodes.FirstOrDefault(x => x.ClientId == Guid.Parse(nodeid));
                 node?.ShutDown(true);
                 if (node != null)
                     Send($"Node {node.ClientId} will shut down", u.Message.Chat.Id);
@@ -438,7 +438,7 @@ namespace Werewolf_Control
             {
                 Bot.Send("Please hold, searching....", update.Message.Chat.Id);
 
-                var groups = db.Groups.Where(x => x.Preferred != false && x.GroupLink != null && x.GroupId != Settings.MainChatId && x.GroupId != Settings.VeteranChatId)
+                var groups = db.Groups.Where(x => x.Preferred != false && x.GroupLink != null && x.GroupId != -1001030085238)
                     .Select(x => new PossibleGroup() { GroupId = x.GroupId, GroupLink = x.GroupLink, MemberCount = x.MemberCount ?? 0, Name = x.Name }).ToList();
 
                 var ofcSpells = new[] { "official", "offciail", "official", "oficial", "offical" };
@@ -1130,15 +1130,15 @@ namespace Werewolf_Control
                     return;
                 }
                 //get the languages which they played, make a menu out of it
-                var rankings = db.GroupRanking.Where(x => x.GroupId == grp.Id && !x.Language.EndsWith("BaseAllVariants")).ToList();
+                var rankings = db.GroupRanking.Where(x => x.GroupId == grp.Id).ToList();
                 var menu = rankings.Select(x => new[] {
-                    new InlineKeyboardCallbackButton(x.Language, $"pf|{grp.GroupId}|{x.Language}|i"),
-                    new InlineKeyboardCallbackButton(x.Show == false ? "☑️" : "✅", $"pf|{grp.GroupId}|{x.Language}|t")
-                }).ToList();
+                        new InlineKeyboardCallbackButton(x.Language, $"preferred|{grp.GroupId}|{x.Language}|info"),
+                        new InlineKeyboardCallbackButton(x.Show == false ? "☑️" : "✅", $"preferred|{grp.GroupId}|{x.Language}|toggle")
+                    }).ToList();
                 //add a button at the beginning and at the end
                 menu.Insert(0, new[] {
-                    new InlineKeyboardCallbackButton("Global", $"pf|{grp.GroupId}|null|i"),
-                    new InlineKeyboardCallbackButton(grp.Preferred == false ? "☑️" : "✅", $"pf|{grp.GroupId}|null|t")
+                    new InlineKeyboardCallbackButton("Global", $"preferred|{grp.GroupId}|null|info"),
+                    new InlineKeyboardCallbackButton(grp.Preferred == false ? "☑️" : "✅", $"preferred|{grp.GroupId}|null|toggle")
                 });
                 menu.Add(new[] { new InlineKeyboardCallbackButton("Done", "done") });
                 //send everything
@@ -1433,42 +1433,6 @@ namespace Werewolf_Control
 
                 Bot.Api.SendTextMessageAsync(u.Message.Chat.Id, result, parseMode: ParseMode.Html);
             }
-        }
-
-        [Attributes.Command(Trigger = "unlockbeta", GlobalAdminOnly = true)]
-        public static void UnlockBeta(Update u, string[] args)
-        {
-#if BETA
-            if (!Program.BetaUnlocked)
-            {
-                Program.BetaUnlocked = true;
-                foreach(var id in new[] { u.Message.Chat.Id, -1001094155678 }.Distinct())
-                    Bot.Send($"<b>Beta has been unlocked for all groups by {u.Message.From.FirstName.FormatHTML()}!</b>", id);
-                
-            }
-            else
-            {
-                Bot.Send("Beta was already unlocked for all groups!", u.Message.Chat.Id);
-            }
-#endif
-        }
-
-        [Attributes.Command(Trigger = "lockbeta", GlobalAdminOnly = true)]
-        public static void LockBeta(Update u, string[] args)
-        {
-#if BETA
-            if (Program.BetaUnlocked)
-            {
-                Program.BetaUnlocked = false;
-                foreach (var id in new[] { u.Message.Chat.Id, -1001094155678 }.Distinct())
-                    Bot.Send($"<b>Beta has been locked for non-betagroups by {u.Message.From.FirstName.FormatHTML()}!</b>", id);
-
-            }
-            else
-            {
-                Bot.Send("Beta was already locked for non-betagroups!", u.Message.Chat.Id);
-            }
-#endif
         }
 
     }

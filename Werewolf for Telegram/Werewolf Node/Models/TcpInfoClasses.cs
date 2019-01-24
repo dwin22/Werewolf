@@ -7,7 +7,7 @@ namespace Werewolf_Node.Models
     public class NodeInfo
     {
         public string JType { get; set; } = "NodeInfo";
-        public string ClientId { get; set; }
+        public Guid ClientId { get; set; }
         public int CurrentGames { get; set; }
         public int TotalGames { get; set; }
         public int CurrentPlayers { get; set; }
@@ -25,7 +25,7 @@ namespace Werewolf_Node.Models
     public class ClientRegistrationInfo
     {
         public string JType { get; set; } = "ClientRegistrationInfo";
-        public string ClientId { get; set; }
+        public Guid ClientId { get; set; }
         public string Secret => Environment.MachineName.GetHashCode().ToString();
     }
 
@@ -33,15 +33,19 @@ namespace Werewolf_Node.Models
     {
         public string JType { get; set; } = "PlayerJoinInfo";
         public User User { get; set; }
-        public string GameId { get; set; }
+        public long GroupId { get; set; }
     }
 
     public class GameStartInfo
     {
         public string JType { get; set; } = "GameStartInfo";
-        public bool Chaos { get; set; }
+        public int gameMode { get; set; }
         public User User { get; set; }
         public Chat Chat { get; set; }
+        public bool nHela { get; set; }
+        public bool nJiro { get; set; }
+        public bool nLara { get; set; }
+        public bool nAlex { get; set; }
     }
 
     public class GameEndInfo
@@ -49,7 +53,7 @@ namespace Werewolf_Node.Models
         public string JType { get; set; } = "GameEndInfo";
         public long GroupId { get; set; }
         public int PlayerCount { get; set; }
-        public string ClientId { get; set; }
+        public Guid ClientId { get; set; }
     }
 
     public class ForceStartInfo
@@ -100,7 +104,6 @@ namespace Werewolf_Node.Models
     {
         public string JType { get; set; } = "CallbackInfo";
         public CallbackQuery Query { get; set; }
-        public string GameId { get; set; }
     }
 
     public class SkipVoteInfo
@@ -121,11 +124,5 @@ namespace Werewolf_Node.Models
         public long User { get; set; }
         public bool Admin { get; set; }
         public int Seconds { get; set; }
-    }
-
-    public class JoinButtonRequestInfo
-    {
-        public string JType { get; set; } = "JoinButtonRequestInfo";
-        public long GroupId { get; set; }
     }
 }

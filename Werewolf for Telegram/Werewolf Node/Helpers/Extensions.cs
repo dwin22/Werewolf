@@ -88,8 +88,8 @@ namespace Werewolf_Node.Helpers
         }
 
         public static IPlayer GetPlayerForRole(this IEnumerable<IPlayer> players, IRole role, bool aliveOnly = true, IPlayer exceptPlayer = null)
-        { // if aliveOnly is false, in case of multiple same roles, this will return the first alive one, or, if no alive one, the one who died the most recently
-            return players?.OrderByDescending(x => x.TimeDied).FirstOrDefault(x => x.PlayerRole == role && (!aliveOnly || !x.IsDead) && x.Id != exceptPlayer?.Id);
+        {
+            return players?.FirstOrDefault(x => x.PlayerRole == role && (!aliveOnly || !x.IsDead) && x.Id != exceptPlayer?.Id);
         }
 
         public static IEnumerable<IPlayer> GetPlayersForRoles(this IEnumerable<IPlayer> players, IRole[] roles,
@@ -101,14 +101,12 @@ namespace Werewolf_Node.Helpers
 
         public static int GetStrength(this IRole role, List<IRole> allRoles)
         {
-            IRole[] WolfRoles = { IRole.Wolf, IRole.WolfCub, IRole.AlphaWolf, IRole.Lycan };
-            IRole[] nonConvertibleRoles = { IRole.Seer, IRole.GuardianAngel, IRole.Detective, IRole.Cursed, IRole.Harlot, IRole.Hunter, IRole.Doppelgänger, IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.SerialKiller, IRole.Lycan, IRole.Thief, IRole.Spumpkin };
+            IRole[] WolfRoles = { IRole.WolfCub, IRole.WolfCub, IRole.AlphaWolf, IRole.WolfMan, IRole.HungryWolf };
+            IRole[] nonConvertibleRoles = { IRole.Seer, IRole.GuardianAngel, IRole.Detective, IRole.Cursed, IRole.Harlot, IRole.Hunter, IRole.Doppelgänger, IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.SerialKiller, IRole.HungryWolf, IRole.Pyro, IRole.Sheriff, IRole.Lycan, IRole.Oracle, IRole.Atheist };
             switch (role)
             {
                 case IRole.Villager:
                     return 1;
-                case IRole.Spumpkin:
-                    return 2;
                 case IRole.Drunk:
                     return 3;
                 case IRole.Harlot:
@@ -116,47 +114,47 @@ namespace Werewolf_Node.Helpers
                 case IRole.Seer:
                     return 7;
                 case IRole.Traitor:
-                    return 0;
+                    return -4;
                 case IRole.GuardianAngel:
                     return 7;
                 case IRole.Detective:
                     return 6;
                 case IRole.Wolf:
-                    return 10;
+                    return 9;
                 case IRole.Cursed:
                     return 1 - allRoles.Count(x => WolfRoles.Contains(x)) / 2; //vg, or worse
                 case IRole.Gunner:
                     return 6;
                 case IRole.Tanner:
-                    return allRoles.Count / 2;
+                    return 3;
                 case IRole.Fool:
                     return 3;
                 case IRole.WildChild:
-                    return 1;
+                    return 0;
                 case IRole.Beholder:
-                    return 2 + (allRoles.Any(x => x == IRole.Seer) ? 4 : 0); //only good if seer is present!
+                    return 2 + (allRoles.Any(x => x == IRole.Seer) ? 2 : 0); //only good if seer is present!
                 case IRole.ApprenticeSeer:
                     return 6;
                 case IRole.Cultist:
-                    return 10 + allRoles.Count(x => !nonConvertibleRoles.Contains(x));
+                    return 5 + allRoles.Count(x => !nonConvertibleRoles.Contains(x));
                 case IRole.CultistHunter:
-                    return allRoles.Count(x => x == IRole.Cultist) == 0 ? 1 : 7;
+                    return allRoles.Count(x => x == IRole.Cultist) == 0 ? 2 : 7;
                 case IRole.Mason:
-                    return allRoles.Count(x => x == IRole.Mason) <= 1 ? 1 : allRoles.Count(x => x == IRole.Mason) + 3; //strength in numbers
+                    return allRoles.Count(x => x == IRole.Mason) <= 1 ? 2 : allRoles.Count(x => x == IRole.Mason) + 2; //strength in numbers
                 case IRole.Doppelgänger:
-                    return 2;
+                    return 1;
                 case IRole.Cupid:
-                    return 2;
+                    return 1;
                 case IRole.Hunter:
                     return 6;
                 case IRole.SerialKiller:
-                    return 15;
+                    return 10 - (allRoles.Count() / 5);
                 case IRole.Sorcerer:
-                    return 2;
+                    return 4;
                 case IRole.AlphaWolf:
                     return 12;
                 case IRole.WolfCub:
-                    return 12;
+                    return 10;
                 case IRole.Blacksmith:
                     return 5;
                 case IRole.ClumsyGuy:
@@ -166,23 +164,144 @@ namespace Werewolf_Node.Helpers
                 case IRole.Prince:
                     return 3;
                 case IRole.WolfMan:
-                    return -1;
+                    return 1;
                 case IRole.Pacifist:
                     return 3;
                 case IRole.WiseElder:
                     return 3;
                 case IRole.Oracle:
-                    return 4;
+                    return 5;
                 case IRole.Sandman:
-                    return 3;
+                    return 6;
                 case IRole.Lycan:
-                    return 11;
+                    return 10;
                 case IRole.Thief:
                     return 4;
+                case IRole.Survivor:
+                    return 1;
+                case IRole.Atheist:
+                    return 4;
+                case IRole.Pyro:
+                    return 6 - (allRoles.Count() / 10);
+                case IRole.HungryWolf:
+                    return 11;
+                case IRole.Sheriff:
+                    return 7;
+                case IRole.Police:
+                    return 3;
+                case IRole.Imposter:
+                    return 4;
+                case IRole.Baker:
+                    return -2;
+                case IRole.Healer:
+                    return 8;
+                case IRole.RabidWolf:
+                    return 16;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }
 
+        }
+
+        public static string GetEmoji(this IRole role)
+        {
+            switch (role)
+            {
+                case IRole.Villager:
+                    return "👱";
+                case IRole.Drunk:
+                    return "🍻";
+                case IRole.Harlot:
+                    return "💋";
+                case IRole.Seer:
+                    return "👳";
+                case IRole.Traitor:
+                    return "🖕";
+                case IRole.GuardianAngel:
+                    return "👼";
+                case IRole.Detective:
+                    return "🕵️";
+                case IRole.Wolf:
+                    return "🐺";
+                case IRole.Cursed:
+                    return "😾";
+                case IRole.Gunner:
+                    return "🔫";
+                case IRole.Tanner:
+                    return "👺";
+                case IRole.Fool:
+                    return "🃏";
+                case IRole.WildChild:
+                    return "👶";
+                case IRole.Beholder:
+                    return "👁";
+                case IRole.ApprenticeSeer:
+                    return "🙇";
+                case IRole.Cultist:
+                    return "👤";
+                case IRole.CultistHunter:
+                    return "💂";
+                case IRole.Mason:
+                    return "👷";
+                case IRole.Doppelgänger:
+                    return "🎭";
+                case IRole.Cupid:
+                    return "🏹";
+                case IRole.Hunter:
+                    return "🎯";
+                case IRole.SerialKiller:
+                    return "🔪";
+                case IRole.Sorcerer:
+                    return "🔮";
+                case IRole.AlphaWolf:
+                    return "⚡️";
+                case IRole.WolfCub:
+                    return "🐶";
+                case IRole.Blacksmith:
+                    return "⚒";
+                case IRole.ClumsyGuy:
+                    return "🤕";
+                case IRole.Mayor:
+                    return "🎖";
+                case IRole.Prince:
+                    return "👑";
+                case IRole.WolfMan:
+                    return "👱🌚";
+                case IRole.Lycan:
+                    return "🐺🌝";
+                case IRole.Sandman:
+                    return "💤";
+                case IRole.Oracle:
+                    return "🌀";
+                case IRole.WiseElder:
+                    return "📚";
+                case IRole.Pacifist:
+                    return "☮️";
+                case IRole.Thief:
+                    return "😈";
+                case IRole.Pyro:
+                    return "🔥";
+                case IRole.HungryWolf:
+                    return "🐺🍽";
+                case IRole.Atheist:
+                    return "👦";
+                case IRole.Survivor:
+                    return "⛺️";
+                case IRole.Sheriff:
+                    return "🤠";
+                case IRole.Police:
+                    return "👮";
+                case IRole.Imposter:
+                    return "❌";
+                case IRole.Baker:
+                    return "🍞";
+                case IRole.Healer:
+                    return "🌟";
+                case IRole.RabidWolf:
+                    return "🐺🤢";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(role), role, null);
+            }
         }
     }
 }

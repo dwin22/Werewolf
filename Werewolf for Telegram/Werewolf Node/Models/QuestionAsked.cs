@@ -11,6 +11,7 @@
     {
         Lynch,
         Kill,
+        Revive,
         Visit,
         See,
         Shoot,
@@ -27,7 +28,8 @@
         SpreadSilver,
         Kill2,
         Sandman,
-        Pacifist,
-        Thief
+        Douse,
+        SheriffSee,
+        PoliceSee
     }
 }

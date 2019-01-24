@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -33,15 +32,7 @@ namespace Werewolf_Control
         public static int MaxGames;
         public static DateTime MaxTime = DateTime.MinValue;
         public static bool MaintMode = false;
-#if BETA
-        public static bool BetaUnlocked = false;
-#endif
-        internal static BotanIO.Api.Botan Analytics;
-        internal static string XsollaLink = null;
-        internal static string XsollaApiId = null;
-        internal static string XsollaApiKey = null;
-        internal static int? xsollaProjId = 0;
-        internal static readonly HttpClient xsollaClient = new HttpClient();
+        //internal static BotanIO.Api.Botan Analytics;
         static void Main(string[] args)
         {
 #if !DEBUG
@@ -83,17 +74,11 @@ namespace Werewolf_Control
 
             //initialize analytics
 #if BETA || DEBUG
-            var aToken = Helpers.RegHelper.GetRegValue("BotanBetaAPI");
+            //var aToken = Helpers.RegHelper.GetRegValue("BotanBetaAPI");
 #else
-            var aToken = Helpers.RegHelper.GetRegValue("BotanReleaseAPI");
+            //var aToken = Helpers.RegHelper.GetRegValue("BotanReleaseAPI");
 #endif
-            Analytics = new BotanIO.Api.Botan(aToken);
-
-            XsollaLink = Helpers.RegHelper.GetRegValue("XsollaLink");
-            XsollaApiId = Helpers.RegHelper.GetRegValue("XsollaApiId");
-            XsollaApiKey = Helpers.RegHelper.GetRegValue("XsollaApiKey");
-            try { xsollaProjId = int.Parse(Helpers.RegHelper.GetRegValue("XsollaProjId")); } catch { xsollaProjId = 0; }
-            xsollaClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{XsollaApiId}:{XsollaApiKey}")));
+            //Analytics = new BotanIO.Api.Botan(aToken);
 
             //Initialize the TCP connections
             TCP.Initialize();
@@ -101,23 +86,40 @@ namespace Werewolf_Control
             Thread.Sleep(1000);
 
             //initialize EF before we start receiving
-            using (var db = new WWContext())
+            /*using (var db = new WWContext())
             {
                 var count = db.GlobalBans.Count();
-            }
+            }*/
 
             //start up the bot
             new Thread(() => Bot.Initialize(updateid)).Start();
             new Thread(NodeMonitor).Start();
 
-            //new Thread(CpuMonitor).Start();
+            /* //new Thread(CpuMonitor).Start();
             new Thread(UpdateHandler.SpamDetection).Start();
             new Thread(UpdateHandler.BanMonitor).Start();
             //new Thread(MessageMonitor).Start();
             _timer = new System.Timers.Timer();
             _timer.Elapsed += new ElapsedEventHandler(TimerOnTick);
             _timer.Interval = 1000;
-            _timer.Enabled = true;
+            _timer.Enabled = true;*/
+
+            var nodecount = 1;
+
+            while (true)
+            {
+                if (Bot.Nodes.Count < nodecount)
+                {
+                    NewNode();
+                    Thread.Sleep(5000);
+                }
+                else if (Bot.Nodes.Count > nodecount)
+                {
+                    Bot.Nodes?.FirstOrDefault(x => x.Games.Count == 0)?.ShutDown(true);
+                }
+
+                Thread.Sleep(2000);
+            }
 
             //now pause the main thread to let everything else run
             Thread.Sleep(-1);
@@ -409,7 +411,10 @@ namespace Werewolf_Control
             //this is a bit more tricky, we need to figure out which node folder has the latest version...
             var baseDirectory = Path.Combine(Bot.RootDirectory, ".."); //go up one directory
             var currentChoice = new NodeChoice();
-            foreach (var dir in Directory.GetDirectories(baseDirectory, "*Node*"))
+
+            var file = Directory.GetFiles(@"C:\Users\skyji\Desktop\ww\Werewolf-beta\Werewolf for Telegram\Werewolf Node\bin\Debug", "Werewolf Node.exe").First();
+
+            /*foreach (var dir in Directory.GetDirectories(baseDirectory, "*Node*"))
             {
                 //get the node exe in this directory
                 var file = Directory.GetFiles(dir, "Werewolf Node.exe").First();
@@ -419,10 +424,12 @@ namespace Werewolf_Control
                     currentChoice.Path = file;
                     currentChoice.Version = fvi;
                 }
-            }
+            }*/
+            //var path = Directory.GetFiles(Directory.GetDirectories(baseDirectory, "*Node*").Last(), "Werewolf Node.exe").First();
 
             //now we have the most recent version, launch one
-            Process.Start(currentChoice.Path);
+            //Process.Start(currentChoice.Path);
+            Process.Start(file);
         }
     }
 

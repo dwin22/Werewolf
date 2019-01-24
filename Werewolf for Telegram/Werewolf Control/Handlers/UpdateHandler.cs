@@ -45,11 +45,11 @@ namespace Werewolf_Control.Handler
             {
                 if (!UserMessages.ContainsKey(id))
                     UserMessages.Add(id, new SpamDetector { Messages = new HashSet<UserMessage>() });
-
+                
                 var shouldReply = (UserMessages[id].Messages.Where(x => x.Replied).OrderByDescending(x => x.Time).FirstOrDefault()?.Time ?? DateTime.MinValue) <
                        DateTime.UtcNow.AddSeconds(-4);
 
-                UserMessages[id].Messages.Add(new UserMessage(m) { Replied = shouldReply });
+                UserMessages[id].Messages.Add(new UserMessage(m){Replied = shouldReply});
                 return !shouldReply;
 
             }
@@ -228,7 +228,7 @@ namespace Werewolf_Control.Handler
                     return;
                 }
                 if (update.Message == null) return;
-                Program.Analytics.TrackAsync("message", update.Message, update.Message.From.Id.ToString());
+                //Program.Analytics.TrackAsync("message", update.Message, update.Message.From.Id.ToString());
                 //ignore previous messages
                 if ((update.Message?.Date ?? DateTime.MinValue) < Bot.StartTime.AddSeconds(-10))
                     return; //toss it
@@ -312,20 +312,21 @@ namespace Werewolf_Control.Handler
                             if (update.Message.Text.StartsWith("!") || update.Message.Text.StartsWith("/"))
                             {
 
-                                if (BanList.Any(x => x.TelegramId == (update.Message?.From?.Id ?? 0)) ||
+                                /*if (BanList.Any(x => x.TelegramId == (update.Message?.From?.Id ?? 0)) ||
                                     SpamBanList.Contains(update.Message?.From?.Id ?? 0))
                                 {
                                     return;
-                                }
+                                }*/
 
                                 var args = GetParameters(update.Message.Text);
                                 args[0] = args[0].ToLower().Replace("@" + Bot.Me.Username.ToLower(), "");
                                 //command is args[0]
-                                Program.Analytics.TrackAsync("/" + args[0],
-                                    new { groupid = update.Message.Chat.Id, user = update.Message.From },
-                                    update.Message.From.Id.ToString());
+                                /*Program.Analytics.TrackAsync("/" + args[0],
+                                    new {groupid = update.Message.Chat.Id, user = update.Message.From},
+                                    update.Message.From.Id.ToString());*/
                                 if (args[0].StartsWith("about"))
                                 {
+                                    if (new[] { "Thief", "WiseElder", "Pacifist" }.Contains(args[0].Replace("about", ""))) return;
                                     var reply = Commands.GetAbout(update, args);
                                     if (!String.IsNullOrEmpty(reply))
                                     {
@@ -366,7 +367,7 @@ namespace Werewolf_Control.Handler
                                         Bot.Api.LeaveChat(update.Message.Chat.Id);
                                     }
 #endif
-                                    if (AddCount(update.Message.From.Id, update.Message)) return;
+                                    //if (AddCount(update.Message.From.Id, update.Message)) return;
                                     //check that we should run the command
                                     if (block && command.Blockable)
                                     {
@@ -378,22 +379,12 @@ namespace Werewolf_Control.Handler
                                             Send("اینجا گروه پشتیبانیه نه بازی، لطفا دکمه استارت رو نزنید.", id);
                                         else if (id == Settings.TranslationChatId)
                                             Send("No games in translation group!", id);
-                                        else if (id == Settings.BetaReportingChatId)
-                                            Send("No games in Beta Reporting Group!", id);
                                         return;
                                     }
                                     if (command.DevOnly & !UpdateHelper.Devs.Contains(update.Message.From.Id))
                                     {
                                         Send(GetLocaleString("NotPara", GetLanguage(id)), id);
                                         return;
-                                    }
-                                    if (command.LangAdminOnly)
-                                    {
-                                        if (!UpdateHelper.IsLangAdmin(update.Message.From.Id) && !UpdateHelper.IsGlobalAdmin(update.Message.From.Id))
-                                        {
-                                            Send(GetLocaleString("NotGlobalAdmin", GetLanguage(id)), id);
-                                            return;
-                                        }
                                     }
                                     if (command.GlobalAdminOnly)
                                     {
@@ -485,7 +476,7 @@ namespace Werewolf_Control.Handler
                                 {
                                     if (m.LeftChatMember.Id == Bot.Me.Id)
                                     {
-                                        Program.Analytics.TrackAsync("botremoved", m, m.From?.Id.ToString() ?? "0");
+                                        //Program.Analytics.TrackAsync("botremoved", m, m.From?.Id.ToString() ?? "0");
                                         //removed from group
                                         var grps = DB.Groups.Where(x => x.GroupId == id);
                                         if (!grps.Any())
@@ -508,7 +499,7 @@ namespace Werewolf_Control.Handler
                                 }
                                 if (m.NewChatMember?.Id == Bot.Me.Id)
                                 {
-                                    Program.Analytics.TrackAsync("botadded", m, m.From?.Id.ToString() ?? "0");
+                                    //Program.Analytics.TrackAsync("botadded", m, m.From?.Id.ToString() ?? "0");
                                     //added to a group
                                     grp = DB.Groups.FirstOrDefault(x => x.GroupId == id);
                                     if (grp == null)
@@ -526,7 +517,7 @@ namespace Werewolf_Control.Handler
                                     var msg =
                                         $"You've just added Werewolf Moderator!  Use /config (group admins) to configure group settings.   If you need assistance, join the [support channel](https://telegram.me/werewolfsupport)";
                                     msg += Environment.NewLine +
-                                           "For updates on what is happening, join the dev channel @greywolfdev" +
+                                           "For updates on what is happening, join the dev channel @werewolfdev" +
                                            Environment.NewLine +
                                            "Full information is available on the [website](http://www.tgwerewolf.com)";
                                     Send(msg, id, parseMode: ParseMode.Markdown);
@@ -537,9 +528,6 @@ namespace Werewolf_Control.Handler
                                         id, parseMode: ParseMode.Markdown);
 #endif
                                 }
-                                /*
-                                 * Executrix will do this job for now, that will hopefully work better than this did before
-                                 * 
                                 else if (m.NewChatMember != null && m.Chat.Id == Settings.VeteranChatId)
                                 {
                                     var uid = m.NewChatMember.Id;
@@ -557,7 +545,24 @@ namespace Werewolf_Control.Handler
                                         m.Chat.Id);
                                     Commands.KickChatMember(Settings.VeteranChatId, uid);
                                 }
-                                */
+                                else if (m.NewChatMember != null && m.Chat.Id == Settings.VeteranChatId)
+                                {
+                                    var uid = m.NewChatMember.Id;
+                                    //check that they are allowed to join.
+                                    var p = DB.Players.FirstOrDefault(x => x.TelegramId == uid);
+                                    var gamecount = p?.GamePlayers.Count ?? 0;
+                                    if (gamecount >= 500)
+                                    {
+                                        Send($"{m.NewChatMember.FirstName.FormatHTML()} has played {gamecount} games",
+                                            m.Chat.Id);
+                                        return;
+                                    }
+                                    //user has not reach veteran
+                                    Send(
+                                        $"{m.NewChatMember.FirstName.FormatHTML()} removed, as they have not unlocked veteran ({gamecount} games played, need 500)",
+                                        m.Chat.Id);
+                                    Commands.KickChatMember(Settings.VeteranChatId, uid);
+                                }
                                 else if (m.NewChatMember != null && m.Chat.Id == Settings.SupportChatId)
                                 {
                                     var uid = m.NewChatMember.Id;
@@ -592,7 +597,7 @@ namespace Werewolf_Control.Handler
                             break;
                         default:
                             break;
-                            //throw new ArgumentOutOfRangeException();
+                        //throw new ArgumentOutOfRangeException();
                     }
                 }
 #if !DEBUG
@@ -603,7 +608,7 @@ namespace Werewolf_Control.Handler
                         ex = ex.InnerException;
 
                     Send(ex.Message, id);
-                    Send($"Error at chatId <code>{id.ToString()}</code>: {ex.Message}\n{update.Message?.Text}", Settings.ErrorGroup);
+                    Send($"Error: {ex.Message}\n{update.Message?.Text}", Settings.ErrorGroup);
                 }
                 catch (Exception ex)
                 {
@@ -611,7 +616,7 @@ namespace Werewolf_Control.Handler
                         ex = ex.InnerException;
 
                     Send(ex.Message, id);
-                    Send($"Error at chatId <code>{id.ToString()}</code>: {ex.Message}\n{update.Message?.Text}", Settings.ErrorGroup);
+                    Send($"Error: {ex.Message}\n{update.Message?.Text}", Settings.ErrorGroup);
                 }
 #endif
             }
@@ -780,10 +785,10 @@ namespace Werewolf_Control.Handler
         internal static void HandleCallback(CallbackQuery query)
         {
             Bot.MessagesProcessed++;
-            Program.Analytics.TrackAsync("callback", query, query.From.Id.ToString());
+            //Program.Analytics.TrackAsync("callback", query, query.From.Id.ToString());
             //Bot.CommandsReceived++;
-            using (var DB = new WWContext())
-            {
+            //using (var DB = new WWContext())
+            //{
                 try
                 {
                     if (String.IsNullOrEmpty(query.Data))
@@ -793,23 +798,17 @@ namespace Werewolf_Control.Handler
                         return;
                     }
                     string[] args = query.Data.Split('|');
-                    Program.Analytics.TrackAsync($"cb:{args[0]}", new { args = args }, query.From.Id.ToString());
+                    //Program.Analytics.TrackAsync($"cb:{args[0]}", new { args = args }, query.From.Id.ToString());
 
-                    if (args[0] == "donatetg")
+                    /*if (args[0] == "donatetg")
                     {
                         Commands.GetDonationInfo(query);
                         return;
                     }
 
-                    if (args[0] == "xsolla")
-                    {
-                        Commands.GetXsollaLink(query);
-                        return;
-                    }
-
                     if (args[0] == "cancel")
                     {
-                        Bot.Api.DeleteMessageAsync(query.Message.Chat.Id, query.Message.MessageId);
+                        Bot.Api.DeleteMessageAsync(query.From.Id, query.Message.MessageId);
                         return;
                     }
 
@@ -817,16 +816,16 @@ namespace Werewolf_Control.Handler
                     {
                         Commands.RequestGif(query);
                         return;
-                    }
+                    }*/
 
                     //first off, if it's a game, send it to the node.
                     if (args[0] == "vote")
                     {
                         var node = Bot.Nodes.FirstOrDefault(x => x.ClientId.ToString() == args[1]);
-                        node?.SendReply(query, args[2]);
+                        node?.SendReply(query);
                         return;
                     }
-                    if (new[] { "reviewgifs", "approvesfw", "approvensfw", "dismiss" }.Contains(args[0]))
+                    /*if (new[] { "reviewgifs", "approvesfw", "approvensfw" }.Contains(args[0]))
                     {
                         if (UpdateHelper.IsGlobalAdmin(query.From.Id))
                         {
@@ -868,8 +867,6 @@ namespace Werewolf_Control.Handler
                                     Bot.Api.SendDocumentAsync(id, pack.WolfWin, "Single Wolf Wins");
                                     Thread.Sleep(250);
                                     Bot.Api.SendDocumentAsync(id, pack.WolvesWin, "Wolf Pack Wins");
-                                    Bot.Api.SendDocumentAsync(id, pack.SKKilled, "SK Killed");
-                                    Thread.Sleep(500);
                                     var msg = $"Approval Status: ";
                                     switch (pack.Approved)
                                     {
@@ -907,7 +904,6 @@ namespace Werewolf_Control.Handler
                                     pack.Approved = true;
                                     pack.ApprovedBy = id;
                                     pack.NSFW = nsfw;
-                                    pack.Submitted = false;
                                     msg = $"Approval Status: ";
                                     by = DB.Players.FirstOrDefault(x => x.TelegramId == pack.ApprovedBy);
                                     msg += "Approved By " + by.Name + "\nNSFW: " + pack.NSFW;
@@ -937,7 +933,6 @@ namespace Werewolf_Control.Handler
                                     pack.Approved = true;
                                     pack.ApprovedBy = id;
                                     pack.NSFW = nsfw;
-                                    pack.Submitted = false;
                                     msg = $"Approval Status: ";
                                     by = DB.Players.FirstOrDefault(x => x.TelegramId == pack.ApprovedBy);
                                     msg += "Approved By " + by.Name + "\nNSFW: " + pack.NSFW;
@@ -945,17 +940,6 @@ namespace Werewolf_Control.Handler
                                     DB.SaveChanges();
                                     Bot.Send(msg, query.Message.Chat.Id);
                                     Bot.Send(msg, pid);
-                                    Bot.Api.DeleteMessageAsync(query.Message.Chat.Id, query.Message.MessageId);
-                                    break;
-
-                                case "dismiss":
-                                    json = tplayer?.CustomGifSet;
-                                    if (!string.IsNullOrEmpty(json))
-                                    {
-                                        pack = JsonConvert.DeserializeObject<CustomGifData>(json);
-                                        pack.Submitted = false;
-                                        DB.SaveChanges();
-                                    }
                                     Bot.Api.DeleteMessageAsync(query.Message.Chat.Id, query.Message.MessageId);
                                     break;
                             }
@@ -999,19 +983,10 @@ namespace Werewolf_Control.Handler
                             return;
                         }
                     }
-                    else if (command == "status")
+                    else if (new[] { "status", "validate", "upload" }.Contains(command))
                     {
                         //global admin only commands
                         if (!UpdateHelper.Devs.Contains(query.From.Id) && !UpdateHelper.IsGlobalAdmin(query.From.Id))
-                        {
-                            Bot.ReplyToCallback(query, GetLocaleString("GlobalAdminOnly", language), false, true);
-                            return;
-                        }
-                    }
-                    else if (new[] { "validate", "upload" }.Contains(command))
-                    {
-                        //global admin only commands
-                        if (!UpdateHelper.Devs.Contains(query.From.Id) && !UpdateHelper.IsGlobalAdmin(query.From.Id) && !UpdateHelper.IsLangAdmin(query.From.Id))
                         {
                             Bot.ReplyToCallback(query, GetLocaleString("GlobalAdminOnly", language), false, true);
                             return;
@@ -1181,42 +1156,42 @@ namespace Werewolf_Control.Handler
                                 Bot.ReplyToCallback(query, "Status updated");
                             }
                             break;
-                        case "pf": // "preferred"
+                        case "preferred":
                             var grpid = grp.Id;
                             var rankings = DB.GroupRanking.Where(x => x.GroupId == grpid).ToList();
                             var lang = args[2];
                             if (lang == "null") //preferred
                             {
-                                if (args[3] == "t") // "toggle"
+                                if (args[3] == "toggle")
                                     //toggle preferred
                                     grp.Preferred = !(grp.Preferred ?? true);
                                 //say if they're preferred
                                 Bot.ReplyToCallback(query, "Global: " + (grp.Preferred == false ? "disabled" : "enabled"), false);
-                                if (args[3] == "i") // "info"
+                                if (args[3] == "info")
                                     return;
                             }
                             else
                             {
                                 //get the ranking
                                 var ranking = rankings.FirstOrDefault(x => x.Language == lang);
-                                if (args[3] == "t") // "toggle"
+                                if (args[3] == "toggle")
                                     //toggle show
                                     ranking.Show = !(ranking.Show ?? true);
                                 //say if they're shown
                                 Bot.ReplyToCallback(query, lang + ": " + (ranking.Show == false ? "disabled" : "enabled"), false);
-                                if (args[3] == "i") // "info"
+                                if (args[3] == "info")
                                     return;
                             }
                             DB.SaveChanges();
                             //make the menu
                             var rows = rankings.Select(x => new[] {
-                                new InlineKeyboardCallbackButton(x.Language, $"pf|{grp.GroupId}|{x.Language}|i"),
-                                new InlineKeyboardCallbackButton(x.Show == false ? "☑️" : "✅", $"pf|{grp.GroupId}|{x.Language}|t")
+                                new InlineKeyboardCallbackButton(x.Language, $"preferred|{grp.GroupId}|{x.Language}|info"),
+                                new InlineKeyboardCallbackButton(x.Show == false ? "☑️" : "✅", $"preferred|{grp.GroupId}|{x.Language}|toggle")
                             }).ToList();
                             //add a button at the beginning and at the end
                             rows.Insert(0, new[] {
-                                new InlineKeyboardCallbackButton("Global", $"pf|{grp.GroupId}|null|i"),
-                                new InlineKeyboardCallbackButton(grp.Preferred == false ? "☑️" : "✅", $"pf|{grp.GroupId}|null|t")
+                                new InlineKeyboardCallbackButton("Global", $"preferred|{grp.GroupId}|null|info"),
+                                new InlineKeyboardCallbackButton(grp.Preferred == false ? "☑️" : "✅", $"preferred|{grp.GroupId}|null|toggle")
                             });
                             rows.Add(new[] { new InlineKeyboardCallbackButton("Done", "done") });
                             //send everything
@@ -1304,21 +1279,39 @@ namespace Werewolf_Control.Handler
                                         i++;
                                     }
 
-                                    Bot.ReplyToCallback(query, message, replyMarkup: new InlineKeyboardMarkup(variantMenu.ToArray()), parsemode: ParseMode.Html);
+                                    Bot.ReplyToCallback(query, message, replyMarkup: new InlineKeyboardMarkup(variantMenu.ToArray()), parsemode:ParseMode.Html);
                                     break;
                                 }
                             }
+                           
 
-
-                            var groups = PublicGroups.ForLanguage(choice, variant).ToList().GroupBy(x => x.GroupId).Select(x => x.First()).Where(x => x.LastRefresh >= DateTime.Now.Date.AddDays(-21)).OrderByDescending(x => x.LastRefresh).ThenByDescending(x => x.Ranking).Take(10).ToList();
+                            var groups = PublicGroups.ForLanguage(choice, variant).ToList().OrderByDescending(x => x.LastRefresh).ThenByDescending(x => x.Ranking).Take(10).ToList();
                             var variantmsg = args[3] == "all" ? "" : (" " + variant);
-
+                           
                             Bot.ReplyToCallback(query, GetLocaleString("HereIsList", language, choice + variantmsg));
-                            var reply = groups.Aggregate("",
-                                (current, g) =>
-                                    current +
-                                    $"<a href=\"{g.GroupLink}\">{g.Name.FormatHTML()}</a>\n\n");
-                            Send(reply, query.Message.Chat.Id);
+                            if (groups.Count() > 5)
+                            {
+                                //need to split it
+                                var reply = groups.Take(5).Aggregate("",
+                                    (current, g) =>
+                                        current +
+                                        $"<a href=\"{g.GroupLink}\">{g.Name.FormatHTML()}</a>\n\n");
+                                Send(reply, query.Message.Chat.Id);
+                                Thread.Sleep(500);
+                                reply = groups.Skip(5).Aggregate("",
+                                    (current, g) =>
+                                        current +
+                                        $"<a href=\"{g.GroupLink}\">{g.Name.FormatHTML()}</a>\n\n");
+                                Send(reply, query.Message.Chat.Id);
+                            }
+                            else
+                            {
+                                var reply = groups.Aggregate("",
+                                    (current, g) =>
+                                        current +
+                                        $"<a href=\"{g.GroupLink}\">{g.Name.FormatHTML()}</a>\n\n");
+                                Send(reply, query.Message.Chat.Id);
+                            }
 
                             break;
                         case "getlang":
@@ -1381,29 +1374,13 @@ namespace Werewolf_Control.Handler
                             Bot.ReplyToCallback(query, GetLocaleString("WhatLang", language, curLang.Base), replyMarkup: menu);
                             break;
                         case "setlang":
-                            if (args[3] == "Random" && args[4] == "v")
-                            {
-                                if (grp == null) return;
-                                menu = GetConfigMenu(grp.GroupId);
-
-                                var langbase = args[2];
-                                var basefiles = Directory.GetFiles(Bot.LanguageDirectory, "*.xml").Select(x => new LangFile(x)).Where(x => x.Base == langbase);
-                                var defaultfile = basefiles.FirstOrDefault(x => x.IsDefault || new[] { "normal", "standard", "default" }.Contains(x.Variant.ToLower())) ?? basefiles.First();
-                                grp.AddFlag(GroupConfig.RandomLangVariant);
-                                grp.Language = defaultfile.FileName;
-                                DB.SaveChanges();
-                                Bot.Api.AnswerCallbackQueryAsync(query.Id, GetLocaleString("LangSet", language, langbase + ": Random"));
-                                Bot.ReplyToCallback(query, GetLocaleString("WhatToDo", language), replyMarkup: menu);
-                                return;
-                            }
-
                             menu = new InlineKeyboardMarkup();
-                            var slang = SelectLanguage(command, args, ref menu, false, grp != null);
+                            var slang = SelectLanguage(command, args, ref menu, false);
                             if (slang == null)
                             {
                                 buttons.Clear();
                                 var curLangfilePath = Directory.GetFiles(Bot.LanguageDirectory).First(x => Path.GetFileNameWithoutExtension(x) == (grp?.Language ?? p.Language));
-                                var curVariant = grp != null && grp.HasFlag(GroupConfig.RandomLangVariant) ? "Random" : new LangFile(curLangfilePath).Variant;
+                                var curVariant = new LangFile(curLangfilePath).Variant;
                                 Bot.ReplyToCallback(query, GetLocaleString("WhatVariant", language, curVariant),
                                     replyMarkup: menu);
                                 return;
@@ -1420,7 +1397,6 @@ namespace Werewolf_Control.Handler
                                 if (grp != null)
                                 {
                                     grp.Language = slang.FileName;
-                                    grp.RemoveFlag(GroupConfig.RandomLangVariant);
                                     //check for any games running
                                     var ig = GetGroupNodeAndGame(groupid);
 
@@ -1766,13 +1742,13 @@ namespace Werewolf_Control.Handler
 
                             break;
                             #endregion
-                    }
+                    }*/
                 }
                 catch (Exception ex)
                 {
                     Bot.ReplyToCallback(query, ex.Message, false, true);
                 }
-            }
+            //}
         }
 
 
@@ -1787,7 +1763,7 @@ namespace Werewolf_Control.Handler
         }
 
 
-        internal static LangFile SelectLanguage(string command, string[] args, ref InlineKeyboardMarkup menu, bool addAllbutton = true, bool addRandomButton = false)
+        internal static LangFile SelectLanguage(string command, string[] args, ref InlineKeyboardMarkup menu, bool addAllbutton = true)
         {
             var langs = Directory.GetFiles(Bot.LanguageDirectory, "*.xml").Select(x => new LangFile(x)).ToList();
             var isBase = args[4] == "base";
@@ -1798,8 +1774,6 @@ namespace Werewolf_Control.Handler
                 {
                     var buttons = new List<InlineKeyboardButton>();
                     buttons.AddRange(variants.Select(x => new InlineKeyboardCallbackButton(x.Variant, $"{command}|{args[1]}|{x.Base}|{x.Variant}|v")));
-                    //if (addRandomButton) // TO DO: Publish Random Language Variant Mode by uncommenting these 2 lines
-                    //    buttons.Insert(0, new InlineKeyboardCallbackButton("Random", $"{command}|{args[1]}|{args[2]}|Random|v"));
                     if (addAllbutton)
                         buttons.Insert(0, new InlineKeyboardCallbackButton("All", $"{command}|{args[1]}|{args[2]}|All|v"));
 
@@ -1847,13 +1821,6 @@ namespace Werewolf_Control.Handler
                 var values = strings.Descendants("value");
                 var choice = Bot.R.Next(values.Count());
                 var selected = values.ElementAt(choice);
-                if (String.IsNullOrWhiteSpace(selected.Value))
-                {
-                    strings = Bot.English.Descendants("string").FirstOrDefault(x => x.Attribute("key").Value == key);
-                    values = strings.Descendants("value");
-                    choice = Bot.R.Next(values.Count());
-                    selected = values.ElementAt(choice);
-                }
                 return String.Format(selected.Value.FormatHTML(), args).Replace("\\n", Environment.NewLine);
             }
             catch (Exception e)
@@ -1945,9 +1912,6 @@ namespace Werewolf_Control.Handler
             var commands = new InlineCommand[]
             {
                 new StatsInlineCommand(q.From),
-                new KillsInlineCommand(q),
-                new KilledByInlineCommand(q),
-                new TypesOfDeathInlineCommand(q),
             };
 
             List<InlineCommand> choices;
@@ -1962,7 +1926,7 @@ namespace Werewolf_Control.Handler
                 var com = q.Query;
                 choices = commands.Where(command => command.Command.StartsWith(com) || Commands.ComputeLevenshtein(com, command.Command) < 3).ToList();
             }
-            Program.Analytics.TrackAsync("inline", q, q.From.Id.ToString());
+            //Program.Analytics.TrackAsync("inline", q, q.From.Id.ToString());
             Bot.Api.AnswerInlineQueryAsync(q.Id, choices.Select(c => new InlineQueryResultArticle()
             {
                 Description = c.Description,

@@ -17,11 +17,11 @@ namespace Werewolf_Control
         [Command(Trigger = "startgame", Blockable = true, InGroupOnly = true)]
         public static void StartGame(Update update, string[] args)
         {
-            if (!Program.MaintMode)
-                StartGame(false, update);
+            if (update.Message.Chat.Id == -1001073615271 || update.Message.Chat.Id == -1001208683929 || update.Message.Chat.Id == -1001214577487)
+                StartGame(0, update);
             else
             {
-                Send("Sorry, we are about to start maintenance.  Please check @greywolfdev for more information.",
+                Send("Este comando solo está disponible en @AullidoDeLobo. Mejor que la comunidad esté unida, y tendremos partidas más grandes. :)",
                     update.Message.Chat.Id);
             }
         }
@@ -29,12 +29,84 @@ namespace Werewolf_Control
         [Command(Trigger = "startchaos", Blockable = true, InGroupOnly = true)]
         public static void StartChaos(Update update, string[] args)
         {
-            if (!Program.MaintMode)
-                StartGame(true, update);
+            if (update.Message.Chat.Id == -1001073615271 || update.Message.Chat.Id == -1001208683929 || update.Message.Chat.Id == -1001214577487)
+                StartGame(1, update);
             else
             {
-                Send("Sorry, we are about to start maintenance.  Please check @greywolfdev for more information.",
+                Send("Este comando solo está disponible en @AullidoDeLobo. Mejor que la comunidad esté unida, y tendremos partidas más grandes. :)",
                     update.Message.Chat.Id);
+            }
+        }
+
+        [Command(Trigger = "startclumsy", Blockable = true, InGroupOnly = true)]
+        public static void StartClumsy(Update update, string[] args)
+        {
+            if (update.Message.Chat.Id == -1001073615271 || update.Message.Chat.Id == -1001208683929 || update.Message.Chat.Id == -1001214577487)
+                StartGame(2, update);
+            else
+            {
+                Send("Este comando solo está disponible en @AullidoDeLobo. Mejor que la comunidad esté unida, y tendremos partidas más grandes. :)",
+                    update.Message.Chat.Id);
+            }
+        }
+
+        [Command(Trigger = "superchaos", Blockable = true, InGroupOnly = true)]
+        public static void SuperChaos(Update update, string[] args)
+        {
+            if (update.Message.Chat.Id == -1001073615271 || update.Message.Chat.Id == -1001208683929 || update.Message.Chat.Id == -1001214577487)
+                StartGame(3, update);
+            else
+            {
+                Send("Este comando solo está disponible en @AullidoDeLobo. Mejor que la comunidad esté unida, y tendremos partidas más grandes. :)",
+                    update.Message.Chat.Id);
+            }
+        }
+
+        [Command(Trigger = "nextjiro", Blockable = true, InGroupOnly = true)]
+        public static void NextJiro(Update update, string[] args)
+        {
+            if (update.Message.From.Id == 322300091)
+            {
+                var node = Bot.GetBestAvailableNode();
+                node.nextJiro = true;
+                Send("Te has registrado para enterarte de cuando Jiro se una a una partida.",
+                    322300091);
+            }
+        }
+
+        [Command(Trigger = "nexthela", Blockable = true, InGroupOnly = true)]
+        public static void NextHela(Update update, string[] args)
+        {
+            if (update.Message.From.Id == 294728091)
+            {
+                var node = Bot.GetBestAvailableNode();
+                node.nextHela = true;
+                Send("Te has registrado para enterarte de cuando Hela se una a una partida.",
+                    294728091);
+            }
+        }
+
+        [Command(Trigger = "nextlara", Blockable = true, InGroupOnly = true)]
+        public static void NextLara(Update update, string[] args)
+        {
+            if (update.Message.From.Id == 346366020)
+            {
+                var node = Bot.GetBestAvailableNode();
+                node.nextLara = true;
+                Send("Te has registrado para enterarte de cuando Lara se una a una partida.",
+                    346366020);
+            }
+        }
+
+        [Command(Trigger = "nextalex", Blockable = true, InGroupOnly = true)]
+        public static void NextAlex(Update update, string[] args)
+        {
+            if (update.Message.From.Id == 250353389)
+            {
+                var node = Bot.GetBestAvailableNode();
+                node.nextAlex = true;
+                Send("Te has registrado para enterarte de cuando Alex se una a una partida.",
+                    250353389);
             }
         }
 
@@ -50,13 +122,50 @@ namespace Werewolf_Control
                     Send(GetLocaleString("JoinFromGroup", GetLanguage(update.Message.From.Id)), id);
                     return;
                 }
-                //check if there is a game in that group
+                //check nodes to see if player is in a game
+                var node = GetPlayerNode(update.Message.From.Id);
                 var game = GetGroupNodeAndGame(update.Message.Chat.Id);
-                if (game != null)
+                if (game == null)
                 {
-                    game.ShowJoinButton();
+                    Thread.Sleep(50);
+                    game = GetGroupNodeAndGame(update.Message.Chat.Id);
                 }
-                else
+                if (game == null)
+                {
+                    Thread.Sleep(50);
+                    game = GetGroupNodeAndGame(update.Message.Chat.Id);
+                }
+
+                if (game != null || node != null)
+                {
+                    //try grabbing the game again...
+                    if (game == null)
+                        game = node.Games.FirstOrDefault(x => x.Users.Contains(update.Message.From.Id));
+                    if (game?.Users.Contains(update.Message.From.Id) ?? false)
+                    {
+                        if (game.GroupId != update.Message.Chat.Id)
+                        {
+                            //player is already in a game (in another group), and alive
+                            var grp = db.Groups.FirstOrDefault(x => x.GroupId == id);
+                            Send(GetLocaleString("AlreadyInGame", grp?.Language ?? "English", game.ChatGroup.ToBold()), update.Message.Chat.Id);
+                            return;
+                        }
+                        else
+                        {
+                            //do nothing, player is in the game, in that group, they are just being spammy
+                            return;
+                        }
+                    }
+
+                    //player is not in game, they need to join, if they can
+                    //game?.AddPlayer(update);
+
+                    game?.ShowJoinButton();
+                    if (game == null)
+                        Program.Log($"{update.Message.From.FirstName} tried to join a game on node {node?.ClientId}, but game object was null", true);
+                    return;
+                }
+                if (game == null)
                 {
                     var grp = db.Groups.FirstOrDefault(x => x.GroupId == id);
                     if (grp == null)
@@ -74,7 +183,7 @@ namespace Werewolf_Control
         public static void ForceStart(Update update, string[] args)
         {
             var id = update.Message.Chat.Id;
-            using (var db = new WWContext())
+           /* using (var db = new WWContext())
             {
                 var grp = db.Groups.FirstOrDefault(x => x.GroupId == id);
                 if (grp == null)
@@ -82,7 +191,7 @@ namespace Werewolf_Control
                     grp = MakeDefaultGroup(id, update.Message.Chat.Title, "forcestart");
                     db.Groups.Add(grp);
                     db.SaveChanges();
-                }
+                }*/
 
                 var game = GetGroupNodeAndGame(update.Message.Chat.Id);
                 if (game != null)
@@ -92,9 +201,9 @@ namespace Werewolf_Control
                 }
                 else
                 {
-                    Send(GetLocaleString("NoGame", grp.Language), id);
+                    Send(GetLocaleString("NoGame", "Spanish"), id);
                 }
-            }
+            //}
 
         }
 
@@ -159,26 +268,29 @@ namespace Werewolf_Control
 
             if (game == null) //if this doesn't work, you'll have to get the game as node.Games.FirstOrDefault(x => x.GroupId == update.Message.Chat.Id) in the second else if block
                 Send(GetLocaleString("NoGame", GetLanguage(id)), id);
-            else if (game != null && node == null && !isadmin) //there is a game, but this player is not in it
+            else if ((game != null && node == null) && !isadmin) //there is a game, but this player is not in it
                 Send(GetLocaleString("NotPlaying", GetLanguage(id)), id);
-            else if (game != null && (node != null || isadmin)) //player is in the game, or is an admin
+            else if ((game != null && (node != null)) || isadmin) //player is in the game, or is an admin
             {
                 int seconds = int.TryParse(args[1], out seconds) ? seconds : 30;
                 if (seconds < 0 && !isadmin)
                     Send(GetLocaleString("GroupAdminOnly", GetLanguage(id)), id); //otherwise we're allowing people to /forcestart
                 else
-                    using (var db = new WWContext())
+                {
+                    /*using (var db = new WWContext())
                     {
                         var grp = db.Groups.FirstOrDefault(x => x.GroupId == update.Message.Chat.Id);
                         if (isadmin || (grp.HasFlag(GroupConfig.AllowExtend)))
                         {
-                            int maxextend = grp.MaxExtend ?? Settings.MaxExtend;
-                            seconds = Math.Abs(seconds) > maxextend ? maxextend * Math.Sign(seconds) : seconds ;
+                            int maxextend = grp.MaxExtend ?? Settings.MaxExtend;*/
+                            int maxextend = 300;
+                            seconds = Math.Abs(seconds) > maxextend ? maxextend * Math.Sign(seconds) : seconds;
                             game?.ExtendTime(update.Message.From.Id, isadmin, seconds);
-                        }
+                    /*  }
                         else
                             Send(GetLocaleString("GroupAdminOnly", GetLanguage(id)), id);
-                    }
+                    }*/
+                }
                 return;
             }
         }

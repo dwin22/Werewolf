@@ -29,7 +29,6 @@ namespace Database
         public string Winner { get; set; }
         public Nullable<int> GrpId { get; set; }
         public string Mode { get; set; }
-        public Nullable<bool> Beta { get; set; }
     
         public virtual Group Group { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

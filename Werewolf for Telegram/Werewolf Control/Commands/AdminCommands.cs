@@ -16,7 +16,6 @@ using Werewolf_Control.Handler;
 using Werewolf_Control.Helpers;
 using Werewolf_Control.Models;
 using System.Threading;
-using System.Collections;
 
 namespace Werewolf_Control
 {
@@ -89,7 +88,7 @@ namespace Werewolf_Control
                 replyMarkup: menu);
         }
 
-        [Attributes.Command(Trigger = "uploadlang", LangAdminOnly = true)]
+        [Attributes.Command(Trigger = "uploadlang", GlobalAdminOnly = true)]
         public static void UploadLang(Update update, string[] args)
         {
             try
@@ -148,7 +147,7 @@ namespace Werewolf_Control
 
         }
 
-        [Attributes.Command(Trigger = "validatelangs", LangAdminOnly = true)]
+        [Attributes.Command(Trigger = "validatelangs", GlobalAdminOnly = true)]
         public static void ValidateLangs(Update update, string[] args)
         {
             //var langs = Directory.GetFiles(Bot.LanguageDirectory)
@@ -311,7 +310,7 @@ namespace Werewolf_Control
         [Attributes.Command(Trigger = "addach", DevOnly = true)]
         public static void AddAchievement(Update u, string[] args)
         {
-#if !RELEASE
+#if !BETA
             //get the user to add the achievement to
             //first, try by reply
             var id = 0;
@@ -366,7 +365,7 @@ namespace Werewolf_Control
             if (id != 0)
             {
                 //try to get the achievement
-                if (Enum.TryParse(param[achIndex], out AchievementsReworked a))
+                if (Enum.TryParse(param[achIndex], out Achievements a))
                 {
                     //get the player from database
                     using (var db = new WWContext())
@@ -374,12 +373,12 @@ namespace Werewolf_Control
                         var p = db.Players.FirstOrDefault(x => x.TelegramId == id);
                         if (p != null)
                         {
-                            var ach = new BitArray(200);
-                            if (p.NewAchievements != null)
-                                ach = new BitArray(p.NewAchievements);
+                            if (p.Achievements == null)
+                                p.Achievements = 0;
+                            var ach = (Achievements)p.Achievements;
                             if (ach.HasFlag(a)) return; //no point making another db call if they already have it
-                            ach = ach.Set(a);
-                            p.NewAchievements = ach.ToByteArray();
+                            ach = ach | a;
+                            p.Achievements = (long)ach;
                             db.SaveChanges();
                             Send($"Achievement Unlocked!\n{a.GetName().ToBold()}\n{a.GetDescription()}", p.TelegramId);
                             Send($"Achievement {a} unlocked for {p.Name}", u.Message.Chat.Id);
@@ -393,7 +392,7 @@ namespace Werewolf_Control
         [Attributes.Command(Trigger = "remach", DevOnly = true)]
         public static void RemAchievement(Update u, string[] args)
         {
-#if !RELEASE
+#if !BETA
             //get the user to add the achievement to
             //first, try by reply
             var id = 0;
@@ -448,7 +447,8 @@ namespace Werewolf_Control
             if (id != 0)
             {
                 //try to get the achievement
-                if (Enum.TryParse(param[achIndex], out AchievementsReworked a))
+                Achievements a;
+                if (Enum.TryParse(param[achIndex], out a))
                 {
                     //get the player from database
                     using (var db = new WWContext())
@@ -456,12 +456,12 @@ namespace Werewolf_Control
                         var p = db.Players.FirstOrDefault(x => x.TelegramId == id);
                         if (p != null)
                         {
-                            var ach = new BitArray(200);
-                            if (p.NewAchievements != null)
-                                ach = new BitArray(p.NewAchievements);
+                            if (p.Achievements == null)
+                                p.Achievements = 0;
+                            var ach = (Achievements)p.Achievements;
                             if (!ach.HasFlag(a)) return; //no point making another db call if they already have it
-                            ach = ach.Unset(a);
-                            p.NewAchievements = ach.ToByteArray();
+                            ach &= ~a;
+                            p.Achievements = (long)ach;
                             db.SaveChanges();
 
                             Send($"Achievement {a} removed from {p.Name}", u.Message.Chat.Id);
@@ -614,15 +614,13 @@ namespace Werewolf_Control
                     Bot.Api.SendDocumentAsync(id, pack.StartChaosGame, "Chaos Start");                 
                     Bot.Api.SendDocumentAsync(id, pack.StartGame, "Normal Start");      
                     Thread.Sleep(250);
-                    Bot.Api.SendDocumentAsync(id, pack.TannerWin, "Tanner Win");
+                    Bot.Api.SendDocumentAsync(id, pack.TannerWin, "Tanner Start");
                     Bot.Api.SendDocumentAsync(id, pack.VillagerDieImage, "Villager Eaten");
                     Thread.Sleep(250);
                     Bot.Api.SendDocumentAsync(id, pack.VillagersWin, "Village Wins");
                     Bot.Api.SendDocumentAsync(id, pack.WolfWin, "Single Wolf Wins");
                     Thread.Sleep(250);
                     Bot.Api.SendDocumentAsync(id, pack.WolvesWin, "Wolf Pack Wins");
-                    Bot.Api.SendDocumentAsync(id, pack.SKKilled, "SK Killed");
-                    Thread.Sleep(500);
                     var msg = $"Approval Status: ";
                     switch (pack.Approved)
                     {
@@ -698,7 +696,6 @@ namespace Werewolf_Control
                     pack.Approved = true;
                     pack.ApprovedBy = id;
                     pack.NSFW = nsfw;
-                    pack.Submitted = false;
                     var msg = $"Approval Status: ";
                     var by = db.Players.FirstOrDefault(x => x.TelegramId == pack.ApprovedBy);
                     msg += "Approved By " + by.Name + "\nNSFW: " + pack.NSFW;

@@ -12,9 +12,14 @@ namespace Werewolf_Control.Models
 {
     public class Node
     {
+        public List<int> Notify = new List<int>();
         public TcpClient TcpClient { get; set; }
         public bool ShuttingDown { get; set; }
-        public string ClientId { get; set; }
+        public bool nextHela { get; set; } = false;
+        public bool nextJiro { get; set; } = false;
+        public bool nextLara { get; set; } = false;
+        public bool nextAlex { get; set; } = false;
+        public Guid ClientId { get; set; }
         public int CurrentGames { get; set; }
         public int TotalGames { get; set; }
         public int CurrentPlayers { get; set; }
@@ -26,25 +31,28 @@ namespace Werewolf_Control.Models
         public string Version { get; set; }
         public int MessagesSent { get; set; }
 
-        public void StartGame(Update update, bool chaos = false)
+        public void StartGame(Update update, int gm = 0)
         {
             var info = new GameStartInfo
             {
                 Chat = update.Message.Chat,
-                Chaos = chaos,
-                User = update.Message.From
+                gameMode = gm,
+                User = update.Message.From,
+                nHela = nextHela,
+                nJiro = nextJiro,
+                nLara = nextLara,
+                nAlex = nextAlex
             };
             this.Broadcast(JsonConvert.SerializeObject(info));
-            this.Games.Add(new GameInfo
+            this.Games.Add(new GameInfo(info.Chat.Id)
             {
                 ChatGroup = info.Chat.Title,
                 Language = "English",
-                GroupId = info.Chat.Id,
+                //GroupId = info.Chat.Id,
                 NodeId = ClientId,
                 Users = new HashSet<int> {update.Message.From.Id},
                 State = GameState.Joining
             });
-            //if (update.Message.From.Id == 295152997) Bot.Send("CONTROL: GameStartInfo broadcasted, GameInfo added.", 295152997).Wait(); //debuglog
         }
 
         public void EndGame(GameEndInfo gei)
@@ -66,9 +74,9 @@ namespace Werewolf_Control.Models
             this.Broadcast(JsonConvert.SerializeObject(new UpdateNodeInfo() {Kill = kill}));
         }
 
-        public void SendReply(CallbackQuery query, string gameid)
+        public void SendReply(CallbackQuery query)
         {
-            var info = JsonConvert.SerializeObject(new CallbackInfo {Query = query, GameId = gameid});
+            var info = JsonConvert.SerializeObject(new CallbackInfo {Query = query});
             this.Broadcast(info);
         }
 

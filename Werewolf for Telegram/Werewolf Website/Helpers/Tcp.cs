@@ -51,7 +51,7 @@ namespace Werewolf_Website.Helpers
             string response = "";
             try
             {
-                response = GetResponse(new GetGameInfo {GroupId = groupid, ClientId = clientid});
+                response = GetResponse(new GetGameInfo {GroupId = groupid, ClientId = Guid.Parse(clientid)});
                 return JsonConvert.DeserializeObject<GameInfo>(response);
             }
             catch (Exception e)
@@ -96,7 +96,7 @@ namespace Werewolf_Website.Helpers
                 return response;
         }
 
-        public NodeResponseInfo GetNodeInfo(string id)
+        public NodeResponseInfo GetNodeInfo(Guid id)
         {
             try
             {

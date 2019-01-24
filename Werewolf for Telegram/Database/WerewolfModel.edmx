@@ -122,7 +122,6 @@
           <Property Name="Winner" Type="nvarchar" MaxLength="50" />
           <Property Name="GrpId" Type="int" />
           <Property Name="Mode" Type="nvarchar" MaxLength="50" />
-          <Property Name="Beta" Type="bit" />
         </EntityType>
         <EntityType Name="GameKill">
           <Key>
@@ -204,7 +203,6 @@
           <Property Name="EnableSecretLynch" Type="bit" />
           <Property Name="RandomModes" Type="bit" />
           <Property Name="Flags" Type="bigint" />
-          <Property Name="BetaGroup" Type="bit" />
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'werewolf.dbo.GroupAdmin' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -288,7 +286,6 @@ warning 6002: The table/view 'werewolf.dbo.NotifyGame' does not have a primary k
           <Property Name="Founder" Type="bit" />
           <Property Name="CustomGifSet" Type="nvarchar(max)" />
           <Property Name="GifPurchased" Type="bit" />
-          <Property Name="NewAchievements" Type="varbinary" MaxLength="50" />
         </EntityType>
         <EntityType Name="PlayerStats">
           <Key>
@@ -809,7 +806,6 @@ warning 6002: The table/view 'werewolf.dbo.v_IdleKill24HoursMain' does not have 
           <NavigationProperty Name="GameKills" Relationship="Self.FK_GameKill_Game" FromRole="Game" ToRole="GameKill" />
           <Property Name="Mode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="GamePlayers" Relationship="werewolfModel.FK_GamePlayer_Game" FromRole="Game" ToRole="GamePlayer" />
-          <Property Name="Beta" Type="Boolean" />
         </EntityType>
         <EntityType Name="GameKill">
           <Key>
@@ -874,7 +870,6 @@ warning 6002: The table/view 'werewolf.dbo.v_IdleKill24HoursMain' does not have 
           <Property Name="MaxExtend" Type="Int32" />
           <Property Name="EnableSecretLynch" Type="Boolean" />
           <Property Name="Flags" Type="Int64" />
-          <Property Name="BetaGroup" Type="Boolean" />
         </EntityType>
         <EntityType Name="KillMethod">
           <Key>
@@ -911,7 +906,6 @@ warning 6002: The table/view 'werewolf.dbo.v_IdleKill24HoursMain' does not have 
           <Property Name="Founder" Type="Boolean" />
           <Property Name="CustomGifSet" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="GifPurchased" Type="Boolean" />
-          <Property Name="NewAchievements" Type="Binary" MaxLength="50" FixedLength="false" />
         </EntityType>
         <EntityType Name="NotifyGame">
           <Key>
@@ -1538,7 +1532,6 @@ warning 6002: The table/view 'werewolf.dbo.v_IdleKill24HoursMain' does not have 
           <EntitySetMapping Name="Games">
             <EntityTypeMapping TypeName="werewolfModel.Game">
               <MappingFragment StoreEntitySet="Game">
-                <ScalarProperty Name="Beta" ColumnName="Beta" />
                 <ScalarProperty Name="Mode" ColumnName="Mode" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="GroupName" ColumnName="GroupName" />
@@ -1578,7 +1571,6 @@ warning 6002: The table/view 'werewolf.dbo.v_IdleKill24HoursMain' does not have 
           <EntitySetMapping Name="Groups">
             <EntityTypeMapping TypeName="werewolfModel.Group">
               <MappingFragment StoreEntitySet="Group">
-                <ScalarProperty Name="BetaGroup" ColumnName="BetaGroup" />
                 <ScalarProperty Name="Flags" ColumnName="Flags" />
                 <ScalarProperty Name="EnableSecretLynch" ColumnName="EnableSecretLynch" />
                 <ScalarProperty Name="MaxExtend" ColumnName="MaxExtend" />
@@ -1621,7 +1613,6 @@ warning 6002: The table/view 'werewolf.dbo.v_IdleKill24HoursMain' does not have 
           <EntitySetMapping Name="Players">
             <EntityTypeMapping TypeName="werewolfModel.Player">
               <MappingFragment StoreEntitySet="Player">
-                <ScalarProperty Name="NewAchievements" ColumnName="NewAchievements" />
                 <ScalarProperty Name="GifPurchased" ColumnName="GifPurchased" />
                 <ScalarProperty Name="CustomGifSet" ColumnName="CustomGifSet" />
                 <ScalarProperty Name="Founder" ColumnName="Founder" />

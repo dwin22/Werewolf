@@ -68,18 +68,7 @@ namespace Werewolf_Control.Helpers
             {
                 //only refresh the list cache once every 20 minutes
                 using (var db = new WWContext())
-                {
-                    var lastUpdate = db.v_GroupRanking.Max(x => x.LastRefresh);
-                    try
-                    {
-                        _list = db.v_GroupRanking.GroupBy(x => new { x.TelegramId, x.Name, x.Language, x.Ranking, x.LastRefresh })
-                            .SelectMany(x => x).ToList();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-                }
+                    _list = db.v_GroupRanking.ToList();
                 _lastGetAll = DateTime.UtcNow;
             }
             return _list;
@@ -92,7 +81,7 @@ namespace Werewolf_Control.Helpers
                 var langs = new List<string>();
                 foreach (var lang in LanguageHelper.GetAllLanguages())
                 {
-                    if (GetAll().Any(x => x.Language == lang.FileName && x.LastRefresh >= DateTime.Now.Date.AddDays(-21)))
+                    if (GetAll().Any(x => x.Language == lang.FileName))
                     {
                         //load the language to get the base
                         if (!langs.Contains(lang.Base))
@@ -112,7 +101,7 @@ namespace Werewolf_Control.Helpers
                 var langs = new List<string>();
                 foreach (var lang in LanguageHelper.GetAllLanguages().Where(x => x.Base == baseLang))
                 {
-                    if (GetAll().Any(x => x.Language == lang.FileName && x.LastRefresh >= DateTime.Now.Date.AddDays(-21)))
+                    if (GetAll().Any(x => x.Language == lang.FileName))
                     {
                         //load the language to get the variant
                         if (!langs.Contains(lang.Variant))
@@ -127,14 +116,20 @@ namespace Werewolf_Control.Helpers
         
         internal static IEnumerable<v_GroupRanking> ForLanguage(string baseLang, string variant)
         {
-            string lang = variant == "all"
-                ? $"{baseLang}BaseAllVariants"
-                : LanguageHelper.GetAllLanguages().FirstOrDefault(x => x.Base == baseLang && x.Variant == variant).FileName;
-
-            foreach (var g in GetAll())
+            if (variant == "all")
             {
-                if (lang == g.Language)
+                var langs = LanguageHelper.GetAllLanguages().Where(x => x.Base == baseLang).Select(x => x.FileName);
+                foreach (var g in GetAll().Where(x => langs.Contains(x.Language)).GroupBy(x => x.GroupId).Select(x => x.OrderByDescending(y => y.Ranking).First()))
                     yield return g;
+            }
+            else
+            {
+                var lang = LanguageHelper.GetAllLanguages().FirstOrDefault(x => x.Base == baseLang && x.Variant == variant);
+                foreach (var g in GetAll())
+                {
+                    if (lang.FileName == g.Language)
+                        yield return g;
+                }
             }
         }
 

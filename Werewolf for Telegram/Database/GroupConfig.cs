@@ -24,7 +24,7 @@ namespace Database
         RandomMode = 16,
         [Editable(true), Question("extend"), DefaultValue(false)]
         AllowExtend = 32,
-        [Editable(true), Question("roles", SettingQuestion.ShowHide), DefaultValue(true)]
+        [Editable(true), Question("roles", SettingQuestion.YesNo), DefaultValue(true)]
         ShowRolesDeath = 64,
         [Editable(true), Question("flee"), DefaultValue(true)]
         AllowFlee = 128,
@@ -34,15 +34,9 @@ namespace Database
         AllowNSFW = 512,
         [Editable(true), Question("allowthief"), DefaultValue(true)]
         AllowThief = 1024,
-        [Editable(true), Question("thieffull", SettingQuestion.YesNo), DefaultValue(false)]
+        [Editable(true), Question("thieffull", SettingQuestion.YesNo), DefaultValue(true)]
         ThiefFull = 2048,
-        [Editable(true), Question("secretlynchshowvotes", SettingQuestion.ShowHide), DefaultValue(false)]
-        SecretLynchShowVotes = 4096,
-        [Editable(true), Question("secretlynchshowvoters", SettingQuestion.ShowHide), DefaultValue(false)]
-        SecretLynchShowVoters = 8192,
-        [Editable(false), Question("randomlangvariant"), DefaultValue(false)]
-        RandomLangVariant = 16384,
-        
+
 
         //this is a flag that will be set on ALL groups indicating we need to update the settings
         Update = 4611686018427387904

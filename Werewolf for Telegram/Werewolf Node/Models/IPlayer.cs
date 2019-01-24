@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -37,6 +36,21 @@ namespace Werewolf_Node.Models
         public bool IsDead { get; set; } = false;
 
         /// <summary>
+        /// If the Arsonist ignites... good bye!
+        /// </summary>
+        public bool IsDoused { get; set; } = false;
+
+        /// <summary>
+        /// If the Sheriff visited you
+        /// </summary>
+        public bool IsSheriffed { get; set; } = false;
+
+        /// <summary>
+        /// Killed by HungryWolf
+        /// </summary>
+        public bool Devoured { get; set; } = false;
+
+        /// <summary>
         /// If this reaches 2, they are automatically executed
         /// </summary>
         public int NonVote { get; set; } = 0;
@@ -47,14 +61,14 @@ namespace Werewolf_Node.Models
         public bool DiedLastNight { get; set; }
 
         /// <summary>
+        /// Indicates this person revived overnight
+        /// </summary>
+        public bool RevivedLastNight { get; set; } = false;
+
+        /// <summary>
         /// How many votes against them they have (lynching)
         /// </summary>
         public int Votes { get; set; } = 0;
-
-        /// <summary>
-        /// Who lynched who? (For secret lynching)
-        /// </summary>
-        public Dictionary<IPlayer, int> VotedBy = new Dictionary<IPlayer, int>();
 
         /// <summary>
         /// For the gunner only
@@ -85,6 +99,8 @@ namespace Werewolf_Node.Models
         public bool WasSavedLastNight { get; set; } = false;
         public int MessageId { get; set; }
         public string Name { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public IRole OriginalRole { get; set; }
         public bool InLove { get; set; } = false;
         public int LoverId { get; set; } = 0;
         public int DBPlayerId { get; set; } = 0;
@@ -100,7 +116,6 @@ namespace Werewolf_Node.Models
 
 
         #region Achievement Related Stuff
-        public BitArray NewAchievements { get; set; }
 
         public bool HasBeenVoted { get; set; } = false;
         public bool HasStayedHome { get; set; } = false;
@@ -116,6 +131,7 @@ namespace Werewolf_Node.Models
         public bool LastShotWasSKWolf { get; set; } = false;
         public bool DoubleKillEnding { get; set; } = false;
         public bool Bitten { get; set; }
+        public bool RabidBitten { get; set; }
         public List<int> CorrectSnooped { get; set; } = new List<int>();
         public bool SpeedDating { get; set; } = false;
         public int FirstStone { get; set; } = 0;
@@ -126,12 +142,6 @@ namespace Werewolf_Node.Models
         public int MayorLynchAfterRevealCount { get; set; } = 0;
         public int BeingVisitedSameNightCount { get; set; } = 0;
         public bool BusyNight { get; set; } = false;
-        public bool StrongestAlpha { get; set; } = false;
-        public bool FoolCorrectlySeenBH { get; set; } = false;
-        public bool Trustworthy { get; set; } = false;
-        public bool CultLeader { get; set; } = false;
-        public bool ConvertedToCult { get; set; } = false;
-
         public int DonationLevel { get; set; } = 0;
         public bool Founder { get; set; } = false;
         public CustomGifData GifPack { get; set; } = null;
@@ -148,8 +158,8 @@ namespace Werewolf_Node.Models
         Sorcerer, AlphaWolf, WolfCub, Blacksmith, ClumsyGuy, Mayor, Prince,
         //more new roles, from april fools.....
         Lycan, Pacifist, WiseElder, Oracle, Sandman, WolfMan, Thief,
-        //halloween role
-        Spumpkin
+        //even more new roles
+        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf
     }
 
     public enum ITeam
@@ -157,11 +167,12 @@ namespace Werewolf_Node.Models
         Village, Cult, Wolf, Tanner,
         Neutral, SerialKiller, Lovers,
         SKHunter,
-        NoOne, Thief
+        NoOne,
+        Pyro
     }
 
     public enum KillMthd
     {
-        None, Lynch, Eat, Shoot, VisitWolf, VisitVictim, GuardWolf, Detected, Flee, Hunt, HunterShot, LoverDied, SerialKilled, HunterCult, GuardKiller, VisitKiller, Idle, Suicide, StealKiller
+        None, Lynch, Eat, Shoot, VisitWolf, VisitVictim, GuardWolf, Detected, Flee, Hunt, HunterShot, LoverDied, SerialKilled, HunterCult, GuardKiller, VisitKiller, Idle, Suicide, Ignited
     }
 }
