@@ -786,9 +786,9 @@ namespace Werewolf_Control.Handler
         {
             Bot.MessagesProcessed++;
             //Program.Analytics.TrackAsync("callback", query, query.From.Id.ToString());
-            //Bot.CommandsReceived++;
-            //using (var DB = new WWContext())
-            //{
+            Bot.CommandsReceived++;
+            using (var DB = new WWContext())
+            {
                 try
                 {
                     if (String.IsNullOrEmpty(query.Data))
@@ -800,7 +800,7 @@ namespace Werewolf_Control.Handler
                     string[] args = query.Data.Split('|');
                     //Program.Analytics.TrackAsync($"cb:{args[0]}", new { args = args }, query.From.Id.ToString());
 
-                    /*if (args[0] == "donatetg")
+                    if (args[0] == "donatetg")
                     {
                         Commands.GetDonationInfo(query);
                         return;
@@ -816,7 +816,7 @@ namespace Werewolf_Control.Handler
                     {
                         Commands.RequestGif(query);
                         return;
-                    }*/
+                    }
 
                     //first off, if it's a game, send it to the node.
                     if (args[0] == "vote")
@@ -825,7 +825,7 @@ namespace Werewolf_Control.Handler
                         node?.SendReply(query);
                         return;
                     }
-                    /*if (new[] { "reviewgifs", "approvesfw", "approvensfw" }.Contains(args[0]))
+                    if (new[] { "reviewgifs", "approvesfw", "approvensfw" }.Contains(args[0]))
                     {
                         if (UpdateHelper.IsGlobalAdmin(query.From.Id))
                         {
@@ -1742,13 +1742,13 @@ namespace Werewolf_Control.Handler
 
                             break;
                             #endregion
-                    }*/
+                    }
                 }
                 catch (Exception ex)
                 {
                     Bot.ReplyToCallback(query, ex.Message, false, true);
                 }
-            //}
+            }
         }
 
 

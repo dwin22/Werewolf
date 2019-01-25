@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Newtonsoft.Json;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineKeyboardButtons;
@@ -130,7 +131,7 @@ namespace Werewolf_Node
                 }
                 //Chaos = chaos;
 
-                /*using (var db = new WWContext())
+                using (var db = new WWContext())
 
                 {
                     //ChatGroup = chatGroup;
@@ -180,7 +181,7 @@ namespace Werewolf_Node
                     db.SaveChanges();
                     if (RandomMode)
                     {
-                        Chaos = Program.R.Next(100) < 50;
+                        //Chaos = Program.R.Next(100) < 50;
                         AllowTanner = Program.R.Next(100) < 50;
                         AllowFool = Program.R.Next(100) < 50;
                         AllowCult = Program.R.Next(100) < 50;
@@ -200,7 +201,7 @@ namespace Werewolf_Node
                     else
                     {
                         //decide if chaos or not
-                        Chaos = DbGroup.Mode == "Player" ? chaos : DbGroup.Mode == "Chaos";
+                        //Chaos = DbGroup.Mode == "Player" ? chaos : DbGroup.Mode == "Chaos";
                         ShowRolesEnd = DbGroup.ShowRolesEnd;
                         AllowTanner = DbGroup.HasFlag(GroupConfig.AllowTanner);
                         AllowFool = DbGroup.HasFlag(GroupConfig.AllowFool);
@@ -217,11 +218,7 @@ namespace Werewolf_Node
                     
                     _requestPMButton = new InlineKeyboardMarkup(new[] { new InlineKeyboardUrlButton("Start Me", "http://t.me/" + Program.Me.Username) });
                     //AddPlayer(u);
-                }*/
-
-                LoadLanguage(/*DbGroup.Language*/ "Spanish");
-
-                _requestPMButton = new InlineKeyboardMarkup(new[] { new InlineKeyboardUrlButton("Start Me", "http://t.me/" + Program.Me.Username) });
+                }
 
                 var deeplink = $"{Program.ClientId.ToString("N")}{Guid.ToString("N")}";
 
@@ -503,7 +500,7 @@ namespace Werewolf_Node
                 IsRunning = true;
                 AssignRoles();
                 //create new game for database
-                /*using (var db = new WWContext())
+                using (var db = new WWContext())
                 {
                     _timeStarted = DateTime.Now;
                     var game = new Database.Game
@@ -549,7 +546,7 @@ namespace Werewolf_Node
                     GameId = db.Games.Where(x => x.GroupId == ChatId).OrderByDescending(x => x.Id).FirstOrDefault()?.Id ?? 0;
 
                     db.Database.ExecuteSqlCommand($"DELETE FROM NotifyGame WHERE GroupId = {ChatId}");
-                }*/
+                }
                 IsInitializing = false;
 
                 //disable Inconspicuous achievement if less than 20 players
@@ -711,7 +708,7 @@ namespace Werewolf_Node
 
                 //bool sendPM = false;
 
-                /*using (var db = new WWContext())
+                using (var db = new WWContext())
                 {
                     var user = db.Players.FirstOrDefault(x => x.TelegramId == u.Id);
                     if (user == null)
@@ -747,7 +744,7 @@ namespace Werewolf_Node
                     db.SaveChanges();
 
                     var botname = "@" + Program.Me.Username;
-                }*/
+                }
 
                 //now, attempt to PM the player
                 //try
@@ -2542,11 +2539,11 @@ namespace Werewolf_Node
                 SendWithQueue(GetLocaleString("BakerNoLynch"));
                 return;
             }
-            SendWithQueue(GetLocaleString("LynchTime", DbGroup.LynchTime.ToBold() ?? Settings.TimeLynch.ToBold()));
+            SendWithQueue(GetLocaleString("LynchTime", /*DbGroup.LynchTime.ToBold() ?? */Settings.TimeLynch.ToBold()));
             SendPlayerList();
             SendLynchMenu();
 
-            for (var i = 0; i < (DbGroup.LynchTime ?? Settings.TimeLynch); i++)
+            for (var i = 0; i < (/*DbGroup.LynchTime ?? */Settings.TimeLynch); i++)
             {
                 Thread.Sleep(1000);
                 if (CheckForGameEnd()) return;
@@ -2608,10 +2605,10 @@ namespace Werewolf_Node
                     var idles24 = 0;
                     try
                     {
-                        /*using (var db = new WWContext())
+                        using (var db = new WWContext())
                         {
                             idles24 = db.GetIdleKills24Hours(p.Id).FirstOrDefault() ?? 0;
-                        }*/
+                        }
                     }
                     catch
                     {
@@ -2753,13 +2750,13 @@ namespace Werewolf_Node
             /*Settings.TimeDay = 20;
             timeToAdd = 0;*/
 #endif
-            SendWithQueue(GetLocaleString("DayTime", ((DbGroup.DayTime ?? Settings.TimeDay) + timeToAdd).ToBold()));
+            SendWithQueue(GetLocaleString("DayTime", ((/*DbGroup.DayTime ?? */Settings.TimeDay) + timeToAdd).ToBold()));
             SendWithQueue(GetLocaleString("Day", GameDay.ToBold()));
             SendPlayerList();
 
             SendDayActions();
             //incremental sleep time for large players....
-            Thread.Sleep(TimeSpan.FromSeconds((DbGroup.DayTime ?? Settings.TimeDay) + timeToAdd));
+            Thread.Sleep(TimeSpan.FromSeconds((/*DbGroup.DayTime ?? */Settings.TimeDay) + timeToAdd));
 
             if (!IsRunning) return;
             try
@@ -2937,7 +2934,7 @@ namespace Werewolf_Node
             }
             CheckRoleChanges();     //so maybe if seer got converted to wolf, appseer will promote here
             if (CheckForGameEnd()) return;
-            var nightTime = (DbGroup.NightTime ?? Settings.TimeNight);
+            var nightTime = (/*DbGroup.NightTime ?? */Settings.TimeNight);
             if (GameDay == 1)
                 if (Players.Any(x => new[] { IRole.Cupid, IRole.Doppelgänger, IRole.WildChild, IRole.Imposter }.Contains(x.PlayerRole)))
                     nightTime = Math.Max(nightTime, 120);
@@ -4513,16 +4510,16 @@ namespace Werewolf_Node
 
         private bool DoGameEnd(ITeam team)
         {
-            //using (var db = new WWContext())
-            //{
+            using (var db = new WWContext())
+            {
                 //Log.WriteLine($"Doing game end.  IsRunning: {IsRunning}");
                 if (!IsRunning) return true;
                 IsRunning = false;
                 CheckLongHaul();
                 var msg = "";
 
-                //var game = db.Games.FirstOrDefault(x => x.Id == GameId) ?? new Database.Game();
-                //game.TimeEnded = DateTime.Now;
+                var game = db.Games.FirstOrDefault(x => x.Id == GameId) ?? new Database.Game();
+                game.TimeEnded = DateTime.Now;
 
                 if (team == ITeam.Lovers)
                 {
@@ -4533,8 +4530,8 @@ namespace Werewolf_Node
                         if (forbidden)
                             AddAchievement(w, Achievements.ForbiddenLove);
                         w.Won = true;
-                        //var p = GetDBGamePlayer(w, db);
-                        //p.Won = true;
+                        var p = GetDBGamePlayer(w, db);
+                        p.Won = true;
                     }
                 }
                 else
@@ -4550,8 +4547,8 @@ namespace Werewolf_Node
                             continue;
                         
                         w.Won = true;
-                        //var p = GetDBGamePlayer(w, db);
-                        //p.Won = true;
+                        var p = GetDBGamePlayer(w, db);
+                        p.Won = true;
                         if (w.InLove)
                         {
                             //find lover
@@ -4559,7 +4556,7 @@ namespace Werewolf_Node
                             if (lover != null)
                             {
                                 lover.Won = true;
-                                //GetDBGamePlayer(lover, db).Won = true;
+                                GetDBGamePlayer(lover, db).Won = true;
                             }
                         }
                     }
@@ -4576,7 +4573,7 @@ namespace Werewolf_Node
                         if (lover != null)
                         {
                             lover.Won = true;
-                            //GetDBGamePlayer(lover, db).Won = true;
+                            GetDBGamePlayer(lover, db).Won = true;
                         }
                     }
                 }
@@ -4636,7 +4633,7 @@ namespace Werewolf_Node
                         if (!string.IsNullOrEmpty(deathmessage)) SendWithQueue(deathmessage);
                         
                         msg += GetLocaleString("NoWinner");
-                        //game.Winner = "NoOne";
+                        game.Winner = "NoOne";
                         SendWithQueue(msg, GetRandomImage(NoWinner));
                         break;
 
@@ -4644,29 +4641,29 @@ namespace Werewolf_Node
                         if (Players.Count(x => !x.IsDead && WolfRoles.Contains(x.PlayerRole)) > 1)
                         {
                             msg += GetLocaleString("WolvesWin");
-                            //game.Winner = "Wolves";
+                            game.Winner = "Wolves";
                             SendWithQueue(msg, GetRandomImage(WolvesWin));
                         }
                         else
                         {
                             msg += GetLocaleString("WolfWins");
-                            //game.Winner = "Wolf";
+                            game.Winner = "Wolf";
                             SendWithQueue(msg, GetRandomImage(WolfWin));
                         }
                         break;
                     case ITeam.Tanner:
                         msg += GetLocaleString("TannerWins");
-                        //game.Winner = "Tanner";
+                        game.Winner = "Tanner";
                         SendWithQueue(msg, GetRandomImage(TannerWin));
                         break;
                     case ITeam.Cult:
                         msg += GetLocaleString("CultWins");
-                        //game.Winner = "Cult";
+                        game.Winner = "Cult";
                         SendWithQueue(msg, GetRandomImage(CultWins)); //, GetRandomImage(Program.VillagersWin));
                         break;
                     case ITeam.Pyro:
                         msg += GetLocaleString("PyroWins");
-                        //game.Winner = "Pyro";
+                        game.Winner = "Pyro";
                         SendWithQueue(msg, GetRandomImage(PyroWins));
                     break;
                     case ITeam.SerialKiller:
@@ -4684,12 +4681,12 @@ namespace Werewolf_Node
                             }
                         }
                         msg += GetLocaleString("SerialKillerWins");
-                        //game.Winner = "SerialKiller";
+                        game.Winner = "SerialKiller";
                         SendWithQueue(msg, GetRandomImage(SerialKillerWins));
                         break;
                     case ITeam.Lovers:
                         msg += GetLocaleString("LoversWin");
-                        //game.Winner = "Lovers";
+                        game.Winner = "Lovers";
                         SendWithQueue(msg, GetRandomImage(LoversWin));
                         break;
                     case ITeam.SKHunter:
@@ -4697,7 +4694,7 @@ namespace Werewolf_Node
                         var hunter = skhunter.FirstOrDefault(x => x.PlayerRole != IRole.SerialKiller);
                         var skh = skhunter.FirstOrDefault(x => x.PlayerRole == IRole.SerialKiller);
                         msg += GetLocaleString("NoWinner");
-                        //game.Winner = "NoOne";
+                        game.Winner = "NoOne";
                         AddAchievement(skh, Achievements.DoubleKill);
                         AddAchievement(hunter, Achievements.DoubleKill);
                         DBKill(skh, hunter, KillMthd.SerialKilled);
@@ -4717,12 +4714,12 @@ namespace Werewolf_Node
                         break;
                     default: //village
                         msg += GetLocaleString("VillageWins");
-                        //game.Winner = "Village";
+                        game.Winner = "Village";
                         SendWithQueue(msg, GetRandomImage(VillagersWin));
                         //var aux = Program.Bot.SendDocumentAsync(ChatId, new FileToSend(GetRandomImage(VillagersWin)), msg).Result.MessageId;
                         break;
                 }
-                //db.SaveChanges();
+                db.SaveChanges();
                 switch (DbGroup.ShowRolesEnd)
                 {
                     case "None":
@@ -4736,14 +4733,14 @@ namespace Werewolf_Node
                         msg = Players.Where(x => !x.IsDead).OrderBy(x => x.Team).Aggregate(msg, (current, p) => current + $"\n{p.GetName()}: {GetEndDescription(p)} {GetLocaleString(p.Team + "TeamEnd")} {(p.InLove ? "❤️" : "")} {GetLocaleString(p.Won ? "Won" : "Lost")}");
                         break;
                 }
-                /*if (game.TimeStarted.HasValue)
+                if (game.TimeStarted.HasValue)
                 {
                     _timePlayed = game.TimeEnded.Value - game.TimeStarted.Value;
                     msg += "\n" + GetLocaleString("EndTime", _timePlayed.Value.ToString(@"hh\:mm\:ss"));
-                }*/
+                }
                 SendWithQueue(msg);
                 //Program.Bot.SendTextMessage(ChatId, "[Enjoy playing? Support the developers and get some swag!](https://teespring.com/stores/werewolf-for-telegram)", parseMode: ParseMode.Markdown, disableWebPagePreview: true);
-                //UpdateAchievements();
+                UpdateAchievements();
                 //UpdateGroupRanking();
                 //Program.Analytics.TrackAsync("gameend", new { winner = team.ToString(), groupid = ChatId, mode = Chaos ? "Chaos" : "Normal", size = Players.Count() }, "0");
                 //if (ChatId == -1001094614730)
@@ -4757,7 +4754,7 @@ namespace Werewolf_Node
                 Thread.Sleep(10000);
                 Program.RemoveGame(this);
                 return true;
-            //}
+            }
         }
 
 
@@ -5233,7 +5230,7 @@ namespace Werewolf_Node
                         if (killed.PlayerRole == IRole.Baker)
                             _bakerDied = true;
                         killed.TimeDied = DateTime.Now;
-                        if (killed.PlayerRole == IRole.Wolf || killed.PlayerRole == IRole.AlphaWolf || killed.PlayerRole == IRole.WolfCub || killed.PlayerRole == IRole.SerialKiller)
+                        if (killed.PlayerRole == IRole.Wolf || killed.PlayerRole == IRole.AlphaWolf || killed.PlayerRole == IRole.WolfCub || killed.PlayerRole == IRole.Lycan || killed.PlayerRole == IRole.HungryWolf || killed.PlayerRole == IRole.Pyro || killed.PlayerRole == IRole.SerialKiller)
                             AddAchievement(hunter, Achievements.HeyManNiceShot);
 
                         DBKill(hunter, killed, KillMthd.HunterShot);
@@ -5426,6 +5423,7 @@ namespace Werewolf_Node
                 }
                 catch (Exception)
                 {
+                    //Send(e.Message + "\n" + e.InnerException);
                     //Log.WriteLine(e.Message + "\n" + e.StackTrace, LogLevel.Error, fileName: "error.log");
                 }
 
@@ -5699,8 +5697,6 @@ namespace Werewolf_Node
 
         private void AddAchievement(IPlayer player, Achievements a)
         {
-            return;
-
             using (var db = new WWContext())
             {
                 var p = GetDBPlayer(player, db);

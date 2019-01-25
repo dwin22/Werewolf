@@ -72,7 +72,7 @@ namespace Werewolf_Control
 
 #endif
 
-            /*Group grp;
+            Group grp;
             using (var db = new WWContext())
             {
                 grp = db.Groups.FirstOrDefault(x => x.GroupId == update.Message.Chat.Id);
@@ -105,7 +105,7 @@ namespace Werewolf_Control
                     }
                 }
                 db.SaveChanges();
-            }*/ // DATABASE
+            } // DATABASE
             //check nodes to see if player is in a game
             var node = GetPlayerNode(update.Message.From.Id);
             var game = GetGroupNodeAndGame(update.Message.Chat.Id);
@@ -120,7 +120,7 @@ namespace Werewolf_Control
                     {
                         //player is already in a game, and alive
                         Send(
-                            GetLocaleString("AlreadyInGame", /*grp?.Language ?? */ "Spanish", // DATABASE
+                            GetLocaleString("AlreadyInGame", grp?.Language ?? "Spanish",
                                 game.ChatGroup.ToBold()), update.Message.Chat.Id);
                         return;
                     }
@@ -142,17 +142,17 @@ namespace Werewolf_Control
                 node.nextJiro = false;
                 node.nextLara = false;
                 node.nextAlex = false;
-                foreach (var n in node.Notify)
+                /*foreach (var n in node.Notify)
                 {
                     if (n != update.Message.From.Id)
                         Send(GetLocaleString("NotifyNewGame", "Spanish", "Aullido de Lobo"), n);
                     Thread.Sleep(500);
                 }
-                node.Notify.Clear();
+                node.Notify.Clear();*/
 
                 //Program.Analytics.TrackAsync("creategame", new { chaos = chaos, groupid = update.Message.Chat.Id }, update.Message.From.Id.ToString());
                 //notify waiting players
-                /*using (var db = new WWContext())
+                using (var db = new WWContext())
                 {
                     var notify = db.NotifyGames.Where(x => x.GroupId == update.Message.Chat.Id).ToList();
                     var groupName = update.Message.Chat.Title.ToBold();
@@ -170,11 +170,11 @@ namespace Werewolf_Control
                     //just to be sure...
                     //db.Database.ExecuteSqlCommand($"DELETE FROM NotifyGame WHERE GroupId = {update.Message.Chat.Id}");
                     db.SaveChanges();
-                }*/ //DATABASE
+                } //DATABASE
             }
             else
             {
-                Send(GetLocaleString("NoNodes", /*grp.Language*/ "Spanish"), update.Message.Chat.Id); //DATABASE
+                Send(GetLocaleString("NoNodes", grp.Language), update.Message.Chat.Id); //DATABASE
 
             }
         }
@@ -219,7 +219,7 @@ namespace Werewolf_Control
             {
                 GroupId = groupid,
                 Name = name,
-                Language = "English",
+                Language = "Spanish",
                 BotInGroup = true,
                 ShowRoles = true,
                 Mode = "Player",
@@ -233,7 +233,7 @@ namespace Werewolf_Control
                 MaxPlayers = 35,
                 CreatedBy = createdBy,
                 AllowExtend = false,
-                MaxExtend = 60,
+                MaxExtend = 300,
                 EnableSecretLynch = false,
                 ShowRolesEnd = "All",
                 Flags = (long)(GroupDefaults.LoadDefaults())
@@ -274,7 +274,6 @@ namespace Werewolf_Control
         /// <returns></returns>
         public static string GetLanguage(long id)
         {
-            return "Spanish";
 
             using (var db = new WWContext())
             {
@@ -284,10 +283,10 @@ namespace Werewolf_Control
                     p = db.Players.FirstOrDefault(x => x.TelegramId == id);
                 if (p != null && String.IsNullOrEmpty(p.Language))
                 {
-                    p.Language = "English";
+                    p.Language = "Spanish";
                     db.SaveChanges();
                 }
-                return grp?.Language ?? p?.Language ?? "English";
+                return grp?.Language ?? p?.Language ?? "Spanish";
             }
         }
 
@@ -298,17 +297,15 @@ namespace Werewolf_Control
         /// <returns></returns>
         public static string GetLanguage(int id)
         {
-            return "Spanish";
-
             using (var db = new WWContext())
             {
                 var p = db.Players.FirstOrDefault(x => x.TelegramId == id);
                 if (String.IsNullOrEmpty(p?.Language) && p != null)
                 {
-                    p.Language = "English";
+                    p.Language = "Spanish";
                     db.SaveChanges();
                 }
-                return p?.Language ?? "English";
+                return p?.Language ?? "Spanish";
             }
         }
 

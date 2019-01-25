@@ -183,7 +183,7 @@ namespace Werewolf_Control
         public static void ForceStart(Update update, string[] args)
         {
             var id = update.Message.Chat.Id;
-           /* using (var db = new WWContext())
+            using (var db = new WWContext())
             {
                 var grp = db.Groups.FirstOrDefault(x => x.GroupId == id);
                 if (grp == null)
@@ -191,7 +191,7 @@ namespace Werewolf_Control
                     grp = MakeDefaultGroup(id, update.Message.Chat.Title, "forcestart");
                     db.Groups.Add(grp);
                     db.SaveChanges();
-                }*/
+                }
 
                 var game = GetGroupNodeAndGame(update.Message.Chat.Id);
                 if (game != null)
@@ -201,9 +201,9 @@ namespace Werewolf_Control
                 }
                 else
                 {
-                    Send(GetLocaleString("NoGame", "Spanish"), id);
+                    Send(GetLocaleString("NoGame", grp.Language), id);
                 }
-            //}
+            }
 
         }
 
@@ -277,19 +277,18 @@ namespace Werewolf_Control
                     Send(GetLocaleString("GroupAdminOnly", GetLanguage(id)), id); //otherwise we're allowing people to /forcestart
                 else
                 {
-                    /*using (var db = new WWContext())
+                    using (var db = new WWContext())
                     {
                         var grp = db.Groups.FirstOrDefault(x => x.GroupId == update.Message.Chat.Id);
                         if (isadmin || (grp.HasFlag(GroupConfig.AllowExtend)))
                         {
-                            int maxextend = grp.MaxExtend ?? Settings.MaxExtend;*/
-                            int maxextend = 300;
+                            int maxextend = grp.MaxExtend ?? Settings.MaxExtend;
                             seconds = Math.Abs(seconds) > maxextend ? maxextend * Math.Sign(seconds) : seconds;
                             game?.ExtendTime(update.Message.From.Id, isadmin, seconds);
-                    /*  }
+                      }
                         else
                             Send(GetLocaleString("GroupAdminOnly", GetLanguage(id)), id);
-                    }*/
+                    }
                 }
                 return;
             }

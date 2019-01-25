@@ -101,7 +101,7 @@ namespace Werewolf_Node.Helpers
 
         public static int GetStrength(this IRole role, List<IRole> allRoles)
         {
-            IRole[] WolfRoles = { IRole.WolfCub, IRole.WolfCub, IRole.AlphaWolf, IRole.WolfMan, IRole.HungryWolf };
+            IRole[] WolfRoles = { IRole.Wolf, IRole.WolfCub, IRole.AlphaWolf, IRole.Lycan, IRole.HungryWolf };
             IRole[] nonConvertibleRoles = { IRole.Seer, IRole.GuardianAngel, IRole.Detective, IRole.Cursed, IRole.Harlot, IRole.Hunter, IRole.Doppelgänger, IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.SerialKiller, IRole.HungryWolf, IRole.Pyro, IRole.Sheriff, IRole.Lycan, IRole.Oracle, IRole.Atheist };
             switch (role)
             {

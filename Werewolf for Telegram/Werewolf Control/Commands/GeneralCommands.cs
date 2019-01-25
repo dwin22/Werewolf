@@ -185,7 +185,7 @@ namespace Werewolf_Control
         {
             if (u.Message.Chat.Type == ChatType.Private && u.Message.From != null)
             {
-                /*using (var db = new WWContext())
+                using (var db = new WWContext())
                 {
                     var p = GetDBPlayer(u.Message.From.Id, db);
                     if (p == null)
@@ -209,7 +209,7 @@ namespace Werewolf_Control
 #elif BETA
                         p.HasDebugPM = true;
 #endif
-                    db.SaveChanges();*/
+                    db.SaveChanges();
 
                     if (String.IsNullOrEmpty(args[1]))
                     {
@@ -322,14 +322,14 @@ namespace Werewolf_Control
                             Settings.ErrorGroup);
                     }
                 }
-            //}
+            }
         }
 
         [Command(Trigger = "nextgame", Blockable = true, InGroupOnly = true)]
         public static void NextGame(Update update, string[] args)
         {
             var id = update.Message.Chat.Id;
-
+            /*
             //check nodes to see if player is in a game
             //node = GetPlayerNode(update.Message.From.Id);
             var game = GetGroupNodeAndGame(update.Message.Chat.Id);
@@ -348,7 +348,9 @@ namespace Werewolf_Control
             Send(GetLocaleString("AddedToWaitList", "Spanish", update.Message.Chat.Title.ToBold()),
                 update.Message.From.Id);
 
-            /*using (var db = new WWContext())
+            */
+
+            using (var db = new WWContext())
             {
                 var grp = db.Groups.FirstOrDefault(x => x.GroupId == id);
                 if (grp == null)
@@ -386,7 +388,7 @@ namespace Werewolf_Control
                     Send(GetLocaleString("AddedToWaitList", grp.Language, grp.Name.ToBold()),
                         update.Message.From.Id, customMenu: button);
                 }
-            }*/
+            }
         }
 
         [Command(Trigger = "getlang")]

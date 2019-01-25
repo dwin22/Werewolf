@@ -86,10 +86,10 @@ namespace Werewolf_Control
             Thread.Sleep(1000);
 
             //initialize EF before we start receiving
-            /*using (var db = new WWContext())
+            using (var db = new WWContext())
             {
                 var count = db.GlobalBans.Count();
-            }*/
+            }
 
             //start up the bot
             new Thread(() => Bot.Initialize(updateid)).Start();
@@ -412,7 +412,7 @@ namespace Werewolf_Control
             var baseDirectory = Path.Combine(Bot.RootDirectory, ".."); //go up one directory
             var currentChoice = new NodeChoice();
 
-            var file = Directory.GetFiles(@"C:\Users\skyji\Desktop\ww\Werewolf-beta\Werewolf for Telegram\Werewolf Node\bin\Debug", "Werewolf Node.exe").First();
+            var file = Directory.GetFiles(@"C:\Users\skyji\Desktop\ww-new\Werewolf\Werewolf for Telegram\Werewolf Node\bin\Debug", "Werewolf Node.exe").First();
 
             /*foreach (var dir in Directory.GetDirectories(baseDirectory, "*Node*"))
             {
