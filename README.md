@@ -1,7 +1,8 @@
 # Werewolf for Telegram
 
 This is a fork of the Werewolf Telegram bot. It adds new gamemodes, roles and functionality to the original one. All credits go to the original bot, so check them out too. If you want to donate, please donate to them. Without their work, this version of the bot wouldn't have been possible.
-NOTE: Most new strings are only in Spanish. But you can translate them to your language easily.
+
+NOTE: Most new strings are only in Spanish. But you can translate them to your language easily. You can copy the new strings from the Spanish file in the language folder, paste them to the language you want to use and edit them. If you want me to add them to this github repo, just send me the language file in telegram: t.me/TheEdenProject
 
 New gamemodes:
 - Superchaos: almost every role can appear multiple times. If you are looking for the craziest games, this is your gamemode.
