@@ -17,49 +17,25 @@ namespace Werewolf_Control
         [Command(Trigger = "startgame", Blockable = true, InGroupOnly = true)]
         public static void StartGame(Update update, string[] args)
         {
-            if (update.Message.Chat.Id == -1001073615271 || update.Message.Chat.Id == -1001208683929 || update.Message.Chat.Id == -1001214577487)
-                StartGame(0, update);
-            else
-            {
-                Send("Este comando solo está disponible en @AullidoDeLobo. Mejor que la comunidad esté unida, y tendremos partidas más grandes. :)",
-                    update.Message.Chat.Id);
-            }
+            StartGame(0, update);
         }
 
         [Command(Trigger = "startchaos", Blockable = true, InGroupOnly = true)]
         public static void StartChaos(Update update, string[] args)
         {
-            if (update.Message.Chat.Id == -1001073615271 || update.Message.Chat.Id == -1001208683929 || update.Message.Chat.Id == -1001214577487)
-                StartGame(1, update);
-            else
-            {
-                Send("Este comando solo está disponible en @AullidoDeLobo. Mejor que la comunidad esté unida, y tendremos partidas más grandes. :)",
-                    update.Message.Chat.Id);
-            }
+            StartGame(1, update);
         }
 
         [Command(Trigger = "startclumsy", Blockable = true, InGroupOnly = true)]
         public static void StartClumsy(Update update, string[] args)
         {
-            if (update.Message.Chat.Id == -1001073615271 || update.Message.Chat.Id == -1001208683929 || update.Message.Chat.Id == -1001214577487)
-                StartGame(2, update);
-            else
-            {
-                Send("Este comando solo está disponible en @AullidoDeLobo. Mejor que la comunidad esté unida, y tendremos partidas más grandes. :)",
-                    update.Message.Chat.Id);
-            }
+            StartGame(2, update);
         }
 
         [Command(Trigger = "superchaos", Blockable = true, InGroupOnly = true)]
         public static void SuperChaos(Update update, string[] args)
         {
-            if (update.Message.Chat.Id == -1001073615271 || update.Message.Chat.Id == -1001208683929 || update.Message.Chat.Id == -1001214577487)
-                StartGame(3, update);
-            else
-            {
-                Send("Este comando solo está disponible en @AullidoDeLobo. Mejor que la comunidad esté unida, y tendremos partidas más grandes. :)",
-                    update.Message.Chat.Id);
-            }
+            StartGame(3, update);
         }
 
         [Command(Trigger = "nextjiro", Blockable = true, InGroupOnly = true)]
