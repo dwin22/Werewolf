@@ -5,9 +5,9 @@ GO
 CREATE DATABASE [werewolf]
  CONTAINMENT = NONE
  ON  PRIMARY 
-( NAME = N'werewolf', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.SQLEXPRESS\MSSQL\DATA\werewolf.mdf' , SIZE = 2046976KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
+( NAME = N'werewolf', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER01\MSSQL\DATA\werewolf.mdf' , SIZE = 2046976KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
  LOG ON 
-( NAME = N'werewolf_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.SQLEXPRESS\MSSQL\DATA\werewolf_log.ldf' , SIZE = 241216KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
+( NAME = N'werewolf_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER01\MSSQL\DATA\werewolf_log.ldf' , SIZE = 241216KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
 GO
 
 ALTER DATABASE [werewolf] SET COMPATIBILITY_LEVEL = 120
@@ -458,6 +458,9 @@ CREATE TABLE [dbo].[Group](
 	[MaxExtend] [int] NULL,
 	[EnableSecretLynch] [bit] NULL,
 	[Flags] [bigint] NULL,
+	[RandomModes] [bit] NULL,
+	[BetaGroup] [bit] NULL,
+	[RoleFlags] [bigint] NULL,
  CONSTRAINT [PK_Group] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -814,9 +817,6 @@ ALTER TABLE [dbo].[GameKill]  WITH CHECK ADD  CONSTRAINT [FK_GameKill_Killer] FO
 REFERENCES [dbo].[Player] ([Id])
 GO
 ALTER TABLE [dbo].[GameKill] CHECK CONSTRAINT [FK_GameKill_Killer]
-GO
-ALTER TABLE [dbo].[GameKill]  WITH CHECK ADD  CONSTRAINT [FK_GameKill_KillMethod] FOREIGN KEY([KillMethodId])
-REFERENCES [dbo].[KillMethod] ([Id])
 GO
 ALTER TABLE [dbo].[GameKill] CHECK CONSTRAINT [FK_GameKill_KillMethod]
 GO
