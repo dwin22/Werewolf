@@ -197,10 +197,43 @@ namespace Werewolf_Node.Helpers
                     return 8;
                 case IRole.RabidWolf:
                     return 16;
+                case IRole.Sleepwalker:
+                    return 2;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }
 
+        }
+
+        public static double GetRoleScore(this IRole role, bool won, int initialww, int playercount)
+        {
+            switch (role)
+            {
+                case IRole.SerialKiller:
+                case IRole.Pyro:
+                    return won ? playercount : -1;
+                case IRole.Wolf:
+                case IRole.AlphaWolf:
+                case IRole.WolfCub:
+                case IRole.Lycan:
+                case IRole.HungryWolf:
+                case IRole.RabidWolf:
+                case IRole.Sorcerer:
+                case IRole.Imposter:
+                    return won ? (playercount / Math.Max(1, initialww)) : -3;
+                case IRole.Tanner:
+                    return won ? 15 : -3;
+                case IRole.CultistHunter:
+                    return won ? 12 : -7;
+                case IRole.Survivor:
+                    return won ? 5 : -2;
+                case IRole.Cultist:
+                    return won ? 3 : -3;
+                case IRole.Doppelgänger:
+                    return -1;
+                default:
+                    return won ? 7 : -5;
+            }
         }
 
         public static string GetEmoji(this IRole role)
@@ -299,6 +332,8 @@ namespace Werewolf_Node.Helpers
                     return "🌟";
                 case IRole.RabidWolf:
                     return "🐺🤢";
+                case IRole.Sleepwalker:
+                    return "😴";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }

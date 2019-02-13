@@ -113,7 +113,7 @@ namespace Werewolf_Node
             SheriffConversionChance = 60,
             HealerConversionChance = 40,
 
-            GameJoinTime = 180,
+            GameJoinTime = 1800,
             MaxJoinTime = 300;
 
 

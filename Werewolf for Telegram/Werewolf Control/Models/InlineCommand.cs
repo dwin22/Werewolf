@@ -49,6 +49,7 @@ namespace Werewolf_Control.Models
                         return;
                     }
 
+                    // var topPlayers = db.Players.OrderByDescending(x => x.Score);
                     var gamesPlayed = p.GamePlayers.Count();
                     var won = p.GamePlayers.Count(x => x.Won);
                     var lost = gamesPlayed - won;
@@ -58,11 +59,13 @@ namespace Werewolf_Control.Models
                     var killedby = db.PlayerMostKilledBy(u.Id).FirstOrDefault();
                     var ach = (Achievements) (p.Achievements ?? 0);
                     var count = ach.GetUniqueFlags().Count();
+                    var score = p.Score;
 
                     Content = String.IsNullOrWhiteSpace(u.Username)
                         ? $"{u.FirstName.FormatHTML()} the {roleInfo.OrderByDescending(x => x.times).FirstOrDefault()?.role ?? "Noob"}"
                         : $"<a href=\"https://telegram.me/{u.Username}\">{u.FirstName.FormatHTML()} the {roleInfo.OrderByDescending(x => x.times).FirstOrDefault()?.role ?? "Noob"}</a>";
                     Content += $"\n{count.Pad()}Achievements Unlocked!\n" +
+                               $"{score.Pad()}Score\n" +
                                $"{won.Pad()}Games won ({won*100/gamesPlayed}%)\n" +
                                $"{lost.Pad()}Games lost ({lost*100/gamesPlayed}%)\n" +
                                $"{survived.Pad()}Games survived ({survived*100/gamesPlayed}%)\n" +

@@ -106,9 +106,13 @@ namespace Werewolf_Node.Models
         public int DBPlayerId { get; set; } = 0;
         public int DBGamePlayerId { get; set; } = 0;
         public DateTime TimeDied { get; set; } = DateTime.MaxValue;
+        public int DayOfDeath { get; set; } = 0;
 
         public string Language { get; set; } = "English";
         public bool Won { get; set; } = false;
+
+        public int Score { get; set; } = 0;
+        public double PointsToAdd { get; set; } = 0;
 
         public int Id;
         [JsonConverter(typeof(StringEnumConverter))]
@@ -159,7 +163,7 @@ namespace Werewolf_Node.Models
         //more new roles, from april fools.....
         Lycan, Pacifist, WiseElder, Oracle, Sandman, WolfMan, Thief,
         //even more new roles
-        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf
+        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf, Sleepwalker
     }
 
     public enum ITeam

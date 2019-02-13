@@ -50,6 +50,7 @@ namespace Werewolf_Node
         private DateTime _timeStarted;
         private Nullable<TimeSpan> _timePlayed = null;
         public readonly IRole[] WolfRoles = { IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.Lycan, IRole.HungryWolf, IRole.RabidWolf };
+        public readonly IRole[] BadRoles = { IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.Lycan, IRole.HungryWolf, IRole.RabidWolf, IRole.SerialKiller, IRole.Pyro, IRole.Sorcerer, IRole.Imposter, IRole.Cultist };
         public List<long> HaveExtended = new List<long>();
         private List<IPlayer> _joined = new List<IPlayer>(); 
         private int _joinMsgId;
@@ -61,6 +62,10 @@ namespace Werewolf_Node
         public bool RandomMode = false;
         public bool ShowRolesOnDeath = true, AllowTanner = true, AllowFool = true, AllowCult = true, SecretLynch = false, ShowIDs = true, AllowNSFW = true, AllowThief = true, ThiefFull = false;
         public string ShowRolesEnd;
+        public int totalplayers = 0;
+        public int startingwolves = 0;
+        public int WolfScore = 0;
+        public int VillageScore = 0;
 
         public List<string> VillagerDieImages,
             WolfWin,
@@ -390,7 +395,7 @@ namespace Werewolf_Node
 
                     if (count != Players.Count) //if a player joined, add time
                     {
-                        i = Math.Min(i, Math.Max(120, i - 30));
+                        i = Math.Min(i, Math.Max(180, i - 30));
                         count = Players.Count;
                     }
 
@@ -404,12 +409,21 @@ namespace Werewolf_Node
                     {
                         Telegram.Bot.Types.Message r = null;
 
-                        var importantSeconds = new[] { 10, 30, 60 }; //notify when time is running out
+                        var importantSeconds = new[] { 10, 30, 60, 120, 300, 600, 900, 1200 }; //notify when time is running out
                         foreach (var s in importantSeconds)
                         {
                             if (i == Settings.GameJoinTime - s)
                             {
-                                var str = s == 60 ? GetLocaleString("MinuteLeftToJoin") : GetLocaleString("SecondsLeftToJoin", s.ToString().ToBold());
+                                var str = GetLocaleString("MinuteLeftToJoin");
+                                if (s > 60)
+                                {
+                                    var m = s / 60;
+                                    str = GetLocaleString("MinutesLeftToJoin", m.ToString().ToBold());
+                                }
+                                else if (s < 60)
+                                {
+                                    str = GetLocaleString("SecondsLeftToJoin", s.ToString().ToBold());
+                                }
                                 r = Program.Bot.SendTextMessageAsync(ChatId, str, parseMode: ParseMode.Html, replyMarkup: _joinButton).Result;
                                 break;
                             }
@@ -440,9 +454,10 @@ namespace Werewolf_Node
                     {
                         // ignored
                     }
-                    if (Players.Count > 3)
+                    i++;
+                    if (Players.Count > 4 && i < 1620)
                     {
-                        i++;
+                        i = 1620;
                     }
                     Thread.Sleep(1000);
                 }
@@ -522,11 +537,12 @@ namespace Werewolf_Node
                         var dbp = db.Players.FirstOrDefault(x => x.TelegramId == p.Id);
                         if (dbp == null)
                         {
-                            dbp = new Player { TelegramId = p.Id, Language = Language };
+                            dbp = new Player { TelegramId = p.Id, Language = Language, Score = 1000 };
                             db.Players.Add(dbp);
                         }
                         dbp.Name = p.Name;
                         dbp.UserName = p.TeleUser.Username;
+                        p.Score = dbp.Score;
 
                         p.Language = dbp.Language;
 
@@ -807,6 +823,7 @@ namespace Werewolf_Node
                     p.IsDead = true;
                     p.TimeDied = DateTime.Now;
                     p.Fled = true;
+                    p.DayOfDeath = GameDay;
                     SendWithQueue(GetLocaleString("PlayerRoleWas", p.GetName(), GetDescription(p)));
 
                    /* if (DbGroup.HasFlag(GroupConfig.ShowRolesDeath))
@@ -865,6 +882,7 @@ namespace Werewolf_Node
                     {
                         player.HasUsedAbility = true;
                         _silverSpread = true;
+                        player.PointsToAdd += 2;
                         SendWithQueue(GetLocaleString("BlacksmithSpreadSilver", player.GetName()));
                     }
 
@@ -880,7 +898,8 @@ namespace Werewolf_Node
                     {
                         player.HasUsedAbility = true;
                         _sandmanSleep = true;
-                        SendWithQueue(GetLocaleString("SandmanSleepAll", player.GetName()));
+                        player.PointsToAdd += 2;
+                        SendWithQueue(GetLocaleString("SandmanSleepAll"));
                     }
 
                     ReplyToCallback(query,
@@ -1038,6 +1057,10 @@ namespace Werewolf_Node
                     {
                         DBAction(player, target, "See");
                         var role = target.PlayerRole;
+                        if (BadRoles.Contains(target.PlayerRole))
+                        {
+                            player.PointsToAdd += 1;
+                        }
                         switch (role)
                         {
                             case IRole.Beholder:
@@ -1058,6 +1081,7 @@ namespace Werewolf_Node
                                 role = IRole.Wolf;
                                 break;
                             case IRole.Lycan: //sneaky wuff
+                            case IRole.Sleepwalker:
                                 role = IRole.Villager;
                                 break;
                         }
@@ -1080,6 +1104,9 @@ namespace Werewolf_Node
                             case IRole.HungryWolf:
                             case IRole.RabidWolf:
                                 Send(GetLocaleString("SeerSees", target.GetName(), GetRoleDescription(IRole.Wolf)), player.Id);
+                                break;
+                            case IRole.Sleepwalker:
+                                Send(GetLocaleString("SeerSees", target.GetName(), GetRoleDescription(IRole.Villager)), player.Id);
                                 break;
                             default:
                                 Send(GetLocaleString("SeerSees", target.GetName(), GetRoleDescription(role)), player.Id);
@@ -1471,6 +1498,7 @@ namespace Werewolf_Node
 
         private List<IRole> GetRoleList(int playerCount)
         {
+            totalplayers = playerCount;
             var rolesToAssign = new List<IRole>();
             if (gameMode != 3)
             {
@@ -1478,6 +1506,11 @@ namespace Werewolf_Node
                 //need to set the max wolves so game doesn't end immediately - 25% max wolf population
                 //25% was too much, max it at 5 wolves.
                 var possiblewolves = new List<IRole>() { IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.Lycan, IRole.HungryWolf, IRole.RabidWolf };
+                if (playerCount < 5)
+                {
+                    possiblewolves.Remove(IRole.AlphaWolf);
+                    possiblewolves.Remove(IRole.RabidWolf);
+                }
                 var wolftoadd = possiblewolves[Program.R.Next(possiblewolves.Count())];
                 for (int i = 0; i < Math.Min(Math.Max(playerCount / playersPerWolf, 1), 10); i++)
                 {
@@ -1608,7 +1641,7 @@ namespace Werewolf_Node
                 var balanced = false;
                 var attempts = 0;
                 var nonVgRoles = new[] { IRole.Cultist, IRole.SerialKiller, IRole.Tanner, IRole.Wolf, IRole.AlphaWolf, IRole.Sorcerer, IRole.WolfCub, IRole.Lycan, IRole.Thief, IRole.Pyro, IRole.HungryWolf, IRole.Survivor, IRole.Imposter, IRole.RabidWolf };
-                //var newRoles = new [] { IRole.Pyro };
+                var newRoles = new [] { IRole.Sleepwalker };
                 var gameConditions = new[] { IRole.Pyro, IRole.SerialKiller, IRole.Cultist };
 
                 do
@@ -1733,6 +1766,7 @@ namespace Werewolf_Node
                     }
                 } while (!balanced);
 
+                startingwolves = rolesToAssign.Count(x => WolfRoles.Contains(x));
 
                 //shuffle things
                 Players.Shuffle();
@@ -1746,12 +1780,12 @@ namespace Werewolf_Node
 
 #if DEBUG
                 //force roles for testing
-                //rolesToAssign[0] = IRole.RabidWolf;
-                //rolesToAssign[1] = IRole.SerialKiller;
-                //rolesToAssign[2] = IRole.AlphaWolf;
-                //rolesToAssign[3] = IRole.Survivor;
-                //if (rolesToAssign.Count >= 5)
-                    //rolesToAssign[4] = IRole.Oracle;
+                /*rolesToAssign[0] = IRole.Wolf;
+                rolesToAssign[1] = IRole.Sandman;
+                rolesToAssign[2] = IRole.Villager;
+                rolesToAssign[3] = IRole.Blacksmith;
+                if (rolesToAssign.Count >= 5)
+                    rolesToAssign[4] = IRole.Villager;*/
 #endif
 
 
@@ -1811,6 +1845,7 @@ namespace Werewolf_Node
                     case IRole.Survivor:
                     case IRole.Atheist:
                     case IRole.Baker:
+                    case IRole.Sleepwalker:
                         p.HasDayAction = false;
                         p.HasNightAction = false;
                         p.Team = ITeam.Village;
@@ -2243,6 +2278,7 @@ namespace Werewolf_Node
                         case IRole.Survivor:
                         case IRole.Atheist:
                         case IRole.Baker:
+                        case IRole.Sleepwalker:
                             p.HasDayAction = false;
                             p.HasNightAction = false;
                             p.Team = ITeam.Village;
@@ -2587,6 +2623,10 @@ namespace Werewolf_Node
                     var target = Players.FirstOrDefault(x => x.Id == p.Choice);
                     if (target != null)
                     {
+                        if (BadRoles.Contains(target.PlayerRole) && !BadRoles.Contains(p.PlayerRole))
+                        {
+                            p.PointsToAdd += 0.5;
+                        }
                         target.HasBeenVoted = true;
                         target.Votes++;
                         if (p.PlayerRole == IRole.Mayor && p.HasUsedAbility) //Mayor counts twice
@@ -2621,8 +2661,10 @@ namespace Werewolf_Node
                     {
                         _bakerDied = true;
                     }
+                    p.PointsToAdd -= 3;
                     p.IsDead = true;
                     p.TimeDied = DateTime.Now;
+                    p.DayOfDeath = GameDay;
                     CheckRoleChanges();
                     //update the database
                     DBKill(p, p, KillMthd.Idle);
@@ -2664,6 +2706,7 @@ namespace Werewolf_Node
                     {
                         lynched.IsDead = true;
                         lynched.TimeDied = DateTime.Now;
+                        lynched.DayOfDeath = GameDay;
                         if (lynched.PlayerRole == IRole.Seer && GameDay == 1)
                             AddAchievement(lynched, Achievements.LackOfTrust);
                         if (lynched.PlayerRole == IRole.Prince && lynched.HasUsedAbility)
@@ -2805,10 +2848,11 @@ namespace Werewolf_Node
                         Send(GetLocaleString("DetectiveSnoop", check.GetName(), GetDescription(check)), detect.Id);
 
                         //if snooped non-bad-roles:
-                        if (!new[] { IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.Cultist, IRole.SerialKiller }.Contains(check.PlayerRole))
+                        if (!BadRoles.Contains(check.PlayerRole))
                             detect.CorrectSnooped.Clear();     //clear correct snoop list
                         else
                         {
+                            detect.PointsToAdd += 1;
                             if (detect.CorrectSnooped.Contains(check.Id))     //check if it is a re-snoop of correct roles
                                 detect.CorrectSnooped.Clear();             //clear the correct snoop list
                             detect.CorrectSnooped.Add(check.Id);              //add the current snoop to list
@@ -2856,9 +2900,14 @@ namespace Werewolf_Node
                             RabidKilled = true;
                         if (check.PlayerRole == IRole.Baker)
                             _bakerDied = true;
-                        if (!new[] { IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.Cultist, IRole.SerialKiller }.Contains(check.PlayerRole))
+                        if (!BadRoles.Contains(check.PlayerRole))
                             gunner.BulletHitVillager = true;
+                        else
+                        {
+                            gunner.PointsToAdd += 3;
+                        }
                         check.TimeDied = DateTime.Now;
+                        check.DayOfDeath = GameDay;
                         //update database
                         DBKill(gunner, check, KillMthd.Shoot);
                         DBAction(gunner, check, "Shoot");
@@ -2995,6 +3044,8 @@ namespace Werewolf_Node
 
 
             /* Role priority:
+             * Seer / Fool / Sorcerer
+             * Sleepwalker
              * Healer
              * GA
              * Wolf
@@ -3005,13 +3056,21 @@ namespace Werewolf_Node
              * Police
              * Cult
              * Harlot
-             * Seer
-             * Fool
              * Oracle
              */
 
-#region Wolf Night
- 
+            #region Wolf Night
+
+            // sleepwalker goes out
+            var sleepwalkers = Players.Where(x => x.PlayerRole == IRole.Sleepwalker && !x.IsDead);
+            if (sleepwalkers.Any())
+            {
+                foreach (var sleepwalker in sleepwalkers)
+                {
+                    sleepwalker.HasStayedHome = Program.R.Next(100) < 20;
+                }
+            }
+
             var healers = Players.Where(x => x.PlayerRole == IRole.Healer & !x.IsDead && !x.HasUsedAbility);
             if (healers.Any())
             {
@@ -3020,6 +3079,7 @@ namespace Werewolf_Node
                     var revived = Players.FirstOrDefault(x => x.Id == healer.Choice && x.IsDead);
                     if (revived != null)
                     {
+                        healer.PointsToAdd += 2;
                         revived.IsDead = false;
                         revived.RevivedLastNight = true;
                         revived.TimeDied = DateTime.MaxValue;
@@ -3123,6 +3183,7 @@ namespace Werewolf_Node
                                             target.DiedLastNight = true;
                                             target.IsDead = true;
                                             target.TimeDied = DateTime.Now;
+                                            target.DayOfDeath = GameDay;
                                             target.KilledByRole = IRole.Wolf;
                                             DBKill(voteWolves, target, KillMthd.Eat);
                                             //SendWithQueue(DbGroup.ShowRoles != false
@@ -3131,6 +3192,37 @@ namespace Werewolf_Node
                                         }
                                         foreach (var w in voteWolves)
                                             AddAchievement(w, Achievements.DontStayHome);
+                                    }
+                                    else
+                                    {
+                                        foreach (var wolf in voteWolves)
+                                            Send(GetLocaleString("HarlotNotHome", target.GetName()), wolf.Id);
+                                    }
+                                    break;
+                                case IRole.Sleepwalker:
+                                    if (target.HasStayedHome)
+                                    {
+                                        if (bitten)
+                                        {
+                                            BitePlayer(target, voteWolves, alpha, canBiteRabid);
+                                            bittenCount++;
+                                        }
+                                        else
+                                        {
+                                            if (devoured)
+                                            {
+                                                DevourPlayer(target, voteWolves, hungryww);
+                                            }
+                                            target.DiedLastNight = true;
+                                            target.IsDead = true;
+                                            target.TimeDied = DateTime.Now;
+                                            target.DayOfDeath = GameDay;
+                                            target.KilledByRole = IRole.Wolf;
+                                            DBKill(voteWolves, target, KillMthd.Eat);
+                                            //SendWithQueue(DbGroup.ShowRoles != false
+                                            //    ? GetLocaleString("HarlotEaten", target.GetName())
+                                            //    : GetLocaleString("GenericDeathNoReveal", target.GetName()));
+                                        }
                                     }
                                     else
                                     {
@@ -3172,10 +3264,12 @@ namespace Werewolf_Node
                                         {
                                             DevourPlayer(target, voteWolves, hungryww);
                                         }
+                                        target.PointsToAdd += 4;
                                         target.DiedLastNight = true;
                                         target.KilledByRole = IRole.Wolf;
                                         target.IsDead = true;
                                         target.TimeDied = DateTime.Now;
+                                        target.DayOfDeath = GameDay;
                                         DBKill(voteWolves, target, KillMthd.Eat);
                                         SendGif(GetLocaleString("WolvesEatYou"),
                                             GetRandomImage(VillagerDieImages), target.Id);
@@ -3224,15 +3318,18 @@ namespace Werewolf_Node
                                                     target.KilledByRole = IRole.Wolf;
                                                     target.IsDead = true;
                                                     target.TimeDied = DateTime.Now;
+                                                    target.DayOfDeath = GameDay;
                                                     target.DiedLastNight = true;
                                                 }
                                             }
+                                            target.PointsToAdd += 3;
                                             shotWuff.IsDead = true;
                                             if (shotWuff.PlayerRole == IRole.WolfCub)
                                                 WolfCubKilled = true;
                                             if (shotWuff.PlayerRole == IRole.RabidWolf)
                                                 RabidKilled = true;
                                             shotWuff.TimeDied = DateTime.Now;
+                                            shotWuff.DayOfDeath = GameDay;
                                             shotWuff.DiedByVisitingKiller = true;
                                             shotWuff.KilledByRole = IRole.Hunter;
                                             shotWuff.DiedLastNight = true;
@@ -3255,9 +3352,14 @@ namespace Werewolf_Node
                                             SendGif(GetLocaleString("WolvesEatYou"),
                                                 GetRandomImage(VillagerDieImages), target.Id);
                                             DBKill(voteWolves, target, KillMthd.Eat);
+                                            if (target.PlayerRole == IRole.ClumsyGuy || target.PlayerRole == IRole.WolfMan)
+                                            {
+                                                target.PointsToAdd += 2;
+                                            }
                                             target.KilledByRole = IRole.Wolf;
                                             target.IsDead = true;
                                             target.TimeDied = DateTime.Now;
+                                            target.DayOfDeath = GameDay;
                                             target.DiedLastNight = true;
                                         }
                                     }
@@ -3282,6 +3384,7 @@ namespace Werewolf_Node
                                         if (shotWuff.PlayerRole == IRole.RabidWolf)
                                             RabidKilled = true;
                                         shotWuff.TimeDied = DateTime.Now;
+                                        shotWuff.DayOfDeath = GameDay;
                                         shotWuff.DiedByVisitingKiller = true;
                                         shotWuff.KilledByRole = IRole.SerialKiller;
                                         shotWuff.DiedLastNight = true;
@@ -3304,6 +3407,7 @@ namespace Werewolf_Node
                                             target.KilledByRole = IRole.Wolf;
                                             target.IsDead = true;
                                             target.TimeDied = DateTime.Now;
+                                            target.DayOfDeath = GameDay;
                                             target.DiedLastNight = true;
                                             DBKill(voteWolves, target, KillMthd.Eat);
                                             SendGif(GetLocaleString("WolvesEatYou"),
@@ -3324,10 +3428,14 @@ namespace Werewolf_Node
                                             DevourPlayer(target, voteWolves, hungryww);
                                         }
                                         if (target.PlayerRole == IRole.Baker)
+                                        {
                                             _bakerDied = true;
+                                            target.PointsToAdd -= 1;
+                                        }
                                         target.KilledByRole = IRole.Wolf;
                                         target.IsDead = true;
                                         target.TimeDied = DateTime.Now;
+                                        target.DayOfDeath = GameDay;
                                         target.DiedLastNight = true;
                                         if (target.PlayerRole == IRole.Sorcerer)
                                         {
@@ -3381,6 +3489,7 @@ namespace Werewolf_Node
                                     doused.DiedLastNight = true;
                                     doused.IsDead = true;
                                     doused.TimeDied = DateTime.Now;
+                                    doused.DayOfDeath = GameDay;
                                     doused.KilledByRole = IRole.Pyro;
                                     DBKill(arso, doused, KillMthd.Ignited);
                                 }
@@ -3409,8 +3518,12 @@ namespace Werewolf_Node
                                     if (igni.PlayerRole == IRole.RabidWolf)
                                         RabidKilled = true;
                                     if (igni.PlayerRole == IRole.Baker)
+                                    {
+                                        igni.PointsToAdd -= 1;
                                         _bakerDied = true;
+                                    }
                                     igni.TimeDied = DateTime.Now;
+                                    igni.DayOfDeath = GameDay;
                                     igni.KilledByRole = IRole.Pyro;
                                     DBKill(arso, igni, KillMthd.Ignited);
                                 }
@@ -3449,8 +3562,12 @@ namespace Werewolf_Node
                             if (skilled.PlayerRole == IRole.RabidWolf)
                                 RabidKilled = true;
                             if (skilled.PlayerRole == IRole.Baker)
+                            {
+                                skilled.PointsToAdd -= 1;
                                 _bakerDied = true;
+                            }
                             skilled.TimeDied = DateTime.Now;
+                            skilled.DayOfDeath = GameDay;
                             skilled.KilledByRole = IRole.SerialKiller;
                             DBKill(sk, skilled, KillMthd.SerialKilled);
                             if (WolfRoles.Contains(skilled.PlayerRole))
@@ -3484,6 +3601,7 @@ namespace Werewolf_Node
                             DBKill(hunted, hunter, KillMthd.SerialKilled);
                             hunter.IsDead = true;
                             hunter.TimeDied = DateTime.Now;
+                            hunter.DayOfDeath = GameDay;
                             hunter.DiedLastNight = true;
                             hunter.KilledByRole = IRole.SerialKiller;
                             hunter.DiedByVisitingKiller = true;
@@ -3498,6 +3616,7 @@ namespace Werewolf_Node
                             hunted.IsDead = true;
                             hunted.TimeDied = DateTime.Now;
                             hunted.DiedLastNight = true;
+                            hunter.DayOfDeath = GameDay;
                             hunter.CHHuntedCultCount++;
                             hunted.KilledByRole = IRole.CultistHunter;
                             DBKill(hunter, hunted, KillMthd.Hunt);
@@ -3529,6 +3648,7 @@ namespace Werewolf_Node
                                 DBKill(targetS, sheriff, KillMthd.SerialKilled);
                                 sheriff.IsDead = true;
                                 sheriff.TimeDied = DateTime.Now;
+                                sheriff.DayOfDeath = GameDay;
                                 sheriff.DiedLastNight = true;
                                 sheriff.KilledByRole = IRole.SerialKiller;
                                 sheriff.DiedByVisitingKiller = true;
@@ -3548,6 +3668,16 @@ namespace Werewolf_Node
                             case IRole.Police:
                                 if (targetS.Choice == 0 || targetS.Choice == -1) // stayed home
                                     Send(GetLocaleString("SheriffVisitHome", targetS.GetName()), sheriff.Id);
+                                else
+                                {
+                                    Send(GetLocaleString("SheriffVisitNotHome", targetS.GetName()), sheriff.Id);
+                                }
+                                break;
+                            case IRole.Sleepwalker:
+                                if (targetS.HasStayedHome)
+                                {
+                                    Send(GetLocaleString("SheriffVisitHome", targetS.GetName()), sheriff.Id);
+                                }
                                 else
                                 {
                                     Send(GetLocaleString("SheriffVisitNotHome", targetS.GetName()), sheriff.Id);
@@ -3658,6 +3788,7 @@ namespace Werewolf_Node
                                             newbie.DiedLastNight = true;
                                             newbie.IsDead = true;
                                             newbie.TimeDied = DateTime.Now;
+                                            newbie.DayOfDeath = GameDay;
                                             newbie.KilledByRole = IRole.Hunter;
                                             newbie.DiedByVisitingKiller = true;
                                             DBKill(target, newbie, KillMthd.HunterCult);
@@ -3681,6 +3812,7 @@ namespace Werewolf_Node
                                     //kill newest cult
                                     newbie.DiedLastNight = true;
                                     newbie.IsDead = true;
+                                    newbie.DayOfDeath = GameDay;
                                     newbie.TimeDied = DateTime.Now;
                                     newbie.KilledByRole = IRole.SerialKiller;
                                     newbie.DiedByVisitingKiller = true;
@@ -3695,6 +3827,7 @@ namespace Werewolf_Node
                                     //kill the newest cult member
                                     newbie.DiedLastNight = true;
                                     newbie.IsDead = true;
+                                    newbie.DayOfDeath = GameDay;
                                     newbie.KilledByRole = IRole.CultistHunter;
                                     newbie.DiedByVisitingKiller = true;
                                     AddAchievement(newbie, Achievements.CultFodder);
@@ -3732,6 +3865,7 @@ namespace Werewolf_Node
                                         newbie.DiedLastNight = true;
                                         newbie.IsDead = true;
                                         newbie.TimeDied = DateTime.Now;
+                                        newbie.DayOfDeath = GameDay;
                                         newbie.KilledByRole = IRole.Wolf;
                                         newbie.DiedByVisitingKiller = true;
                                         DBKill(target, newbie, KillMthd.Eat);
@@ -3766,6 +3900,16 @@ namespace Werewolf_Node
                                 case IRole.Pyro:
                                     if (target.Choice == 0 || target.Choice == -1) // stayed home
                                         ConvertToCult(target, voteCult, 0);
+                                    else
+                                    {
+                                        foreach (var c in voteCult)
+                                            Send(GetLocaleString("CultVisitEmpty", newbie.GetName(), target.GetName()), c.Id);
+                                        //Send(GetLocaleString("CultAttempt"), target.Id);
+                                    }
+                                    break;
+                                case IRole.Sleepwalker:
+                                    if (target.HasStayedHome) // stayed home
+                                        ConvertToCult(target, voteCult);
                                     else
                                     {
                                         foreach (var c in voteCult)
@@ -3881,6 +4025,7 @@ namespace Werewolf_Node
                                     harlot.IsDead = true;
                                     harlot.TimeDied = DateTime.Now;
                                     harlot.DiedLastNight = true;
+                                    harlot.DayOfDeath = GameDay;
                                     harlot.DiedByVisitingKiller = true;
                                     harlot.KilledByRole = IRole.Wolf;
                                     DBKill(target, harlot, KillMthd.VisitWolf);
@@ -3890,6 +4035,7 @@ namespace Werewolf_Node
                                     harlot.IsDead = true;
                                     harlot.TimeDied = DateTime.Now;
                                     harlot.DiedLastNight = true;
+                                    harlot.DayOfDeath = GameDay;
                                     harlot.DiedByVisitingKiller = true;
                                     harlot.KilledByRole = IRole.SerialKiller;
                                     DBKill(target, harlot, KillMthd.VisitKiller);
@@ -3901,6 +4047,7 @@ namespace Werewolf_Node
                                         harlot.IsDead = true;
                                         harlot.TimeDied = DateTime.Now;
                                         harlot.DiedLastNight = true;
+                                        harlot.DayOfDeath = GameDay;
                                         harlot.DiedByVisitingVictim = true;
                                         harlot.KilledByRole = target.KilledByRole;
                                         harlot.RoleModel = target.Id; //store who they visited
@@ -4010,8 +4157,10 @@ namespace Werewolf_Node
                             if (Program.R.Next(100) > 50)
                             {
                                 ga.IsDead = true;
+                                ga.PointsToAdd = ga.PointsToAdd - 2;
                                 ga.TimeDied = DateTime.Now;
                                 ga.DiedLastNight = true;
+                                ga.DayOfDeath = GameDay;
                                 ga.DiedByVisitingKiller = true;
                                 ga.KilledByRole = IRole.Wolf;
                                 DBKill(save, ga, KillMthd.GuardWolf);
@@ -4028,6 +4177,7 @@ namespace Werewolf_Node
                             ga.IsDead = true;
                             ga.TimeDied = DateTime.Now;
                             ga.DiedLastNight = true;
+                            ga.DayOfDeath = GameDay;
                             ga.DiedByVisitingKiller = true;
                             ga.KilledByRole = IRole.SerialKiller;
                             DBKill(save, ga, KillMthd.GuardKiller);
@@ -4043,8 +4193,15 @@ namespace Werewolf_Node
                 }
             }
 
-#endregion
-
+            #endregion
+            //sleepwalker goes back home
+            if (sleepwalkers.Any())
+            {
+                foreach (var sleepwalker in sleepwalkers)
+                {
+                    sleepwalker.HasStayedHome = true;
+                }
+            }
             CheckRoleChanges();
 
 #region Night Death Notifications to Group
@@ -4393,7 +4550,9 @@ namespace Werewolf_Node
                             if (Program.R.Next(100) < Settings.HunterKillWolfChanceBase)
                             {
                                 SendWithQueue(GetLocaleString("HunterKillsWolfEnd", hunter.GetName(), other.GetName()));
+                                hunter.PointsToAdd += 3;
                                 other.IsDead = true;
+                                other.DayOfDeath = GameDay;
                                 DBKill(hunter, other, KillMthd.HunterShot);
                                 return DoGameEnd(ITeam.Village);
                             }
@@ -4401,6 +4560,7 @@ namespace Werewolf_Node
                             {
                                 SendWithQueue(GetLocaleString("WolfKillsHunterEnd", hunter.GetName(), other.GetName()));
                                 hunter.IsDead = true;
+                                hunter.DayOfDeath = GameDay;
                                 DBKill(other, hunter, KillMthd.Eat);
                                 return DoGameEnd(ITeam.Wolf);
                             }
@@ -4719,14 +4879,63 @@ namespace Werewolf_Node
                         //var aux = Program.Bot.SendDocumentAsync(ChatId, new FileToSend(GetRandomImage(VillagersWin)), msg).Result.MessageId;
                         break;
                 }
+                if (gameMode == 0)
+                {
+                    foreach (var pl in Players.Where(x => !BadRoles.Contains(x.PlayerRole)))
+                    {
+                        VillageScore = VillageScore + pl.Score;
+                    }
+                    foreach (var wolf in Players.Where(x => BadRoles.Contains(x.PlayerRole)))
+                    {
+                        WolfScore = WolfScore + wolf.Score;
+                    }
+                    VillageScore = VillageScore / Math.Max(1, Players.Count(x => !BadRoles.Contains(x.PlayerRole)));
+                    WolfScore = WolfScore / Math.Max(1, Players.Count(x => BadRoles.Contains(x.PlayerRole)));
+                    foreach (var p in Players)
+                    {
+                        p.PointsToAdd = p.PointsToAdd + p.PlayerRole.GetRoleScore(p.Won, startingwolves, totalplayers);
+                        if (!p.Won && p.IsDead)
+                        {
+                            p.PointsToAdd = Math.Min(-1, p.PointsToAdd + (GameDay / Math.Max(1, p.DayOfDeath)));
+                        }
+                        double teamFactor = 1;
+                        if (WolfScore != 0 && VillageScore != 0)
+                        {
+                            if (!BadRoles.Contains(p.PlayerRole))
+                            {
+                                teamFactor = VillageScore / WolfScore;
+                            }
+                            else
+                            {
+                                teamFactor = WolfScore / VillageScore;
+                            }
+                            if (p.PointsToAdd > 0)
+                            {
+                                teamFactor = 1 / teamFactor;
+                            }
+                        }
+                        p.PointsToAdd = p.PointsToAdd * teamFactor;
+                        var dbp = db.Players.FirstOrDefault(x => x.TelegramId == p.Id);
+                        p.Score = p.Score + (int)p.PointsToAdd;
+                        dbp.Score = p.Score;
+                    }
+                }
                 db.SaveChanges();
+                var signosuma = "+";
                 switch (DbGroup.ShowRolesEnd)
                 {
                     case "None":
                         msg = $"{GetLocaleString("PlayersAlive")}: {Players.Count(x => !x.IsDead)} / {Players.Count}\n" + Players.OrderBy(x => x.TimeDied).Aggregate(msg, (current, p) => current + $"\n{p.GetName()}");
                         break;
                     case "All":
-                        msg = $"{GetLocaleString("PlayersAlive")}: {Players.Count(x => !x.IsDead)} / {Players.Count}\n" + Players.OrderBy(x => x.TimeDied).Aggregate("", (current, p) => current + ($"{p.GetName()}: {(p.IsDead ? (p.Fled ? GetLocaleString("RanAway") : GetLocaleString("Dead")) : GetLocaleString("Alive")) + " - " + GetEndDescription(p) + (p.InLove ? "❤️" : "")} {(p.Won ? GetLocaleString("Won") : GetLocaleString("Lost"))}\n"));
+                        if (gameMode == 0)
+                        {
+                            msg = $"{GetLocaleString("PlayersAlive")}: {Players.Count(x => !x.IsDead)} / {Players.Count}\n" + Players.OrderBy(x => x.TimeDied).Aggregate("", (current, p) => current + ($"{p.GetName()}: {(p.IsDead ? (p.Fled ? GetLocaleString("RanAway") : GetLocaleString("Dead")) : GetLocaleString("Alive")) + " - " + GetEndDescription(p) + (p.InLove ? "❤️" : "")} {(p.Won ? GetLocaleString("Won") : GetLocaleString("Lost"))} {(p.PointsToAdd < 0 ? p.PointsToAdd.ToString().ToBold() : (signosuma.ToBold() + p.PointsToAdd.ToString().ToBold()))} {"(" + p.Score.ToString().ToBold() + ")"}\n"));
+                        }
+                        else
+                        {
+                            msg = $"{GetLocaleString("PlayersAlive")}: {Players.Count(x => !x.IsDead)} / {Players.Count}\n" + Players.OrderBy(x => x.TimeDied).Aggregate("", (current, p) => current + ($"{p.GetName()}: {(p.IsDead ? (p.Fled ? GetLocaleString("RanAway") : GetLocaleString("Dead")) : GetLocaleString("Alive")) + " - " + GetEndDescription(p) + (p.InLove ? "❤️" : "")} {(p.Won ? GetLocaleString("Won") : GetLocaleString("Lost"))}\n"));
+                        }
                         break;
                     default:
                         msg = GetLocaleString("RemainingPlayersEnd") + Environment.NewLine;
@@ -5129,6 +5338,7 @@ namespace Werewolf_Node
                     //kill the player
                     p.IsDead = true;
                     p.TimeDied = DateTime.Now;
+                    p.DayOfDeath = GameDay;
                     p.Fled = true;
 
                     SendWithQueue(GetLocaleString("PlayerRoleWas", p.GetName(), GetRoleDescription(p.PlayerRole)));
@@ -5205,6 +5415,7 @@ namespace Werewolf_Node
                 Thread.Sleep(1000);
             }
             hunter.IsDead = true;
+            hunter.DayOfDeath = GameDay;
             if (hunter.Choice == 0)
             {
                 SendWithQueue(GetLocaleString(method == KillMthd.Lynch ? "HunterNoChoiceLynched" : "HunterNoChoiceShot", hunter.GetName()));
@@ -5223,6 +5434,7 @@ namespace Werewolf_Node
                     {
                         SendWithQueue(GetLocaleString(method == KillMthd.Lynch ? "HunterKilledFinalLynched" : "HunterKilledFinalShot", hunter.GetName(), killed.GetName(), /*!DbGroup.HasFlag(GroupConfig.ShowRolesDeath) ? "" :*/ $"{killed.GetName()} {GetLocaleString("Was")} {GetDescription(killed)}"));
                         killed.IsDead = true;
+                        killed.DayOfDeath = GameDay;
                         if (killed.PlayerRole == IRole.WolfCub)
                             WolfCubKilled = true;
                         if (killed.PlayerRole == IRole.RabidWolf)
@@ -5232,6 +5444,10 @@ namespace Werewolf_Node
                         killed.TimeDied = DateTime.Now;
                         if (killed.PlayerRole == IRole.Wolf || killed.PlayerRole == IRole.AlphaWolf || killed.PlayerRole == IRole.WolfCub || killed.PlayerRole == IRole.Lycan || killed.PlayerRole == IRole.HungryWolf || killed.PlayerRole == IRole.Pyro || killed.PlayerRole == IRole.SerialKiller)
                             AddAchievement(hunter, Achievements.HeyManNiceShot);
+                        if (BadRoles.Contains(killed.PlayerRole))
+                        {
+                            hunter.PointsToAdd += 7;
+                        }
 
                         DBKill(hunter, killed, KillMthd.HunterShot);
                         if (killed.InLove)
@@ -5463,6 +5679,7 @@ namespace Werewolf_Node
                 SendWithQueue(GetLocaleString("LoverDied", victim.GetName(), p.GetName(), /*!DbGroup.HasFlag(GroupConfig.ShowRolesDeath) ? "" :*/ $"{p.GetName()} {GetLocaleString("Was")} {GetDescription(p)}"));
                 DBKill(victim, p, KillMthd.LoverDied);
                 p.IsDead = true;
+                p.DayOfDeath = GameDay;
                 if (p.PlayerRole == IRole.WolfCub)
                     WolfCubKilled = true;
                 if (p.PlayerRole == IRole.RabidWolf)

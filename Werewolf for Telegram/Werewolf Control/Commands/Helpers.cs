@@ -333,7 +333,7 @@ namespace Werewolf_Control
             var strings = doc.Descendants("string").FirstOrDefault(x => x.Attribute("key").Value.ToLower() == args[0].ToLower());
             if (strings == null)
             {
-                var efile = XDocument.Load(Path.Combine(Bot.LanguageDirectory, "English.xml"));
+                var efile = XDocument.Load(Path.Combine(Bot.LanguageDirectory, "Spanish.xml"));
                 strings =
                     efile.Descendants("string")
                         .FirstOrDefault(x => x.Attribute("key").Value.ToLower() == args[0].ToLower());

@@ -519,5 +519,27 @@ namespace Werewolf_Control
                 RequestPM(update.Message.Chat.Id);
             }
         }
+
+        [Command(Trigger = "topscore")]
+        public static void TopScore(Update update, string[] args)
+        {
+
+            using (var db = new WWContext())
+            {
+                var topPlayers = db.Players.OrderByDescending(x => x.Score);
+                var reply = "Top 10 Players:\n";
+                reply.ToBold();
+                reply += "\n";
+                var topScore = topPlayers.Take(10);
+                var i = 1;
+                foreach (var p in topScore)
+                {
+                    reply += i + "º " + p.Name + " (" + p.Score + ")\n";
+                    i++;
+                }
+                Send(reply, update.Message.Chat.Id);
+            }
+            
+        }
     }
 }

@@ -156,6 +156,7 @@ namespace Werewolf_Control
             Thread.Sleep(300);
             reply = "/aboutHealer - Curandero 🌟\n";
             reply += "/aboutRabidWolf - Lobo Rabioso 🐺🤢\n";
+            reply += "/aboutSleepwalker - Sonámbulo 😴\n";
             Send(reply, update.Message.From.Id);
         }
     }

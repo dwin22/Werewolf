@@ -1485,7 +1485,7 @@
     <value>¿Quieres dormir a toda la aldea esta noche?</value>
   </string>
   <string key="SandmanSleepAll">
-    <value>Mientras la aldea discute, {0} vuelve a su casa y comienza a tatarear una dulce melodía. Esta noche, todos caerán en un sueño profundo, y nadie podrá hacer acciones nocturnas.</value>
+    <value>Mientras la aldea discute, empieza a sonar una dulce melodía. Esta noche, todos caerán en un sueño profundo, y nadie podrá hacer acciones nocturnas.</value>
   </string>
   <string key="SandmanNight">
     <value>Cae la noche y los aldeanos apenas llegan a sus camas por el agotamiento. Se quedan dormidos profundamente, ni siquiera recuerdan haberse ido a dormir...</value>
@@ -1650,7 +1650,7 @@
     <value>La función del sheriff es muy importante. Es un rol investigador y protector a la vez. Cada noche puede saber si un jugador tiene rol visitante y evitar que le conviertan al culto. Eso sí, vuelve pronto a casa, por lo que el culto puede convertirle aunque salga de patrulla.</value>
   </string>
 	<string key="RoleInfoPolice">
-    <value>Eres un policía. Cada noche puedes interrogar a un jugador para saber si es sospechoso. Sin embargo, hay un 20% de que tu resultado sea el contrario.</value>
+    <value>Eres un policía. Cada noche puedes interrogar a un jugador para saber si es sospechoso (es decir, malo). Sin embargo, hay un 20% de que tu resultado sea el contrario.</value>
   </string>
   <string key="Police">
     <value>un policía 👮</value>
@@ -1800,5 +1800,20 @@
   <string key="ImposterSees">
     <!-- 0 - target's role -->
     <value>Estás imitando a {0}, así que procura actuar como tal.</value>
+  </string>
+  
+  <string key="RoleInfoSleepwalker">
+    <value>Eres un simple aldeano. Estás condenado a pasar tus días labrando el campo... y ser comido.</value>
+  </string>
+  <string key="Sleepwalker">
+    <value>el sonámbulo 😴</value>
+  </string>
+  <string key="AboutSleepwalker">
+    <value>El sonámbulo es un aldeano más, con la diferencia de que cada noche, sin saberlo, tiene un 50% de probabilidad de salir de casa, siendo inmune contra lobos y culto esa noche. Sin embargo, ni el propio sonámbulo sabe que lo es, y pensará que es un aldeano normal.</value>
+  </string>
+  
+  <string key="MinutesLeftToJoin">
+  <!-- 0 - remaining minutes (number) -->
+    <value>Quedan {0} minutos para unirse.</value>
   </string>
 </strings>
