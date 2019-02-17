@@ -30,6 +30,10 @@
         Sandman,
         Douse,
         SheriffSee,
-        PoliceSee
+        PoliceSee,
+        Pacifist,
+        Freeze,
+        Poison,
+        Cure
     }
 }

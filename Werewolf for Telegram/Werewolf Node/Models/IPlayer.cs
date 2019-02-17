@@ -92,6 +92,9 @@ namespace Werewolf_Node.Models
         public bool HasDayAction { get; set; } = false;
         public int DayCult { get; set; } = 0;
         public int RoleModel { get; set; } = 0;
+        public int PoisonTarget { get; set; } = 0;
+        public int PoisonedBy { get; set; } = 0;
+        public bool WasPoisoned { get; set; } = false;
         [JsonConverter(typeof(StringEnumConverter))]
         public IRole KilledByRole { get; set; }
         public bool DiedByVisitingKiller { get; set; } = false;
@@ -107,6 +110,7 @@ namespace Werewolf_Node.Models
         public int DBGamePlayerId { get; set; } = 0;
         public DateTime TimeDied { get; set; } = DateTime.MaxValue;
         public int DayOfDeath { get; set; } = 0;
+        public bool Frozen { get; set; } = false;
 
         public string Language { get; set; } = "English";
         public bool Won { get; set; } = false;
@@ -158,12 +162,10 @@ namespace Werewolf_Node.Models
     public enum IRole
     {
         Villager, Drunk, Harlot, Seer, Traitor, GuardianAngel, Detective, Wolf, Cursed, Gunner, Tanner, Fool, WildChild, Beholder, ApprenticeSeer, Cultist, CultistHunter, Mason, Doppelgänger, Cupid, Hunter, SerialKiller,
-        //new roles
         Sorcerer, AlphaWolf, WolfCub, Blacksmith, ClumsyGuy, Mayor, Prince,
-        //more new roles, from april fools.....
-        Lycan, Pacifist, WiseElder, Oracle, Sandman, WolfMan, Thief,
-        //even more new roles
-        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf, Sleepwalker
+        Lycan, Pacifist, WiseElder, Oracle, Sandman, WolfMan, Thief, SnowWolf,
+        //new roles
+        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf, Sleepwalker, Herbalist
     }
 
     public enum ITeam
@@ -177,6 +179,6 @@ namespace Werewolf_Node.Models
 
     public enum KillMthd
     {
-        None, Lynch, Eat, Shoot, VisitWolf, VisitVictim, GuardWolf, Detected, Flee, Hunt, HunterShot, LoverDied, SerialKilled, HunterCult, GuardKiller, VisitKiller, Idle, Suicide, Ignited
+        None, Lynch, Eat, Shoot, VisitWolf, VisitVictim, GuardWolf, Detected, Flee, Hunt, HunterShot, LoverDied, SerialKilled, HunterCult, GuardKiller, VisitKiller, Idle, Suicide, Ignited, Poisoned
     }
 }

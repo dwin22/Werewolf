@@ -306,7 +306,7 @@
     <value>¡Fuiste a proteger a {0}, pero no había nadie en casa! [Estaba visitando a otro jugador].</value>
   </string>
   <string key="GuardSavedYou" >
-    <value >¡Tu ángel de la guarda estuvo velando por ti anoche y luchó contra el atacante que te acechaba! (Fuiste elegido por un atacante —asesina u hombre lobo—, pero te salvaron).</value>
+    <value >¡Tu ángel de la guarda estuvo velando por ti anoche y luchó contra el atacante que te acechaba! (Fuiste elegido por un atacante, pero te salvaron).</value>
   </string>
   <string key="HarlotEaten" >
     <!-- 0 - player name -->
@@ -1550,25 +1550,25 @@
     <value>Una vez por partida, el arenero puede dormir profundamente a todos los jugadores de modo que nadie pueda realizar acciones esa noche.</value>
   </string>
 
-<!-- NOT IMPLEMENTED YET -->
+<!-- Original bot roles -->
   <string key="RoleInfoPacifist">
-    <value></value>
+    <value>Eres el pacifista. Tienes el poder de persuadir a tus vecinos para que nadie linche. Solo podrás hacerlo una vez.</value>
   </string>
   <string key="Pacifist">
     <value>el pacifista ☮️</value>
   </string>
   <string key="AboutPacifist">
-    <value></value>
+    <value>El pacifista puede persuadir a sus vecinos para que nadie linche. Solo podrá hacerlo una vez.</value>
   </string>
 
   <string key="RoleInfoWiseElder">
-    <value></value>
+    <value>Eres la anciana sabia. Podrás sobrevivir al ataque de los hombres lobo una única vez; la siguiente vez no tendrás tanta suerte. Si el justiciero o el cazador te matan, perderán sus poderes y se convertirán en aldeanos.</value>
   </string>
   <string key="WiseElder">
-    <value>el anciano sabio 📚</value>
+    <value>la anciana sabia 📚</value>
   </string>
   <string key="AboutWiseElder">
-    <value></value>
+    <value>La anciana sabia podrá sobrevivir al ataque de los hombres lobo una única vez; la siguiente vez que los lobos quieran comérsela podrán hacerlo. Si el justiciero o el cazador la matan, perderán sus poderes y se convertirán en aldeanos.</value>
   </string>
 
   <string key="RoleInfoThief">
@@ -1581,7 +1581,131 @@
     <value></value>
   </string>
   
-<!-- New Roles, Jiro 2018 -->
+  <string key="AskPacifist">
+    <value>¿Quieres evitar que se linche esta noche?</value>
+  </string>
+  <string key="PacifistNoLynch">
+  <!-- {0} - Pacifist's name -->
+    <value>El pacifista, {0}, está dando un emotivo discurso de paz, amor y amistad en la plaza del pueblo. Conmovido por su retórica, el pueblo decide no linchar a nadie esta noche.</value>
+  </string>
+  <string key="PacifistNoLynchNow">
+    <value>A causa del enternecedor discurso del pacifista, no habrá linchamientos por hoy.</value>
+  </string>
+  <string key="WolvesTriedToEatWiseElder">
+  <!-- 0 - Wise Elder's name -->
+    <value>Intentasteis entrar en la casa de {0}, ¡pero desgraciadamente la anciana sabia se encontraba ahí! {0} impidió con éxito el ataque, pero, afortunadamente, no han reconocido a ninguno de vosotros.</value>
+  </string>
+  <string key="WolvesAteWiseElderPM">
+    <value>Los lobos intentaron darse un festín con tu deliciosa carne, pero no te convertiste en la anciana sabia por nada. Evitaste con éxito el ataque, pero por desgracia no reconociste a ninguno de los atacantes.</value>
+  </string>
+  <string key="HunterKilledWiseElder">
+  <!-- {0} - Hunter's Name -->
+  <!-- {1} - Wise Elder's Name -->
+    <value>El cazador, {0}, disparó a la anciana sabia , {1}. {0} solloza con gran tristeza, lamentando su grave error, que le ha hecho perder sus habilidades de cazador. Ha muerto como un simple aldeano.</value>
+  </string>
+  <string key="GunnerShotWiseElder">
+  <!-- {0} - Gunner's Name -->
+  <!-- {1} - Wise Elder's Name -->
+    <value>El justiciero, {0}, disparó a la anciana sabia, {1}. {0} solloza con gran tristeza, lamentando su grave error, y decide retirarse, lo que lo convierte en un simple aldeano con mucha tierra que arar.</value>
+  </string>
+  
+  <string key="Peace">
+  <!-- Used for Pacifist's button -->
+	<value>¡Haya paz!</value>
+  </string>
+  <string key="LynchPeaceTimeout">
+  <!-- Used in PM if the pacifist uses his ability during lynch phase -->
+	<value>¡Hoy no habrá linchamientos gracias al emotivo discurso del pacifista!</value>
+  </string>
+  
+  <string key="SnowWolf">
+	<value>el lobo de nieve 🐺❄️</value>
+  </string>
+  <string key="RoleInfoSnowWolf">
+    <value>Eres el lobo de nieve. Cada noche, en lugar de seguir a tu manada para cazar, merodearás para congelar a un aldeano, que será incapaz de usar ninguna acción nocturna; no obstante, tu víctima tendrá residuos de tu poder y no podrá ser congelado dos noches seguidas.</value>
+  </string>
+  <string key="AboutSnowWolf">
+    <value>El lobo de nieve es un lobo de las montañas nevadas. Como tal, ha dominado el arte de controlar el hielo y la nieve. Ya que ha vivido mucho tiempo solo, el lobo de nieve prefiere atacar por separado. En lugar de comerse a alguien con su manada, durante la noche puede escoger a otra víctima para congelarla; de este modo, imposibilita a sus víctimas para realizar acciones nocturnas. Sin embargo, su víctima tendrá residuos de su poder y no podrá ser congelado dos noches seguidas.</value>
+  </string>
+  <string key="AskFreeze">
+	<value>¿A quien quieres congelar esta noche?</value>
+  </string>
+  <string key="WolfPackList">
+    <value>La manada de lobos está formada por {0}.</value>
+  </string>
+  <string key="WolfPackSnowList">
+    <value>Tu manada es {0}, y el lobo de nieve es {1}.</value>
+  </string>
+  <string key="DGTransformToAlphaWithSnow">
+    <value>{0} ha muerto, y te has transformado en el lobo alfa. Tus compañeros son: {1}, y el lobo de nieve es {2}.</value>
+  </string>
+  <string key="DGTransformToWolfCubWithSnow">
+   <value>{0} ha muerto, y te has transformado en el lobezno. Tus compañeros son: {1}, y el lobo de nieve es {2}.</value>
+  </string>
+  <string key="DGTransformToWolfWithSnow">
+   <value>{0} ha muerto, y te has transformado en un hombre lobo. Tus compañeros son: {1}, y el lobo de nieve es {2}.</value>
+  </string>
+  <string key="DGTransformToLycanWithSnow">
+   <value>{0} ha muerto, y te has transformado en el licántropo. Tus compañeros son: {1}, y el lobo de nieve es {2}.</value>
+  </string>
+  <string key="DGTransformToSnowWolf">
+   <value>{0} ha muerto, y te has transformado en el lobo de nieve. Tus compañeros (si los hay) son: {1}.</value>
+  </string>
+  <string key="DGToSnowWolf">
+    <value>El doppelganger, {0}, ¡se ha convertido el nuevo lobo de nieve!</value>
+  </string>
+  <string key="WildChildSnowTransform">
+    <value>¡{0} ha muerto! En un ataque de rabia, te has transformado en un hombre lobo. Tus compañeros son: {1}, y el lobo de nieve es {2}.</value>
+  </string>
+  <string key="HarlotFrozen">
+    <value>Mientras abres la puerta para salir de casa, una corriente de viento te rodea, lo que provoca que te quedes inmóvil por el frío ❄️. Te quedas en tu puerta maldiciendo sileciosamente esta extraña forma de «bondage».</value>
+  </string>
+  <string key="CultistFrozen">
+    <value>Mientras abres la puerta para salir de casa, una corriente de viento te rodea, lo que provoca que te quedes inmóvil por el frío ❄️. Tus compañeros del culto terminan riéndose al ver la situación en la que has acabado.</value>
+  </string>
+  <string key="CHFrozen">
+    <value>Mientras abres la puerta para salir de casa, una corriente de viento te rodea, lo que provoca que te quedes inmóvil por el frío ❄️. Tus caderas comienzan a cansarse despues de estar en esa posición durante tantas horas. </value>
+  </string>
+  <string key="SeeingFrozen">
+  <!-- used for seer, fool, oracle and sorcerer -->
+    <value>Mientras te sentabas en la mesa para usar tus poderes psíquicos, una corriente de viento te rodea, lo que provoca que te quedes inmóvil por el frío ❄️. Normalmente el estar sujeta no es un problema, pero el intenso frío te ha congelado el cerebro.</value>
+  </string>
+  <string key="SeeingFrozenNext">
+  <!-- used for seer, fool, oracle and sorcerer -->
+    <value>Mientras te sentabas en la mesa para usar tus poderes psíquicos, una corriente de viento te rodea, lo que provoca que te quedes inmóvil por el frío ❄️. Debido a esto, no podrás percibir la próxima noche.</value>
+  </string>
+  <string key="GAFrozen">
+    <value>Mientras abres la puerta para salir de casa, una corriente de viento te rodea, lo que provoca que te quedes inmóvil por el frío ❄️. Ahora pareces un adorno de navidad más.</value>
+  </string>
+  <string key="SKFrozen">
+    <value>Mientras abres la puerta para salir de casa, una corriente de viento te rodea, lo que provoca que te quedes inmóvil por el frío ❄️. Ahora solo te queda jurar venganza contra el lobo de nieve.</value>
+  </string>
+  <string key="PyroFrozen">
+    <value>Mientras abres la puerta para salir de casa, una corriente de viento te rodea. Sin embargo, no eres el pirómano por nada, así que prendes un palo con fuego y sigues con tus malvados planes.</value>
+  </string>
+  <string key="VisitorFrozen">
+    <value>Mientras abres la puerta para salir de casa, una corriente de viento te rodea, lo que provoca que te quedes inmóvil por el frío ❄️.</value>
+  </string>
+  
+  <string key="DefaultFrozen">
+  <!-- used for all roles without (every-)night action -->
+    <value>Mientras estabas durmiendo, una corriente de viento te rodea, lo que provoca que te quedes inmóvil por el frío ❄️. Parece que has pasado una fría noche.</value>
+  </string>
+  <string key="SuccessfulFreeze">
+    <value>Fuiste a casa de {0} y lograste congelarlo. Esta noche no será capaz de usar sus acciones.</value>
+  </string>
+  <string key="SnowFrozeKiller">
+	<value>El lobo de nieve, {0}, se preparaba para congelar a alguien durante la noche, pero accidentalmente visitó a la asesina en serie; esta se ha percatado de su inesperado visitante y ha apuñalado a {0}.</value>
+  </string>
+  <string key="SnowWolfTurnWolf">
+	<value>Los otros lobos han muerto, y eres el último miembro de la manada. Para obtener algo de carne fresca de aldeano, te has convertido en un hombre lobo normal que prefiere comer en lugar de helar por la noche.</value>
+  </string>
+  <string key="SnowFrozeHunter">
+    <!-- 0 - nombre del objetivo-->
+    <value>El lobo de nieve, {0}, intentó congelar al cazador anoche, ¡pero el cazador pudo alcanzarlo con su rifle! {0} era un hombre lobo.</value>
+  </string>
+  
+<!-- New Roles, ElNarradorBot -->
   <string key="DGTransformToHungryWolf">
     <!-- 0 - target's name -->
     <!-- 1 - teammates's name -->
@@ -1816,4 +1940,41 @@
   <!-- 0 - remaining minutes (number) -->
     <value>Quedan {0} minutos para unirse.</value>
   </string>
+  
+  <string key="RoleInfoHerbalist">
+    <value>Eres el herborista. Debido a la amenaza de los hombres lobo, decides usar tus conocimientos para envenenar a una persona cada dos noches. Esa persona sabrá que ha sido envenenada, y morirá la próxima noche. Solo tú conoces el antídoto, y podrás decidir si dárselo la próxima noche y salvarla o dejarla morir. Eres parte de la aldea.</value>
+  </string>
+  <string key="Herbalist">
+    <value>el herborista 🍃</value>
+  </string>
+  <string key="AboutHerbalist">
+    <value>El herborista es un aldeano experto en hierbas medicinales... y no tan medicinales. A causa de la aparición de hombres lobo en la aldea, cada dos noches visitará a otro jugador para envenenarlo. El objetivo sabrá que ha sido envenenado y morirá la próxima noche. Existe un antídoto, pero sólo lo conoce el propio herborista, el cual se lo podrá dar la próxima noche si se arrepiente de su decisión.</value>
+  </string>
+  <string key="HerbalistPoisonedYou">
+    <value>A medida que terminas de desayunar empiezas a sentirte mareado... ¡parece que te han envenenado! Morirás la próxima noche si no consigues un antídoto.</value>
+  </string>
+  <string key="GuardBlockedHerbalist">
+    <value>Trataste de envenenar a {0} esta noche, pero el ángel de la guarda le estaba protegiendo, y se encargó de purificar todo tipo de veneno.</value>
+  </string>
+  <string key="PoisonedAlreadyDead">
+    <value>Como tu anterior objetivo ya ha muerto, decides descansar esta noche y continuar envenenando mañana.</value>
+  </string>
+  <string key="CurePoisoned">
+    <value>Te arrepentiste de tu decisión de envenenar a {0}, por lo que le diste un antidoto para salvarle la vida.</value>
+  </string>
+  <string key="HerbalistCuredYou">
+    <value>Durante la noche oyes un ruido, y sales a mirar. Descubres un frasco que pone "Antídoto". Como no tienes nada que perder, decides tomarte su contenido.</value>
+  </string>
+  <string key="DefaultPoisoned">
+    <!-- 0 - target's name -->
+    <!-- 1 - target's role -->
+    <value>Al llegar la mañana, los aldeanos comienzan a abrir los ojos y despertarse... excepto {0}, el cual ha decidido dormir para siempre. Parece que murió envenenado por el herborista. {1}.</value>
+  </string>
+  <string key="AskPoison">
+    <value>¿A quién quieres envenenar esta noche?</value>
+  </string>
+  <string key="AskCure">
+    <value>Tu veneno ha surtido efecto, y {0} morirá esta noche. Sin embargo, aun puedes salvarle. ¿Quieres darle el antídoto y evitar su muerte?</value>
+  </string>
+  
 </strings>

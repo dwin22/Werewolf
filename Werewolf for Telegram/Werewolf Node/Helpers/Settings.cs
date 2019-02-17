@@ -112,6 +112,8 @@ namespace Werewolf_Node
             SandmanConversionChance = 60,
             SheriffConversionChance = 60,
             HealerConversionChance = 40,
+            PacifistConversionChance = 80,
+            WiseElderConversionChance = 30,
 
             GameJoinTime = 1800,
             MaxJoinTime = 300;

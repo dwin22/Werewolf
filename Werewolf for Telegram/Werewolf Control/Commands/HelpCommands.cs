@@ -136,12 +136,13 @@ namespace Werewolf_Control
             Send(reply, update.Message.From.Id);
             Thread.Sleep(300);
             //reply = "/aboutThief - Thief 😈\n";
-            //reply += "/aboutPacifist - Pacifist ☮️\n";
-            //reply += "/aboutWiseElder - Wise Elder 📚\n";
             reply = "/aboutSandman - Sandman 💤\n";
             reply += "/aboutOracle - Oracle 🌀\n";
             reply += "/aboutWolfMan - Wolf Man 👱‍🌚\n";
             reply += "/aboutLycan - Lycan 🐺🌝\n";
+            reply += "/aboutPacifist - Pacifist ☮️\n";
+            reply += "/aboutWiseElder - Wise Elder 📚\n";
+            reply += "/aboutSnowWolf - SnowWolf 🐺❄️\n";
             Send(reply, update.Message.From.Id);
             Thread.Sleep(300);
             reply = "/aboutSurvivor - Superviviente ⛺️\n";
@@ -157,6 +158,7 @@ namespace Werewolf_Control
             reply = "/aboutHealer - Curandero 🌟\n";
             reply += "/aboutRabidWolf - Lobo Rabioso 🐺🤢\n";
             reply += "/aboutSleepwalker - Sonámbulo 😴\n";
+            reply += "/aboutHerbalist - Herborista 🍃\n";
             Send(reply, update.Message.From.Id);
         }
     }
