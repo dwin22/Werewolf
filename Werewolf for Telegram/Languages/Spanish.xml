@@ -1976,5 +1976,8 @@
   <string key="AskCure">
     <value>Tu veneno ha surtido efecto, y {0} morirá esta noche. Sin embargo, aun puedes salvarle. ¿Quieres darle el antídoto y evitar su muerte?</value>
   </string>
+  <string key="WolfList">
+    <value>La manada está formada por:</value>
+  </string>
   
 </strings>
