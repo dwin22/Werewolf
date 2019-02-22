@@ -564,5 +564,113 @@ namespace Werewolf_Control
             }
 
         }
+
+        [Command(Trigger = "cult")]
+        public static void Cult(Update update, string[] args)
+        {
+            if (args[1] != null)
+            {
+                switch (args[1])
+                {
+                    case "🍻":
+                    case "🖕":
+                    case "🔫":
+                    case "👺":
+                    case "🃏":
+                    case "👶":
+                    case "👁":
+                    case "🏹":
+                    case "🤕":
+                    case "🎖":
+                    case "👑":
+                    case "⛺️":
+                    case "❌":
+                    case "🍞":
+                    case "😴":
+                    case "💨":
+                        Send(args[1] + " 100%", update.Message.Chat.Id);
+                        break;
+                    case "💋":
+                        Send(args[1] + " 70%", update.Message.Chat.Id);
+                        break;
+                    case "🍃":
+                    case "🔮":
+                    case "🌟":
+                        Send(args[1] + " 40%", update.Message.Chat.Id);
+                        break;
+                    case "👼":
+                    case "😾":
+                    case "💤":
+                    case "🤠":
+                        Send(args[1] + " 60%", update.Message.Chat.Id);
+                        break;
+                    case "🔥":
+                    case "🎭":
+                    case "👦":
+                        Send(args[1] + " 0%", update.Message.Chat.Id);
+                        break;
+                    case "🎯":
+                    case "🌀":
+                        Send(args[1] + " 50%", update.Message.Chat.Id);
+                        break;
+                    case "⚒":
+                        Send(args[1] + " 75%", update.Message.Chat.Id);
+                        break;
+                    case "📚":
+                        Send(args[1] + " 30%", update.Message.Chat.Id);
+                        break;
+                    case "☮️":
+                        Send(args[1] + " 80%", update.Message.Chat.Id);
+                        break;
+                    case "🐺":
+                    case "💂":
+                    case "🔪":
+                    case "⚡️":
+                    case "🐶":
+                    case "🐺🌝":
+                    case "🐺🤢":
+                    case "🐺❄️":
+                    case "🐺🍽":
+                        Send(args[1] + " 💀", update.Message.Chat.Id);
+                        break;
+                    default:
+                        if (args[1][1] == '\uDD75') // detective
+                        {
+                            Send("🕵️" + " 70%", update.Message.Chat.Id);
+                        }
+                        else if (args[1][1] == '\uDC73') { // seer
+                            Send("👳" + " 40%", update.Message.Chat.Id);
+                        }
+                        else if (args[1][1] == '\uDC71') // villager and wolfman
+                        {
+                            if (args[1][5] == '\uDF1A')
+                            {
+                                Send("👱🌚" + " 100%", update.Message.Chat.Id);
+                            }
+                            else
+                            {
+                                Send("👱" + " 100%", update.Message.Chat.Id);
+                            }
+                        }
+                        else if (args[1][1] == '\uDC6E') // police
+                        {
+                            Send("👮" + " 100%", update.Message.Chat.Id);
+                        }
+                        else if (args[1][1] == '\uDE47') // app seer
+                        {
+                            Send("🙇" + " 100%", update.Message.Chat.Id);
+                        }
+                        else if (args[1][1] == '\uDC77') // mason
+                        {
+                            Send("👷" + " 100%", update.Message.Chat.Id);
+                        }
+                        else if (args[1][1] == '\uDC82') // ch
+                        {
+                            Send("💂" + " 💀", update.Message.Chat.Id);
+                        }
+                        break;
+                }
+            }
+        }
     }
 }

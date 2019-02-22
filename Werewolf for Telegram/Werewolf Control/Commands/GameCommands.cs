@@ -65,13 +65,7 @@ namespace Werewolf_Control
         [Command(Trigger = "testgame", Blockable = true, InGroupOnly = true)]
         public static void TestGame(Update update, string[] args)
         {
-            if (!Program.MaintMode)
-                StartGame(10, update);
-            else
-            {
-                Send("Pronto se reiniciará el bot, por lo que no se pueden iniciar partidas por unos minutos.",
-                    update.Message.Chat.Id);
-            }
+            StartGame(10, update);
         }
 
         [Command(Trigger = "nextjiro", Blockable = true, InGroupOnly = true)]
