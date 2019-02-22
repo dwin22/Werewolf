@@ -4785,6 +4785,16 @@ namespace Werewolf_Node
                                             break;
                                     }
                                     break;
+                                case IRole.Ninja:
+                                    if (p.HasUsedAbility)
+                                    {
+                                        msg = GetLocaleString(p.PlayerRole.ToString() + "Killed", p.GetName());
+                                    }
+                                    else
+                                    {
+                                        msg = GetLocaleString("DefaultKilled", p.GetName(), $"{p.GetName()} {GetLocaleString("Was")} {GetDescription(p)}");
+                                    }
+                                    break;
                                 default:
                                     msg = GetLocaleString("DefaultKilled", p.GetName(), $"{p.GetName()} {GetLocaleString("Was")} {GetDescription(p)}");
                                     break;

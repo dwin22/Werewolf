@@ -1998,5 +1998,8 @@
   <string key="AskHide">
     <value>¿Quieres mantenerte despierto esta noche y evitar visitas?</value>
   </string>
+  <string key="NinjaKilled">
+    <value>Tras un buen rato de búsqueda, los aldeanos encuentran el cuerpo de {0}, escondido entre unos arbustos. Parece que el ninja fue descubierto por la asesina mientras se ocultaba.</value>
+  </string>
   
 </strings>
