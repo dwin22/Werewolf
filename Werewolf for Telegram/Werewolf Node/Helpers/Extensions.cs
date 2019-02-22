@@ -126,11 +126,11 @@ namespace Werewolf_Node.Helpers
                 case IRole.Gunner:
                     return 6;
                 case IRole.Tanner:
-                    return 3;
+                    return 4;
                 case IRole.Fool:
                     return 3;
                 case IRole.WildChild:
-                    return 0;
+                    return -1;
                 case IRole.Beholder:
                     return 2 + (allRoles.Any(x => x == IRole.Seer) ? 2 : 0); //only good if seer is present!
                 case IRole.ApprenticeSeer:
@@ -142,17 +142,17 @@ namespace Werewolf_Node.Helpers
                 case IRole.Mason:
                     return allRoles.Count(x => x == IRole.Mason) <= 1 ? 2 : allRoles.Count(x => x == IRole.Mason) + 2; //strength in numbers
                 case IRole.Doppelgänger:
-                    return 1;
+                    return 0;
                 case IRole.Cupid:
-                    return 1;
+                    return 0;
                 case IRole.Hunter:
                     return 6;
                 case IRole.SerialKiller:
-                    return 11 - (allRoles.Count() / 5);
+                    return 12 - (allRoles.Count() / 5);
                 case IRole.Sorcerer:
-                    return 4;
+                    return 6;
                 case IRole.AlphaWolf:
-                    return 12;
+                    return 13;
                 case IRole.WolfCub:
                     return new[] { IRole.AlphaWolf, IRole.Wolf, IRole.Lycan, IRole.SnowWolf, IRole.HungryWolf, IRole.Traitor }
                         .Any(x => allRoles.Contains(x)) ? 11 : 9;
@@ -183,7 +183,7 @@ namespace Werewolf_Node.Helpers
                 case IRole.Atheist:
                     return 4;
                 case IRole.Pyro:
-                    return 7 - (allRoles.Count() / 10);
+                    return 12 - (allRoles.Count() / 5);
                 case IRole.HungryWolf:
                     return 11;
                 case IRole.Sheriff:
@@ -191,7 +191,7 @@ namespace Werewolf_Node.Helpers
                 case IRole.Police:
                     return 3;
                 case IRole.Imposter:
-                    return 4;
+                    return 5;
                 case IRole.Baker:
                     return -2;
                 case IRole.Healer:
@@ -201,9 +201,11 @@ namespace Werewolf_Node.Helpers
                 case IRole.Sleepwalker:
                     return 2;
                 case IRole.Herbalist:
-                    return 12;
+                    return 11;
                 case IRole.SnowWolf:
                     return 11;
+                case IRole.Ninja:
+                    return 5;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }
@@ -343,6 +345,8 @@ namespace Werewolf_Node.Helpers
                     return "🍃";
                 case IRole.SnowWolf:
                     return "🐺❄️";
+                case IRole.Ninja:
+                    return "💨";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }

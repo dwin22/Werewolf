@@ -34,6 +34,7 @@
         Pacifist,
         Freeze,
         Poison,
-        Cure
+        Cure,
+        Hide
     }
 }

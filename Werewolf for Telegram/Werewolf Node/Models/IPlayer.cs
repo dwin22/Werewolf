@@ -165,7 +165,7 @@ namespace Werewolf_Node.Models
         Sorcerer, AlphaWolf, WolfCub, Blacksmith, ClumsyGuy, Mayor, Prince,
         Lycan, Pacifist, WiseElder, Oracle, Sandman, WolfMan, Thief, SnowWolf,
         //new roles
-        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf, Sleepwalker, Herbalist
+        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf, Sleepwalker, Herbalist, Ninja
     }
 
     public enum ITeam

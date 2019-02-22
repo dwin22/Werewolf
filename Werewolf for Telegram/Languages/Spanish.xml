@@ -1933,7 +1933,7 @@
     <value>el sonámbulo 😴</value>
   </string>
   <string key="AboutSleepwalker">
-    <value>El sonámbulo es un aldeano más, con la diferencia de que cada noche, sin saberlo, tiene un 50% de probabilidad de salir de casa, siendo inmune contra lobos y culto esa noche. Sin embargo, ni el propio sonámbulo sabe que lo es, y pensará que es un aldeano normal.</value>
+    <value>El sonámbulo es un aldeano más, con la diferencia de que cada noche, sin saberlo, tiene un 80% de probabilidad de salir de casa, siendo inmune contra lobos y culto esa noche. Sin embargo, ni el propio sonámbulo sabe que lo es, y pensará que es un aldeano normal.</value>
   </string>
   
   <string key="MinutesLeftToJoin">
@@ -1978,6 +1978,25 @@
   </string>
   <string key="WolfList">
     <value>La manada está formada por:</value>
+  </string>
+  
+  <string key="RoleInfoNinja">
+    <value>Eres el ninja. Cada noche podrás decidir si quedarte despierto o dormir. Si decides quedarte despierto, estarás alerta y te ocultarás de las visitas, pero deberás descansar la próxima noche.</value>
+  </string>
+  <string key="Ninja">
+    <value>el ninja 💨</value>
+  </string>
+  <string key="AboutNinja">
+    <value>El ninja es un rol de la aldea. Cada noche puede decidir si dormir o no. Si se queda despierto, estará alerta y usará sus habilidades para ocultarse de los visitantes. Sin embargo, todo el mundo necesita descanso. Por ello, si decide pasar una noche despierto, deberá dormir la próxima obligatoriamente, le hayan visitado o no. Además, tiene un 50% de ser encontrado por la asesina mientras se oculta.</value>
+  </string>
+  <string key="NinjaHidden">
+    <value>Mientras vigilas, notas que alguien se acerca. En silencio ocultas tu presencia hasta que se marcha. (Alguien te ha visitado)</value>
+  </string>
+  <string key="NinjaFailed">
+    <value>Mientras vigilas, notas que alguien se acerca. En silencio ocultas tu presencia hasta que se marcha... o eso pensabas, hasta que una silueta aparece por detrás y te clava un cuchillo.</value>
+  </string>
+  <string key="AskHide">
+    <value>¿Quieres mantenerte despierto esta noche y evitar visitas?</value>
   </string>
   
 </strings>

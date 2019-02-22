@@ -159,6 +159,7 @@ namespace Werewolf_Control
             reply += "/aboutRabidWolf - Lobo Rabioso 🐺🤢\n";
             reply += "/aboutSleepwalker - Sonámbulo 😴\n";
             reply += "/aboutHerbalist - Herborista 🍃\n";
+            reply += "/aboutNinja - Ninja 💨\n";
             Send(reply, update.Message.From.Id);
         }
     }

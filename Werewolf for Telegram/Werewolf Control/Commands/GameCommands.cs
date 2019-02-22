@@ -17,25 +17,61 @@ namespace Werewolf_Control
         [Command(Trigger = "startgame", Blockable = true, InGroupOnly = true)]
         public static void StartGame(Update update, string[] args)
         {
-            StartGame(0, update);
+            if (!Program.MaintMode)
+                StartGame(0, update);
+            else
+            {
+                Send("Pronto se reiniciará el bot, por lo que no se pueden iniciar partidas por unos minutos.",
+                    update.Message.Chat.Id);
+            }
         }
 
         [Command(Trigger = "startchaos", Blockable = true, InGroupOnly = true)]
         public static void StartChaos(Update update, string[] args)
         {
-            StartGame(1, update);
+            if (!Program.MaintMode)
+                StartGame(1, update);
+            else
+            {
+                Send("Pronto se reiniciará el bot, por lo que no se pueden iniciar partidas por unos minutos.",
+                    update.Message.Chat.Id);
+            }
         }
 
         [Command(Trigger = "startclumsy", Blockable = true, InGroupOnly = true)]
         public static void StartClumsy(Update update, string[] args)
         {
-            StartGame(2, update);
+            if (!Program.MaintMode)
+                StartGame(2, update);
+            else
+            {
+                Send("Pronto se reiniciará el bot, por lo que no se pueden iniciar partidas por unos minutos.",
+                    update.Message.Chat.Id);
+            }
         }
 
         [Command(Trigger = "superchaos", Blockable = true, InGroupOnly = true)]
         public static void SuperChaos(Update update, string[] args)
         {
-            StartGame(3, update);
+            if (!Program.MaintMode)
+                StartGame(3, update);
+            else
+            {
+                Send("Pronto se reiniciará el bot, por lo que no se pueden iniciar partidas por unos minutos.",
+                    update.Message.Chat.Id);
+            }
+        }
+
+        [Command(Trigger = "testgame", Blockable = true, InGroupOnly = true)]
+        public static void TestGame(Update update, string[] args)
+        {
+            if (!Program.MaintMode)
+                StartGame(10, update);
+            else
+            {
+                Send("Pronto se reiniciará el bot, por lo que no se pueden iniciar partidas por unos minutos.",
+                    update.Message.Chat.Id);
+            }
         }
 
         [Command(Trigger = "nextjiro", Blockable = true, InGroupOnly = true)]

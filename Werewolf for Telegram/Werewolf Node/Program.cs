@@ -220,6 +220,7 @@ namespace Werewolf_Node
                                 {
                                     game = new Werewolf(gsi.Chat.Id, gsi.User, gsi.Chat.Title,
                                         gsi.gameMode);
+                                    Console.WriteLine(gsi.Chat.Title); // to see in which groups are games started
                                     Games.Add(game);
                                     GamesStarted++;
                                 }

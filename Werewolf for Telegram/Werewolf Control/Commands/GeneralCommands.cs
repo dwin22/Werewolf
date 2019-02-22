@@ -196,7 +196,8 @@ namespace Werewolf_Control
                             UserName = usr.Username,
                             Name = (usr.FirstName + " " + usr.LastName).Trim(),
                             TelegramId = usr.Id,
-                            Language = "English"
+                            Language = "English",
+                            Score = 1000
                         };
                         db.Players.Add(p);
                         db.SaveChanges();
@@ -540,6 +541,28 @@ namespace Werewolf_Control
                 Send(reply, update.Message.Chat.Id);
             }
             
+        }
+
+        [Command(Trigger = "topmancos")]
+        public static void TopMancos(Update update, string[] args)
+        {
+
+            using (var db = new WWContext())
+            {
+                var topPlayers = db.Players.OrderBy(x => x.Score);
+                var reply = "Worst 10 Players:\n";
+                reply.ToBold();
+                reply += "\n";
+                var topScore = topPlayers.Take(10);
+                var i = 1;
+                foreach (var p in topScore)
+                {
+                    reply += i + "º " + p.Name + " (" + p.Score + ")\n";
+                    i++;
+                }
+                Send(reply, update.Message.Chat.Id);
+            }
+
         }
     }
 }
