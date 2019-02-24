@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -373,12 +374,12 @@ namespace Werewolf_Control
                         var p = db.Players.FirstOrDefault(x => x.TelegramId == id);
                         if (p != null)
                         {
-                            if (p.Achievements == null)
-                                p.Achievements = 0;
-                            var ach = (Achievements)p.Achievements;
+                            var ach = new BitArray(200);
+                            if (p.Achievements != null)
+                                ach = new BitArray(p.Achievements);
                             if (ach.HasFlag(a)) return; //no point making another db call if they already have it
-                            ach = ach | a;
-                            p.Achievements = (long)ach;
+                            ach = ach.Set(a);
+                            p.Achievements = ach.ToByteArray();
                             db.SaveChanges();
                             Send($"Achievement Unlocked!\n{a.GetName().ToBold()}\n{a.GetDescription()}", p.TelegramId);
                             Send($"Achievement {a} unlocked for {p.Name}", u.Message.Chat.Id);
@@ -447,8 +448,7 @@ namespace Werewolf_Control
             if (id != 0)
             {
                 //try to get the achievement
-                Achievements a;
-                if (Enum.TryParse(param[achIndex], out a))
+                if (Enum.TryParse(param[achIndex], out Achievements a))
                 {
                     //get the player from database
                     using (var db = new WWContext())
@@ -456,12 +456,12 @@ namespace Werewolf_Control
                         var p = db.Players.FirstOrDefault(x => x.TelegramId == id);
                         if (p != null)
                         {
-                            if (p.Achievements == null)
-                                p.Achievements = 0;
-                            var ach = (Achievements)p.Achievements;
+                            var ach = new BitArray(200);
+                            if (p.Achievements != null)
+                                ach = new BitArray(p.Achievements);
                             if (!ach.HasFlag(a)) return; //no point making another db call if they already have it
-                            ach &= ~a;
-                            p.Achievements = (long)ach;
+                            ach = ach.Unset(a);
+                            p.Achievements = ach.ToByteArray();
                             db.SaveChanges();
 
                             Send($"Achievement {a} removed from {p.Name}", u.Message.Chat.Id);

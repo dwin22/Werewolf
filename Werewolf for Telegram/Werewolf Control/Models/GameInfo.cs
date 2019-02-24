@@ -59,6 +59,13 @@ namespace Werewolf_Control.Models
             n?.Broadcast(json);
         }
 
+        public void ShowRoles()
+        {
+            var json = JsonConvert.SerializeObject(new RoleListRequestInfo { GroupId = GroupId });
+            var n = Bot.Nodes.FirstOrDefault(x => x.ClientId == NodeId);
+            n?.Broadcast(json);
+        }
+
         public void RemovePlayer(Update update)
         {
             var n = Bot.Nodes.FirstOrDefault(x => x.ClientId == NodeId);

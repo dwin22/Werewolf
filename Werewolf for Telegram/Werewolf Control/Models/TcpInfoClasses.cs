@@ -42,6 +42,7 @@ namespace Werewolf_Control.Models
     {
         public string JType { get; set; } = "GameStartInfo";
         public int gameMode { get; set; }
+        public List<IRole> CList { get; set; } = new List<IRole>();
         public User User { get; set; }
         public Chat Chat { get; set; }
         public bool nHela { get; set; }
@@ -73,6 +74,12 @@ namespace Werewolf_Control.Models
     public class PlayerListRequestInfo
     {
         public string JType { get; set; } = "PlayerListRequestInfo";
+        public long GroupId { get; set; }
+    }
+
+    public class RoleListRequestInfo
+    {
+        public string JType { get; set; } = "RoleListRequestInfo";
         public long GroupId { get; set; }
     }
 

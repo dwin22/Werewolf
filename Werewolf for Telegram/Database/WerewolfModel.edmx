@@ -280,7 +280,7 @@ warning 6002: The table/view 'werewolf.dbo.NotifyGame' does not have a primary k
           <Property Name="TempBanCount" Type="int" />
           <Property Name="HasPM2" Type="bit" />
           <Property Name="HasDebugPM" Type="bit" />
-          <Property Name="Achievements" Type="bigint" />
+          <Property Name="Achievements" Type="varbinary" MaxLength="50" />
           <Property Name="WebUserId" Type="nvarchar" MaxLength="128" />
           <Property Name="DonationLevel" Type="int" />
           <Property Name="Founder" Type="bit" />
@@ -901,7 +901,7 @@ warning 6002: The table/view 'werewolf.dbo.v_IdleKill24HoursMain' does not have 
           <Property Name="TempBanCount" Type="Int32" />
           <Property Name="HasPM2" Type="Boolean" />
           <Property Name="HasDebugPM" Type="Boolean" />
-          <Property Name="Achievements" Type="Int64" />
+          <Property Name="Achievements" Type="Binary" MaxLength="50" FixedLength="false" />
           <Property Name="WebUserId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="DonationLevel" Type="Int32" />
           <Property Name="Founder" Type="Boolean" />

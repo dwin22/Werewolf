@@ -36,7 +36,7 @@ namespace Database
         public Nullable<int> TempBanCount { get; set; }
         public Nullable<bool> HasPM2 { get; set; }
         public Nullable<bool> HasDebugPM { get; set; }
-        public Nullable<long> Achievements { get; set; }
+        public byte[] Achievements { get; set; }
         public string WebUserId { get; set; }
         public Nullable<int> DonationLevel { get; set; }
         public Nullable<bool> Founder { get; set; }

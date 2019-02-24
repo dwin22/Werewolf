@@ -219,7 +219,7 @@ namespace Werewolf_Node
                                 else
                                 {
                                     game = new Werewolf(gsi.Chat.Id, gsi.User, gsi.Chat.Title,
-                                        gsi.gameMode);
+                                        gsi.gameMode, gsi.CList);
                                     Console.WriteLine(gsi.Chat.Title); // to see in which groups are games started
                                     Games.Add(game);
                                     GamesStarted++;
@@ -248,6 +248,11 @@ namespace Werewolf_Node
                                 var plri = JsonConvert.DeserializeObject<PlayerListRequestInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == plri.GroupId);
                                 game?.OutputPlayers();
+                                break;
+                            case "RoleListRequestInfo":
+                                var rlri = JsonConvert.DeserializeObject<RoleListRequestInfo>(msg);
+                                game = Games.FirstOrDefault(x => x.ChatId == rlri.GroupId);
+                                game?.OutputRoles();
                                 break;
                             case "PlayerFleeInfo":
                                 var pfi = JsonConvert.DeserializeObject<PlayerFleeInfo>(msg);

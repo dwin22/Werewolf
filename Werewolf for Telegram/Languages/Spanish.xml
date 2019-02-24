@@ -2002,4 +2002,28 @@
     <value>Tras un buen rato de búsqueda, los aldeanos encuentran el cuerpo de {0}, escondido entre unos arbustos. Parece que el ninja fue descubierto por la asesina mientras se ocultaba.</value>
   </string>
   
+  <string key="PointsObtained">
+    <value>¡Has obtenido {0} puntos! Ahora tienes {1}.</value>
+  </string>
+  <string key="InvalidRolelist">
+    <value>La lista de roles no es válida. Por favor, asegúrate de usar solo emojis válidos separados por comas. Para más información, usa /helpCustom.</value>
+  </string>
+  <string key="PlayerStartedCustomGame">
+   <!-- 0 - Player name -->
+   <value>¡{0} ha empezado una partida custom! Pulsa el botón para unirte a la diversión… y probablemente morir :P</value>
+   <value>¡{0} ha iniciado una nueva partida custom! ¡Pulsa el botón para ser comido!</value>
+  </string>
+  <string key="NeedRolelist">
+    <value>Necesitas una lista de roles para iniciar custom. Para más información, usa /helpCustom.</value>
+  </string>
+  <string key="NotEnoughBaddies">
+    <value>La lista de roles no es válida. Uno de los 4 primeros roles ha de ser un rol malo. Para más información, usa /helpCustom.</value>
+  </string>
+  <string key="LatestRoleList">
+    <value>Aquí tienes la lista de roles:</value>
+  </string>
+  <string key="UnableToGetRoleList">
+    <value>No ha comenzado la partida.</value>
+  </string>
+  
 </strings>

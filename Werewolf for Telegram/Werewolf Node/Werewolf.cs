@@ -1,5 +1,6 @@
 using Database;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -42,6 +43,7 @@ namespace Werewolf_Node
         public Guid Guid = Guid.NewGuid();
         private readonly InlineKeyboardMarkup _requestPMButton;
         public DateTime LastPlayersOutput = DateTime.Now;
+        public DateTime LastRolesOutput = DateTime.Now;
         public GameTime Time;
         public string Language = "English SFW", ChatGroup;
         public Locale Locale;
@@ -59,6 +61,7 @@ namespace Werewolf_Node
         private InlineKeyboardMarkup _joinButton;
         private List<int> _joinButtons = new List<int>();
         private int _playerListId = 0;
+        private int _roleListId = 0;
         public bool RandomMode = false;
         public bool ShowRolesOnDeath = true, AllowTanner = true, AllowFool = true, AllowCult = true, SecretLynch = false, ShowIDs = true, AllowNSFW = true, AllowThief = true, ThiefFull = false;
         public string ShowRolesEnd;
@@ -66,6 +69,7 @@ namespace Werewolf_Node
         public int startingwolves = 0;
         public int WolfScore = 0;
         public int VillageScore = 0;
+        public List<IRole> customList = new List<IRole>();
 
         public List<string> VillagerDieImages,
             WolfWin,
@@ -80,7 +84,8 @@ namespace Werewolf_Node
             PyroWins,
             ClumsyGame,
             LoversWin,
-            SuperChaos;
+            SuperChaos,
+            StartCustom;
         
         #region Constructor
         /// <summary>
@@ -90,7 +95,7 @@ namespace Werewolf_Node
         /// <param name="u">User that started the game</param>
         /// <param name="chatGroup">Name of the group starting the game</param>
         /// <param name="chaos">Chaos mode yes or no</param>
-        public Werewolf(long chatid, User u, string chatGroup, int gmode)
+        public Werewolf(long chatid, User u, string chatGroup, int gmode, List<IRole> cList)
         {
             try
             {
@@ -120,12 +125,14 @@ namespace Werewolf_Node
                 PyroWins = new List<string> { "CgADBAADxqIAAuYXZAc5ogGUFZJjuAI" };
                 ClumsyGame = new List<string> { "CgADBAAD0JgAAsAcZAeGq4YcSBjJSQI" };
                 SuperChaos = new List<string> { "CgADBAADHwADXfCgUYo8PN0peNCNAg" };
+                StartCustom = new List<string> { "CgADBAADoAADwhSMU58OfazPxYIMAg" };
 
                 new Thread(GroupQueue).Start();
 
                 ChatGroup = chatGroup;
                 ChatId = chatid;
                 gameMode = gmode;
+                customList = cList;
                 if (gameMode == 1)
                 {
                     Chaos = true;
@@ -242,6 +249,10 @@ namespace Werewolf_Node
                     case 1:
                         FirstMessage = GetLocaleString("PlayerStartedChaosGame", u.FirstName);
                         _joinMsgId = Program.Bot.SendDocumentAsync(chatid, new FileToSend(GetRandomImage(StartChaosGame)), FirstMessage, replyMarkup: _joinButton).Result.MessageId;
+                        break;
+                    case 4:
+                        FirstMessage = GetLocaleString("PlayerStartedCustomGame", u.FirstName);
+                        _joinMsgId = Program.Bot.SendDocumentAsync(chatid, new FileToSend(GetRandomImage(StartCustom)), FirstMessage, replyMarkup: _joinButton).Result.MessageId;
                         break;
                     case 2:
                         FirstMessage = GetLocaleString("PlayerStartedClumsyGame", u.FirstName);
@@ -480,6 +491,10 @@ namespace Werewolf_Node
                 }
 
                 SendWithQueue(GetLocaleString("StartingGameWait"));
+                if (gameMode == 4)
+                {
+                    SendRoleList();
+                }
                 _playerListChanged = true;
 
 #if !BETA
@@ -750,17 +765,6 @@ namespace Werewolf_Node
                     user.Name = $"{u.FirstName} {u.LastName}".Trim();
                     if (!String.IsNullOrEmpty(user.CustomGifSet))
                         p.GifPack = JsonConvert.DeserializeObject<CustomGifData>(user.CustomGifSet);
-                    if (user.Achievements == null)
-                        user.Achievements = 0;
-                    if (ChatId == Settings.VeteranChatId)
-                    {
-                        if (!((Achievements)user.Achievements).HasFlag(Achievements.Veteran))
-                        {
-                            Helpers.Helpers.KickChatMember(ChatId, user.TelegramId);
-                            Players.Remove(p);
-                            return;
-                        }
-                    }
 
                     db.SaveChanges();
 
@@ -789,8 +793,18 @@ namespace Werewolf_Node
                 //    Players.Remove(p);
                 //}
                 _playerListChanged = true;
-                if (Players.Count == (DbGroup.MaxPlayers ?? Settings.MaxPlayers))
-                    KillTimer = true;
+                if (gameMode == 4)
+                {
+                    if (Players.Count == customList.Count)
+                    {
+                        KillTimer = true;
+                    }
+                }
+                else
+                {
+                    if (Players.Count == (DbGroup.MaxPlayers ?? Settings.MaxPlayers))
+                        KillTimer = true;
+                }
 
             }
             catch (Exception e)
@@ -1488,7 +1502,17 @@ namespace Werewolf_Node
         {
             if (!((DateTime.Now - LastPlayersOutput).TotalSeconds > (10))) return;
             LastPlayersOutput = DateTime.Now;
-            Program.Bot.SendTextMessageAsync(ChatId, GetLocaleString(_playerListId != 0 ? "LatestList" : "UnableToGetList"), parseMode: ParseMode.Html, replyToMessageId: _playerListId);
+            if (gameMode == 4)
+            {
+                Program.Bot.SendTextMessageAsync(ChatId, GetLocaleString(_playerListId != 0 ? "LatestList" : "UnableToGetList"), parseMode: ParseMode.Html, replyToMessageId: _playerListId);
+            }
+        }
+
+        public void OutputRoles()
+        {
+            if (!((DateTime.Now - LastRolesOutput).TotalSeconds > (10))) return;
+            LastRolesOutput = DateTime.Now;
+            Program.Bot.SendTextMessageAsync(ChatId, GetLocaleString(_roleListId != 0 ? "LatestRoleList" : "UnableToGetRoleList"), parseMode: ParseMode.Html, replyToMessageId: _roleListId);
         }
 
         public async void ShowJoinButton()
@@ -1662,7 +1686,7 @@ namespace Werewolf_Node
                 for (int i = 0; i < playerCount; i++)
                 {
                     rolesToAssign.Add(roleToAdd);
-                    if (roleToAdd == IRole.Seer || roleToAdd == IRole.ApprenticeSeer || roleToAdd == IRole.SnowWolf || roleToAdd == IRole.Mayor || roleToAdd == IRole.Cupid || roleToAdd == IRole.Doppelgänger || roleToAdd == IRole.Blacksmith || roleToAdd == IRole.Pacifist || roleToAdd == IRole.GuardianAngel || roleToAdd == IRole.AlphaWolf || roleToAdd == IRole.Villager)
+                    if (roleToAdd == IRole.Mayor || roleToAdd == IRole.Cupid || roleToAdd == IRole.Doppelgänger || roleToAdd == IRole.AlphaWolf)
                     {
                         lista.Remove(roleToAdd);
                         roleToAdd = lista[Program.R.Next(lista.Count())];
@@ -1687,98 +1711,100 @@ namespace Werewolf_Node
         {
             try
             {
-                List<IRole> rolesToAssign;
+                List<IRole> rolesToAssign = new List<IRole>();
                 var count = Players.Count;
 
-                var balanced = false;
-                var attempts = 0;
-                var nonVgRoles = new[] { IRole.Cultist, IRole.SerialKiller, IRole.Tanner, IRole.Wolf, IRole.AlphaWolf, IRole.Sorcerer, IRole.WolfCub, IRole.Lycan, IRole.Thief, IRole.Pyro, IRole.HungryWolf, IRole.Survivor, IRole.Imposter, IRole.RabidWolf, IRole.SnowWolf };
-                var newRoles = new List<IRole>() { IRole.Ninja };
-                var gameConditions = new[] { IRole.Pyro, IRole.SerialKiller, IRole.Cultist };
-
-                do
+                if (gameMode != 4)
                 {
-                    attempts++;
-                    if (attempts >= 100000)
+                    var balanced = false;
+                    var attempts = 0;
+                    var nonVgRoles = new[] { IRole.Cultist, IRole.SerialKiller, IRole.Tanner, IRole.Wolf, IRole.AlphaWolf, IRole.Sorcerer, IRole.WolfCub, IRole.Lycan, IRole.Thief, IRole.Pyro, IRole.HungryWolf, IRole.Survivor, IRole.Imposter, IRole.RabidWolf, IRole.SnowWolf };
+                    var newRoles = new List<IRole>() { IRole.Ninja };
+                    var gameConditions = new[] { IRole.Pyro, IRole.SerialKiller, IRole.Cultist };
+
+                    do
                     {
-                        throw new IndexOutOfRangeException("Unable to create a balanced game.  Please try again.\nPlayer count: " + count);
-                    }
-
-
-                    //determine which roles should be assigned
-                    rolesToAssign = GetRoleList(count);
-                    rolesToAssign.Shuffle();
-                    rolesToAssign = rolesToAssign.Take(count).ToList();
-
-                    //clumsy mode
-                    if (gameMode == 2)
-                    {
-                        for(int i = 0; i < count; i++)
+                        attempts++;
+                        if (attempts >= 100000)
                         {
-                            var role = rolesToAssign[i];
-                            if (role.GetStrength(rolesToAssign) < 5 && Program.R.Next(100) < 90 && role != IRole.ClumsyGuy)
+                            throw new IndexOutOfRangeException("Unable to create a balanced game.  Please try again.\nPlayer count: " + count);
+                        }
+
+
+                        //determine which roles should be assigned
+                        rolesToAssign = GetRoleList(count);
+                        rolesToAssign.Shuffle();
+                        rolesToAssign = rolesToAssign.Take(count).ToList();
+
+                        //clumsy mode
+                        if (gameMode == 2)
+                        {
+                            for (int i = 0; i < count; i++)
                             {
-                                var toclumsy = rolesToAssign.FindIndex(x => x == role);
-                                rolesToAssign[toclumsy] = IRole.ClumsyGuy;
+                                var role = rolesToAssign[i];
+                                if (role.GetStrength(rolesToAssign) < 5 && Program.R.Next(100) < 90 && role != IRole.ClumsyGuy)
+                                {
+                                    var toclumsy = rolesToAssign.FindIndex(x => x == role);
+                                    rolesToAssign[toclumsy] = IRole.ClumsyGuy;
+                                }
                             }
                         }
-                    }
 
-                    //let's fix some roles that should or shouldn't be there...
+                        //let's fix some roles that should or shouldn't be there...
 
-                    //sorcerer, imposter, snowwolf or traitor, without wolves, are pointless. change one of them to wolf
-                    if ((rolesToAssign.Contains(IRole.Sorcerer) || rolesToAssign.Contains(IRole.Traitor) || rolesToAssign.Contains(IRole.Imposter) || rolesToAssign.Contains(IRole.SnowWolf)) &&
-                        !rolesToAssign.Any(x => WolfRoles.Contains(x)))
-                    {
-                        var towolf = rolesToAssign.FindIndex(x => x == IRole.Sorcerer || x == IRole.Traitor || x == IRole.Imposter || x == IRole.SnowWolf); //if there are multiple, the random order of rolesToAssign will choose for us which one to substitute
-                        rolesToAssign[towolf] = WolfRoles[Program.R.Next(WolfRoles.Count())]; //choose randomly from WolfRoles
-                    }
-
-                    //cult without CH -> add CH
-                    if (rolesToAssign.Contains(IRole.Cultist) && !rolesToAssign.Contains(IRole.CultistHunter))
-                    {
-                        //just pick a vg, and turn them to CH
-                        var vg = rolesToAssign.FindIndex(x => !nonVgRoles.Contains(x));
-                        var cult = rolesToAssign.FindIndex(x => x == IRole.Cultist);
-                        if (rolesToAssign.Any(x => !nonVgRoles.Contains(x)))
+                        //sorcerer, imposter, snowwolf or traitor, without wolves, are pointless. change one of them to wolf
+                        if ((rolesToAssign.Contains(IRole.Sorcerer) || rolesToAssign.Contains(IRole.Traitor) || rolesToAssign.Contains(IRole.Imposter) || rolesToAssign.Contains(IRole.SnowWolf)) &&
+                            !rolesToAssign.Any(x => WolfRoles.Contains(x)))
                         {
-                            rolesToAssign[vg] = IRole.CultistHunter;
-                        } // if there is no vg, turn one cultist into ch
-                        else
-                        {
-                            rolesToAssign[cult] = IRole.CultistHunter;
+                            var towolf = rolesToAssign.FindIndex(x => x == IRole.Sorcerer || x == IRole.Traitor || x == IRole.Imposter || x == IRole.SnowWolf); //if there are multiple, the random order of rolesToAssign will choose for us which one to substitute
+                            rolesToAssign[towolf] = WolfRoles[Program.R.Next(WolfRoles.Count())]; //choose randomly from WolfRoles
                         }
-                    }
 
-                    //appseer without seer -> seer
-                    if (rolesToAssign.Contains(IRole.ApprenticeSeer) && !rolesToAssign.Contains(IRole.Seer))
-                    {
-                        //substitute with seer
-                        var apps = rolesToAssign.IndexOf(IRole.ApprenticeSeer);
-                        rolesToAssign[apps] = IRole.Seer;
-                    }
-
-                    //rabid without alpha is useless
-                    if (rolesToAssign.Contains(IRole.RabidWolf) && !rolesToAssign.Contains(IRole.AlphaWolf))
-                    {
-                        var wolves = rolesToAssign.Where(x => WolfRoles.Contains(x) && x != IRole.RabidWolf);
-                        if (wolves.Any())
+                        //cult without CH -> add CH
+                        if (rolesToAssign.Contains(IRole.Cultist) && !rolesToAssign.Contains(IRole.CultistHunter))
                         {
-                            //just pick another wolf, and turn them to alpha
-                            var wolf = rolesToAssign.FindIndex(x => WolfRoles.Contains(x) && x != IRole.RabidWolf);
-                            rolesToAssign[wolf] = IRole.AlphaWolf;
+                            //just pick a vg, and turn them to CH
+                            var vg = rolesToAssign.FindIndex(x => !nonVgRoles.Contains(x));
+                            var cult = rolesToAssign.FindIndex(x => x == IRole.Cultist);
+                            if (rolesToAssign.Any(x => !nonVgRoles.Contains(x)))
+                            {
+                                rolesToAssign[vg] = IRole.CultistHunter;
+                            } // if there is no vg, turn one cultist into ch
+                            else
+                            {
+                                rolesToAssign[cult] = IRole.CultistHunter;
+                            }
                         }
-                        else
-                        {
-                            //turn that rabid wolf into the alpha
-                            var rabid = rolesToAssign.IndexOf(IRole.RabidWolf);
-                            rolesToAssign[rabid] = IRole.AlphaWolf;
-                        }
-                    }
 
-                    //make sure that we have at least one new role (for testing)
-                    //if (rolesToAssign.Any(x => !newRoles.Contains(x)) && rolesToAssign.Any(x => newRoles.Contains(x)))
-                    //{
+                        //appseer without seer -> seer
+                        if (rolesToAssign.Contains(IRole.ApprenticeSeer) && !rolesToAssign.Contains(IRole.Seer))
+                        {
+                            //substitute with seer
+                            var apps = rolesToAssign.IndexOf(IRole.ApprenticeSeer);
+                            rolesToAssign[apps] = IRole.Seer;
+                        }
+
+                        //rabid without alpha is useless
+                        if (rolesToAssign.Contains(IRole.RabidWolf) && !rolesToAssign.Contains(IRole.AlphaWolf))
+                        {
+                            var wolves = rolesToAssign.Where(x => WolfRoles.Contains(x) && x != IRole.RabidWolf);
+                            if (wolves.Any())
+                            {
+                                //just pick another wolf, and turn them to alpha
+                                var wolf = rolesToAssign.FindIndex(x => WolfRoles.Contains(x) && x != IRole.RabidWolf);
+                                rolesToAssign[wolf] = IRole.AlphaWolf;
+                            }
+                            else
+                            {
+                                //turn that rabid wolf into the alpha
+                                var rabid = rolesToAssign.IndexOf(IRole.RabidWolf);
+                                rolesToAssign[rabid] = IRole.AlphaWolf;
+                            }
+                        }
+
+                        //make sure that we have at least one new role (for testing)
+                        //if (rolesToAssign.Any(x => !newRoles.Contains(x)) && rolesToAssign.Any(x => newRoles.Contains(x)))
+                        //{
                         var neutralKiller = rolesToAssign.FirstOrDefault(x => gameConditions.Contains(x));
                         //make sure that we have at least two teams
                         if (
@@ -1790,33 +1816,38 @@ namespace Werewolf_Node
                             balanced = true; // wolves vs sk/pyro/cult works too
                         else if (rolesToAssign.Any(x => gameConditions.Contains(x) && (x != neutralKiller || x == IRole.SerialKiller)))
                             balanced = true; // sk/pyro/cult fighting each other works too. sk vs sk too
-                        //else, redo role assignment. better to rely on randomness, than trying to fix it
-                   //}
+                                             //else, redo role assignment. better to rely on randomness, than trying to fix it
+                                             //}
 
-                    if (gameMode == 2 && !rolesToAssign.Contains(IRole.ClumsyGuy))
-                    {
-                        balanced = false;
-                    }
-
-                    //the roles to assign are good, now if it's not a chaos game we need to check if they're balanced
-                    if (gameMode != 1)
-                    {
-                        var villageStrength =
-                            rolesToAssign.Where(x => !nonVgRoles.Contains(x)).Sum(x => x.GetStrength(rolesToAssign));
-                        var enemyStrength =
-                            rolesToAssign.Where(x => nonVgRoles.Contains(x)).Sum(x => x.GetStrength(rolesToAssign));
-
-                        //big games usually have few evils
-                        if (count > 14)
+                        if (gameMode == 2 && !rolesToAssign.Contains(IRole.ClumsyGuy))
                         {
-                            villageStrength += (count / 2);
+                            balanced = false;
                         }
 
-                        //check balance
-                        var varianceAllowed = (count / 6) + 1;
-                        balanced = balanced && (Math.Abs(villageStrength - enemyStrength) <= varianceAllowed);
-                    }
-                } while (!balanced);
+                        //the roles to assign are good, now if it's not a chaos game we need to check if they're balanced
+                        if (gameMode != 1)
+                        {
+                            var villageStrength =
+                                rolesToAssign.Where(x => !nonVgRoles.Contains(x)).Sum(x => x.GetStrength(rolesToAssign));
+                            var enemyStrength =
+                                rolesToAssign.Where(x => nonVgRoles.Contains(x)).Sum(x => x.GetStrength(rolesToAssign));
+
+                            //big games usually have few evils
+                            if (count > 14)
+                            {
+                                villageStrength += (count / 2);
+                            }
+
+                            //check balance
+                            var varianceAllowed = (count / 6) + 1;
+                            balanced = balanced && (Math.Abs(villageStrength - enemyStrength) <= varianceAllowed);
+                        }
+                    } while (!balanced);
+                }
+                else
+                {
+                    rolesToAssign = customList.Take(Players.Count).ToList();
+                }
 
                 startingwolves = rolesToAssign.Count(x => WolfRoles.Contains(x));
 
@@ -1876,6 +1907,19 @@ namespace Werewolf_Node
                 Thread.Sleep(1000);
                 Program.RemoveGame(this);
             }
+        }
+
+        private void SendRoleList()
+        {
+            var msg = "Rolelist:\n\n";
+            msg.ToBold();
+            var orderedList = customList.Take(Players.Count).ToList();
+            orderedList = orderedList.OrderBy(x => x).ToList();
+            foreach (var role in orderedList)
+            {
+                msg += "- " + GetLocaleString(role.ToString()).ToBold() + "\n";
+            }
+            _roleListId = Send(msg).Result.MessageId;
         }
 
         private void SetRoleAttributes()
@@ -3157,87 +3201,92 @@ namespace Werewolf_Node
             #region Wolf Night
 
             #region Snow Wolf
-            var snowwolf = Players.FirstOrDefault(x => x.PlayerRole == IRole.SnowWolf & !x.IsDead);
-
-            if (snowwolf != null && snowwolf.Choice != -1 && snowwolf.Choice != 0)
+            var snowwolves = Players.Where(x => x.PlayerRole == IRole.SnowWolf & !x.IsDead);
+            if (snowwolves.Any())
             {
-                var target = Players.FirstOrDefault(x => x.Id == snowwolf.Choice);
-                target.BeingVisitedSameNightCount++;
-                if (target.PlayerRole == IRole.SerialKiller)
+                foreach (var snowwolf in snowwolves)
                 {
-                    if (Program.R.Next(100) < 20) // snowwolf has 20% chance of successfully freezing SK
+                    if (snowwolf != null && snowwolf.Choice != -1 && snowwolf.Choice != 0)
                     {
-                        target.Frozen = true;
-                        Send(GetLocaleString("SKFrozen"), target.Id);
-                        Send(GetLocaleString("SuccessfulFreeze", target.GetName()), snowwolf.Id);
+                        var target = Players.FirstOrDefault(x => x.Id == snowwolf.Choice);
+                        target.BeingVisitedSameNightCount++;
+                        if (target.PlayerRole == IRole.SerialKiller)
+                        {
+                            if (Program.R.Next(100) < 20) // snowwolf has 20% chance of successfully freezing SK
+                            {
+                                target.Frozen = true;
+                                Send(GetLocaleString("SKFrozen"), target.Id);
+                                Send(GetLocaleString("SuccessfulFreeze", target.GetName()), snowwolf.Id);
+                            }
+                            else
+                            {
+                                snowwolf.IsDead = true;
+                                snowwolf.DiedLastNight = true;
+                                snowwolf.TimeDied = DateTime.Now;
+                                snowwolf.DiedByVisitingKiller = true;
+                                snowwolf.KilledByRole = IRole.SerialKiller;
+                                DBKill(target, snowwolf, KillMthd.SerialKilled);
+                            }
+                        }
+                        else if (target.PlayerRole == IRole.Hunter)
+                        {
+                            if (Program.R.Next(100) < 50)
+                            {
+                                target.Frozen = true;
+                                Send(GetLocaleString("DefaultFrozen"), target.Id);
+                                Send(GetLocaleString("SuccessfulFreeze", target.GetName()), snowwolf.Id);
+                            }
+                            else
+                            {
+                                snowwolf.IsDead = true;
+                                snowwolf.TimeDied = DateTime.Now;
+                                snowwolf.DiedByVisitingKiller = true;
+                                snowwolf.KilledByRole = IRole.Hunter;
+                                snowwolf.DiedLastNight = true;
+                                DBKill(target, snowwolf, KillMthd.HunterShot);
+                            }
+                        }
+                        else // go and freeze that player!
+                        {
+                            target.Frozen = true;
+                            switch (target.PlayerRole)
+                            {
+                                case IRole.Harlot:
+                                    Send(GetLocaleString("HarlotFrozen"), target.Id);
+                                    break;
+                                case IRole.Cultist:
+                                    Send(GetLocaleString("CultistFrozen"), target.Id);
+                                    break;
+                                case IRole.CultistHunter:
+                                    Send(GetLocaleString("CHFrozen"), target.Id);
+                                    break;
+                                case IRole.Fool:
+                                case IRole.Seer:
+                                case IRole.Sorcerer:
+                                    Send(GetLocaleString("SeeingFrozenNext"), target.Id);
+                                    break;
+                                case IRole.Oracle:
+                                case IRole.Healer:
+                                    Send(GetLocaleString("SeeingFrozen"), target.Id);
+                                    break;
+                                case IRole.GuardianAngel:
+                                    Send(GetLocaleString("GAFrozen"), target.Id);
+                                    break;
+                                case IRole.Pyro:
+                                    Send(GetLocaleString("PyroFrozen"), target.Id);
+                                    break;
+                                case IRole.Sheriff:
+                                case IRole.Police:
+                                case IRole.Herbalist:
+                                    Send(GetLocaleString("VisitorFrozen"), target.Id);
+                                    break;
+                                default:
+                                    Send(GetLocaleString("DefaultFrozen"), target.Id);
+                                    break;
+                            }
+                            Send(GetLocaleString("SuccessfulFreeze", target.GetName()), snowwolf.Id);
+                        }
                     }
-                    else
-                    {
-                        snowwolf.IsDead = true;
-                        snowwolf.DiedLastNight = true;
-                        snowwolf.TimeDied = DateTime.Now;
-                        snowwolf.DiedByVisitingKiller = true;
-                        snowwolf.KilledByRole = IRole.SerialKiller;
-                        DBKill(target, snowwolf, KillMthd.SerialKilled);
-                    }
-                }
-                else if (target.PlayerRole == IRole.Hunter)
-                {
-                    if (Program.R.Next(100) < 50)
-                    {
-                        target.Frozen = true;
-                        Send(GetLocaleString("DefaultFrozen"), target.Id);
-                        Send(GetLocaleString("SuccessfulFreeze", target.GetName()), snowwolf.Id);
-                    }
-                    else
-                    {
-                        snowwolf.IsDead = true;
-                        snowwolf.TimeDied = DateTime.Now;
-                        snowwolf.DiedByVisitingKiller = true;
-                        snowwolf.KilledByRole = IRole.Hunter;
-                        snowwolf.DiedLastNight = true;
-                        DBKill(target, snowwolf, KillMthd.HunterShot);
-                    }
-                }
-                else // go and freeze that player!
-                {
-                    target.Frozen = true;
-                    switch (target.PlayerRole)
-                    {
-                        case IRole.Harlot:
-                            Send(GetLocaleString("HarlotFrozen"), target.Id);
-                            break;
-                        case IRole.Cultist:
-                            Send(GetLocaleString("CultistFrozen"), target.Id);
-                            break;
-                        case IRole.CultistHunter:
-                            Send(GetLocaleString("CHFrozen"), target.Id);
-                            break;
-                        case IRole.Fool:
-                        case IRole.Seer:
-                        case IRole.Sorcerer:
-                            Send(GetLocaleString("SeeingFrozenNext"), target.Id);
-                            break;
-                        case IRole.Oracle:
-                        case IRole.Healer:
-                            Send(GetLocaleString("SeeingFrozen"), target.Id);
-                            break;
-                        case IRole.GuardianAngel:
-                            Send(GetLocaleString("GAFrozen"), target.Id);
-                            break;
-                        case IRole.Pyro:
-                            Send(GetLocaleString("PyroFrozen"), target.Id);
-                            break;
-                        case IRole.Sheriff:
-                        case IRole.Police:
-                        case IRole.Herbalist:
-                            Send(GetLocaleString("VisitorFrozen"), target.Id);
-                            break;
-                        default:
-                            Send(GetLocaleString("DefaultFrozen"), target.Id);
-                            break;
-                    }
-                    Send(GetLocaleString("SuccessfulFreeze", target.GetName()), snowwolf.Id);
                 }
             }
             #endregion
@@ -3269,7 +3318,7 @@ namespace Werewolf_Node
                 }
             }
 
-            var ga = Players.FirstOrDefault(x => x.PlayerRole == IRole.GuardianAngel & !x.IsDead && x.Choice != 0 && x.Choice != -1 && !x.Frozen);
+            var gas = Players.Where(x => x.PlayerRole == IRole.GuardianAngel & !x.IsDead && x.Choice != 0 && x.Choice != -1 && !x.Frozen);
 
             var ninjas = Players.Where(x => x.PlayerRole == IRole.Ninja & !x.IsDead && !x.Frozen);
             if (ninjas.Any())
@@ -3298,7 +3347,7 @@ namespace Werewolf_Node
                         if (poisoned != null)
                         {
                             poisoned.BeingVisitedSameNightCount++;
-                            if (ga?.Choice != poisoned.Id)
+                            if (!gas.Any(x => x.Choice == poisoned.Id))
                             {
                                 if (poisoned.PlayerRole == IRole.Ninja)
                                 {
@@ -3313,7 +3362,13 @@ namespace Werewolf_Node
                             }
                             else
                             {
-                                ga.PointsToAdd += 5;
+                                foreach (var ga in gas)
+                                {
+                                    if (ga.Choice == poisoned.Id)
+                                    {
+                                        ga.PointsToAdd += 5;
+                                    }
+                                }
                                 Send(GetLocaleString("GuardBlockedHerbalist", poisoned.GetName()), herbalist.Id);
                                 poisoned.WasSavedLastNight = true;
                             }
@@ -3379,12 +3434,19 @@ namespace Werewolf_Node
                     if (target != null)
                     {
                         target.BeingVisitedSameNightCount++;
-                        if (ga?.Choice == target.Id &&
+                        if (gas.Any(x => x.Choice == target.Id) &&
                             !(target.PlayerRole == IRole.Harlot && (target.Choice == 0 || target.Choice == -1 || target.Frozen))) //doesn't apply to harlot not home
                         {
                             foreach (var wolf in voteWolves)
                                 Send(GetLocaleString("GuardBlockedWolf", target.GetName()), wolf.Id);
-                            ga.PointsToAdd += 5;
+                            Send(GetLocaleString("GuardSavedYou"), target.Id);
+                            foreach (var ga in gas)
+                            {
+                                if (ga.Choice == target.Id)
+                                {
+                                    ga.PointsToAdd += 5;
+                                }
+                            }
                             target.WasSavedLastNight = true;
                         }
                         else
@@ -3797,7 +3859,7 @@ namespace Werewolf_Node
                         if (doused.Id != arso.Id)
                         {
                             doused.BeingVisitedSameNightCount++;
-                            if (ga?.Choice != doused.Id)
+                            if (!gas.Any(x => x.Choice == doused.Id))
                             {
                                 if (doused.PlayerRole == IRole.Drunk)
                                 {
@@ -3823,7 +3885,13 @@ namespace Werewolf_Node
                             }
                             else
                             {
-                                ga.PointsToAdd += 5;
+                                foreach (var ga in gas)
+                                {
+                                    if (ga.Choice == doused.Id)
+                                    {
+                                        ga.PointsToAdd += 5;
+                                    }
+                                }
                                 Send(GetLocaleString("GuardBlockedArso", doused.GetName()), arso.Id);
                             }
                         }
@@ -3879,10 +3947,17 @@ namespace Werewolf_Node
                     if (skilled != null)
                     {
                         skilled.BeingVisitedSameNightCount++;
-                        if (ga?.Choice == skilled.Id)
+                        if (gas.Any(x => x.Choice == skilled.Id))
                         {
-                            ga.PointsToAdd += 5;
+                            foreach (var ga in gas)
+                            {
+                                if (ga.Choice == skilled.Id)
+                                {
+                                    ga.PointsToAdd += 5;
+                                }
+                            }
                             Send(GetLocaleString("GuardBlockedKiller", skilled.GetName()), sk.Id);
+                            Send(GetLocaleString("GuardSavedYou"), skilled.Id);
                             skilled.WasSavedLastNight = true;
                         }
                         else if (skilled.PlayerRole == IRole.Ninja && skilled.HasUsedAbility)
@@ -4534,73 +4609,78 @@ namespace Werewolf_Node
 
 #region GA Night
 
-            if (ga != null)
+            if (gas.Any())
             {
-                var save = Players.FirstOrDefault(x => x.Id == ga.Choice);
-                if (save != null)
+                foreach(var ga in gas)
                 {
-                    //if (save != null)
-                    //    DBAction(ga, save, "Guard");
-                    save.BeingVisitedSameNightCount++;
-                    if (save.PlayerRole == IRole.Ninja && save.HasUsedAbility)
+                    if (ga != null)
                     {
-                        Send(GetLocaleString("NinjaHidden"), save.Id);
-                    }
-                    if (save.WasSavedLastNight)
-                    {
-                        Send(GetLocaleString("GuardSaved", save.GetName()), ga.Id);
-                        Send(GetLocaleString("GuardSavedYou"), save.Id);
-                    }
-                    else if (save.DiedLastNight)
-                    {
-                        Send(GetLocaleString("GuardEmptyHouse", save.GetName()), ga.Id);
-                    }
-
-                    //check for save's role, even if they weren't attacked!
-                    switch (save.PlayerRole)
-                    {
-                        case IRole.AlphaWolf:
-                        case IRole.WolfCub:
-                        case IRole.Wolf:
-                        case IRole.Lycan:
-                        case IRole.HungryWolf:
-                        case IRole.RabidWolf:
-                            if (Program.R.Next(100) > 50)
+                        var save = Players.FirstOrDefault(x => x.Id == ga.Choice);
+                        if (save != null)
+                        {
+                            //if (save != null)
+                            //    DBAction(ga, save, "Guard");
+                            save.BeingVisitedSameNightCount++;
+                            if (save.PlayerRole == IRole.Ninja && save.HasUsedAbility)
                             {
-                                ga.IsDead = true;
-                                ga.PointsToAdd -= 2;
-                                ga.TimeDied = DateTime.Now;
-                                ga.DiedLastNight = true;
-                                ga.DayOfDeath = GameDay;
-                                ga.DiedByVisitingKiller = true;
-                                ga.KilledByRole = IRole.Wolf;
-                                DBKill(save, ga, KillMthd.GuardWolf);
-                                Send(GetLocaleString("GuardWolf"), ga.Id);
+                                Send(GetLocaleString("NinjaHidden"), save.Id);
                             }
-                            else if (!save.WasSavedLastNight && !save.DiedLastNight)
-                            //only send if GA survived and wolf wasn't attacked
+                            if (save.WasSavedLastNight)
                             {
-                                Send(GetLocaleString("GuardNoAttack", save.GetName()), ga.Id);
-                                ga.GAGuardWolfCount++;
+                                Send(GetLocaleString("GuardSaved", save.GetName()), ga.Id);
                             }
-                            break;
-                        case IRole.SerialKiller:
-                            ga.IsDead = true;
-                            ga.TimeDied = DateTime.Now;
-                            ga.DiedLastNight = true;
-                            ga.DayOfDeath = GameDay;
-                            ga.DiedByVisitingKiller = true;
-                            ga.KilledByRole = IRole.SerialKiller;
-                            DBKill(save, ga, KillMthd.GuardKiller);
-                            Send(GetLocaleString("GuardKiller"), ga.Id);
-                            break;
-                        default:
-                            if (!save.WasSavedLastNight && !save.DiedLastNight) //only send if save wasn't attacked
-                                Send(GetLocaleString("GuardNoAttack", save.GetName()), ga.Id);
-                            break;
-                    }
+                            else if (save.DiedLastNight)
+                            {
+                                Send(GetLocaleString("GuardEmptyHouse", save.GetName()), ga.Id);
+                            }
 
-                    save.WasSavedLastNight = false;
+                            //check for save's role, even if they weren't attacked!
+                            switch (save.PlayerRole)
+                            {
+                                case IRole.AlphaWolf:
+                                case IRole.WolfCub:
+                                case IRole.Wolf:
+                                case IRole.Lycan:
+                                case IRole.HungryWolf:
+                                case IRole.RabidWolf:
+                                    if (Program.R.Next(100) > 50)
+                                    {
+                                        ga.IsDead = true;
+                                        ga.PointsToAdd -= 2;
+                                        ga.TimeDied = DateTime.Now;
+                                        ga.DiedLastNight = true;
+                                        ga.DayOfDeath = GameDay;
+                                        ga.DiedByVisitingKiller = true;
+                                        ga.KilledByRole = IRole.Wolf;
+                                        DBKill(save, ga, KillMthd.GuardWolf);
+                                        Send(GetLocaleString("GuardWolf"), ga.Id);
+                                    }
+                                    else if (!save.WasSavedLastNight && !save.DiedLastNight)
+                                    //only send if GA survived and wolf wasn't attacked
+                                    {
+                                        Send(GetLocaleString("GuardNoAttack", save.GetName()), ga.Id);
+                                        ga.GAGuardWolfCount++;
+                                    }
+                                    break;
+                                case IRole.SerialKiller:
+                                    ga.IsDead = true;
+                                    ga.TimeDied = DateTime.Now;
+                                    ga.DiedLastNight = true;
+                                    ga.DayOfDeath = GameDay;
+                                    ga.DiedByVisitingKiller = true;
+                                    ga.KilledByRole = IRole.SerialKiller;
+                                    DBKill(save, ga, KillMthd.GuardKiller);
+                                    Send(GetLocaleString("GuardKiller"), ga.Id);
+                                    break;
+                                default:
+                                    if (!save.WasSavedLastNight && !save.DiedLastNight) //only send if save wasn't attacked
+                                        Send(GetLocaleString("GuardNoAttack", save.GetName()), ga.Id);
+                                    break;
+                            }
+
+                            save.WasSavedLastNight = false;
+                        }
+                    }
                 }
             }
 
@@ -5631,44 +5711,52 @@ namespace Werewolf_Node
                 SendMenu(choices, mayor, GetLocaleString("AskMayor"), QuestionType.Mayor);
             }
 
-            var sandman = Players.FirstOrDefault(x => x.PlayerRole == IRole.Sandman & !x.IsDead & !x.HasUsedAbility);
-            if (sandman != null)
+            var sandmans = Players.Where(x => x.PlayerRole == IRole.Sandman & !x.IsDead & !x.HasUsedAbility);
+            if (sandmans.Any())
             {
-                var choices = new[]
+                foreach (var sandman in sandmans)
                 {
+                    var choices = new[]
+{
                     new[]
                     {
                         new InlineKeyboardCallbackButton(GetLocaleString("Yes"), $"vote|{Program.ClientId}|yes"), new InlineKeyboardCallbackButton(GetLocaleString("No"), $"vote|{Program.ClientId}|no")
                     }
                 }.ToList();
-                SendMenu(choices, sandman, GetLocaleString("AskSandman"), QuestionType.Sandman);
+                    SendMenu(choices, sandman, GetLocaleString("AskSandman"), QuestionType.Sandman);
+                }
             }
 
-            var blacksmith = Players.FirstOrDefault(x => x.PlayerRole == IRole.Blacksmith & !x.IsDead & !x.HasUsedAbility);
-
-            if (blacksmith != null)
+            var blacksmiths = Players.Where(x => x.PlayerRole == IRole.Blacksmith & !x.IsDead & !x.HasUsedAbility);
+            if (blacksmiths.Any())
             {
-                var choices = new[]
+                foreach(var blacksmith in blacksmiths)
                 {
+                    var choices = new[]
+                    {
                     new[]
                     {
                         new InlineKeyboardCallbackButton(GetLocaleString("Yes"), $"vote|{Program.ClientId}|yes"), new InlineKeyboardCallbackButton(GetLocaleString("No"), $"vote|{Program.ClientId}|no")
                     }
                 }.ToList();
-                SendMenu(choices, blacksmith, GetLocaleString("SpreadDust"), QuestionType.SpreadSilver);
+                    SendMenu(choices, blacksmith, GetLocaleString("SpreadDust"), QuestionType.SpreadSilver);
+                }
             }
 
-            var pacifist = Players.FirstOrDefault(x => x.PlayerRole == IRole.Pacifist & !x.IsDead);
-            if (pacifist != null && GameDay == 1)
+            var pacifists = Players.Where(x => x.PlayerRole == IRole.Pacifist & !x.IsDead);
+            if (pacifists.Any() && GameDay == 1)
             {
-                var choices = new[]
+                foreach(var pacifist in pacifists)
                 {
+                    var choices = new[]
+{
                     new[]
                     {
                         new InlineKeyboardCallbackButton(GetLocaleString("Peace"), $"vote|{Program.ClientId}|peace")
                     }
                 }.ToList();
-                SendMenu(choices, pacifist, GetLocaleString("AskPacifist"), QuestionType.Pacifist);
+                    SendMenu(choices, pacifist, GetLocaleString("AskPacifist"), QuestionType.Pacifist);
+                }
             }
 
             var gunners = Players.Where(x => x.PlayerRole == IRole.Gunner & !x.IsDead);
@@ -6386,6 +6474,7 @@ namespace Werewolf_Node
         private void UpdateAchievements()
         {
             if (Players == null) return;
+            if (gameMode == 3 || gameMode == 4) return;
             using (var db = new WWContext())
             {
                 //check for convention
@@ -6397,90 +6486,100 @@ namespace Werewolf_Node
 
                     if (p != null)
                     {
-                        Achievements newAch = Achievements.None;
-                        //var gp = GetDBGamePlayer(p);
+                        // saving new achvs
+                        BitArray newAch = new BitArray(200);
 
-                        if (p.Achievements == null)
-                            p.Achievements = 0;
-                        var ach = (Achievements)p.Achievements;
+                        // existing achvs
+                        BitArray ach = new BitArray(200);
+                        if (p.Achievements != null)
+                        {
+                            ach = new BitArray(p.Achievements);
+                        }
 
                         //calculate achievements
                         //automatically get welcome to hell
                         if (!ach.HasFlag(Achievements.WelcomeToHell))
-                            newAch = newAch | Achievements.WelcomeToHell;
+                            newAch.Set(Achievements.WelcomeToHell);
                         if (!ach.HasFlag(Achievements.WelcomeToAsylum) && Chaos)
-                            newAch = newAch | Achievements.WelcomeToAsylum;
+                            newAch.Set(Achievements.WelcomeToAsylum);
                         if (!ach.HasFlag(Achievements.AlzheimerPatient) && Language.Contains("Amnesia"))
-                            newAch = newAch | Achievements.AlzheimerPatient;
-                        //if (!ach.HasFlag(Achievements.OHAIDER) && Players.Any(x => x.TeleUser.Id == Program.Para))
-                        //    newAch = newAch | Achievements.OHAIDER;
+                            newAch.Set(Achievements.AlzheimerPatient);
+                        //if (!ach2.HasFlag(AchievementsReworked.OHAIDER) && Players.Any(x => x.TeleUser.Id == Program.Para))
+                        //    newAch2.Set(AchievementsReworked.OHAIDER);
                         if (!ach.HasFlag(Achievements.SpyVsSpy) & !DbGroup.HasFlag(GroupConfig.ShowRolesDeath))
-                            newAch = newAch | Achievements.SpyVsSpy;
+                            newAch.Set(Achievements.SpyVsSpy);
                         if (!ach.HasFlag(Achievements.NoIdeaWhat) & !DbGroup.HasFlag(GroupConfig.ShowRolesDeath) && Language.Contains("Amnesia"))
-                            newAch = newAch | Achievements.NoIdeaWhat;
+                            newAch.Set(Achievements.NoIdeaWhat);
                         if (!ach.HasFlag(Achievements.Enochlophobia) && Players.Count == 35)
-                            newAch = newAch | Achievements.Enochlophobia;
+                            newAch.Set(Achievements.Enochlophobia);
                         if (!ach.HasFlag(Achievements.Introvert) && Players.Count == 5)
-                            newAch = newAch | Achievements.Introvert;
+                            newAch.Set(Achievements.Introvert);
                         if (!ach.HasFlag(Achievements.Naughty) && Language.Contains("NSFW"))
-                            newAch = newAch | Achievements.Naughty;
+                            newAch.Set(Achievements.Naughty);
                         if (!ach.HasFlag(Achievements.Dedicated) && p.GamePlayers.Count >= 100)
-                            newAch = newAch | Achievements.Dedicated;
+                            newAch.Set(Achievements.Dedicated);
                         if (!ach.HasFlag(Achievements.Obsessed) && p.GamePlayers.Count >= 1000)
-                            newAch = newAch | Achievements.Obsessed;
+                            newAch.Set(Achievements.Obsessed);
                         if (!ach.HasFlag(Achievements.Veteran) && p.GamePlayers.Count >= 500)
-                            newAch = newAch | Achievements.Veteran;
+                            newAch.Set(Achievements.Veteran);
                         if (!ach.HasFlag(Achievements.Masochist) && player.Won && player.PlayerRole == IRole.Tanner)
-                            newAch = newAch | Achievements.Masochist;
+                            newAch.Set(Achievements.Masochist);
                         if (!ach.HasFlag(Achievements.Wobble) && !player.IsDead && player.PlayerRole == IRole.Drunk && Players.Count >= 10)
-                            newAch = newAch | Achievements.Wobble;
+                            newAch.Set(Achievements.Wobble);
                         if (!ach.HasFlag(Achievements.Survivalist) && p.GamePlayers.Count(x => x.Survived) >= 100)
-                            newAch = newAch | Achievements.Survivalist;
+                            newAch.Set(Achievements.Survivalist);
                         if (!ach.HasFlag(Achievements.MasonBrother) && player.PlayerRole == IRole.Mason && Players.Count(x => x.PlayerRole == IRole.Mason & !x.IsDead) >= 2)
-                            newAch = newAch | Achievements.MasonBrother;
+                            newAch.Set(Achievements.MasonBrother);
                         if (!ach.HasFlag(Achievements.ChangingSides) && player.OriginalRole != player.PlayerRole && player.Won)
-                            newAch = newAch | Achievements.ChangingSides;
+                            newAch.Set(Achievements.ChangingSides);
                         if (!ach.HasFlag(Achievements.LoneWolf) && Players.Count >= 10 && WolfRoles.Contains(player.PlayerRole) && Players.GetPlayersForRoles(WolfRoles, false).Count() == 1 && player.Won)
-                            newAch = newAch | Achievements.LoneWolf;
+                            newAch.Set(Achievements.LoneWolf);
                         if (!ach.HasFlag(Achievements.Inconspicuous) && !player.HasBeenVoted & !player.IsDead)
-                            newAch = newAch | Achievements.Inconspicuous;
+                            newAch.Set(Achievements.Inconspicuous);
                         if (!ach.HasFlag(Achievements.Promiscuous) && !player.HasStayedHome & !player.HasRepeatedVisit && player.PlayersVisited.Count >= 5)
-                            newAch = newAch | Achievements.Promiscuous;
+                            newAch.Set(Achievements.Promiscuous);
                         if (!ach.HasFlag(Achievements.DoubleShifter) && player.ChangedRolesCount >= 2)
-                            newAch = newAch | Achievements.DoubleShifter;
+                            newAch.Set(Achievements.DoubleShifter);
                         if (!ach.HasFlag(Achievements.BrokenClock) && player.FoolCorrectSeeCount >= 2)
-                            newAch = newAch | Achievements.BrokenClock;
+                            newAch.Set(Achievements.BrokenClock);
                         if (!ach.HasFlag(Achievements.SmartGunner) && player.PlayerRole == IRole.Gunner & !player.BulletHitVillager && player.Bullet == 0)
-                            newAch = newAch | Achievements.SmartGunner;
+                            newAch.Set(Achievements.SmartGunner);
                         if (!ach.HasFlag(Achievements.CultCon) && player.PlayerRole == IRole.Cultist && convention)
-                            newAch = newAch | Achievements.CultCon;
+                            newAch.Set(Achievements.CultCon);
                         if (!ach.HasFlag(Achievements.SerialSamaritan) && player.PlayerRole == IRole.SerialKiller && player.SerialKilledWolvesCount >= 3)
-                            newAch = newAch | Achievements.SerialSamaritan;
+                            newAch.Set(Achievements.SerialSamaritan);
                         if (!ach.HasFlag(Achievements.CultistTracker) && player.PlayerRole == IRole.CultistHunter && player.CHHuntedCultCount >= 3)
-                            newAch = newAch | Achievements.CultistTracker;
+                            newAch.Set(Achievements.CultistTracker);
                         if (!ach.HasFlag(Achievements.ImNotDrunk) && player.PlayerRole == IRole.ClumsyGuy && player.ClumsyCorrectLynchCount >= 3)
-                            newAch = newAch | Achievements.ImNotDrunk;
+                            newAch.Set(Achievements.ImNotDrunk);
                         if (!ach.HasFlag(Achievements.WuffieCult) && player.PlayerRole == IRole.AlphaWolf && player.AlphaConvertCount >= 3)
-                            newAch = newAch | Achievements.WuffieCult;
+                            newAch.Set(Achievements.WuffieCult);
                         if (!ach.HasFlag(Achievements.DidYouGuardYourself) && player.PlayerRole == IRole.GuardianAngel && player.GAGuardWolfCount >= 3)
-                            newAch = newAch | Achievements.DidYouGuardYourself;
+                            newAch.Set(Achievements.DidYouGuardYourself);
                         if (!ach.HasFlag(Achievements.ThreeLittleWolves) && player.PlayerRole == IRole.Sorcerer && Players.GetPlayersForRoles(WolfRoles, true).Count() >= 3)
-                            newAch = newAch | Achievements.ThreeLittleWolves;
+                            newAch.Set(Achievements.ThreeLittleWolves);
                         if (!ach.HasFlag(Achievements.President) && player.PlayerRole == IRole.Mayor && player.MayorLynchAfterRevealCount >= 3)
-                            newAch = newAch | Achievements.President;
+                            newAch.Set(Achievements.President);
                         if (!ach.HasFlag(Achievements.ItWasABusyNight) && player.BusyNight)
-                            newAch = newAch | Achievements.ItWasABusyNight;
-
+                            newAch.Set(Achievements.ItWasABusyNight);
                         //now save
-                        p.Achievements = (long)(ach | newAch);
+                        p.Achievements = ach.Or(newAch).ToByteArray();
+                        var newPoints = 0;
+                        for (int i = 0; i < newAch.Length; i++)
+                        {
+                            if (newAch[i])
+                                newPoints += 5;
+                        }
+                        p.Score += newPoints;
                         db.SaveChanges();
 
                         //notify
                         var newFlags = newAch.GetUniqueFlags().ToList();
-                        if (newAch == Achievements.None) continue;
-                        var msg = "New Unlocks!".ToBold() + Environment.NewLine;
-                        msg = newFlags.Aggregate(msg, (current, a) => current + $"{a.GetName().ToBold()}\n{a.GetDescription()}\n\n");
-                        Send(msg, p.TelegramId);
+                        if (newAch.Cast<bool>().All(x => x == false)) continue;
+                        var msg2 = "New Unlocks!".ToBold() + Environment.NewLine;
+                        msg2 = newFlags.Aggregate(msg2, (current, a) => current + $"{a.GetName().ToBold()}\n{a.GetDescription()}\n\n");
+                        Send(msg2, p.TelegramId);
+                        Send(GetLocaleString("PointsObtained", newPoints, p.Score).ToBold(), p.TelegramId);
                     }
                 }
             }
@@ -6537,23 +6636,29 @@ namespace Werewolf_Node
 
         private void AddAchievement(IPlayer player, Achievements a)
         {
+            if (gameMode == 3 || gameMode == 4) return;
             using (var db = new WWContext())
             {
                 var p = GetDBPlayer(player, db);
                 if (p != null)
                 {
-                    if (p.Achievements == null)
-                        p.Achievements = 0;
-                    var ach = (Achievements)p.Achievements;
+                    var ach = new BitArray(200);
+                    if (p.Achievements != null)
+                        ach = new BitArray(p.Achievements);
                     if (ach.HasFlag(a)) return; //no point making another db call if they already have it
-                    ach = ach | a;
-                    p.Achievements = (long)ach;
+                    ach = ach.Set(a);
+                    p.Achievements = ach.ToByteArray();
+                    player.Score = p.Score;
+                    player.Score += 5;
+                    p.Score = player.Score;
                     db.SaveChanges();
+
                     Send($"Achievement Unlocked!\n{a.GetName().ToBold()}\n{a.GetDescription()}", player.Id);
+                    Send(GetLocaleString("PointsObtained", 5, player.Score).ToBold(), player.Id);
                 }
             }
         }
 
-#endregion
+        #endregion
     }
 }

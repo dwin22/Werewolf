@@ -42,7 +42,7 @@ namespace Werewolf_Control
             node.Notify.Add(update.Message.From.Id);
         }
 
-        private static void StartGame(int gmode, Update update)
+        private static void StartGame(int gmode, Update update, string cardList = null)
         {
             if (update.Message.Chat.Type == ChatType.Private)
             {
@@ -137,7 +137,41 @@ namespace Werewolf_Control
             node = Bot.GetBestAvailableNode();
             if (node != null)
             {
-                node.StartGame(update, gmode);
+                if (gmode != 4)
+                {
+                    node.StartGame(update, gmode);
+                }
+                else
+                {
+                    if (cardList == null)
+                    {
+                        //node.StartGame(update, gmode);
+                        Send(GetLocaleString("NeedRolelist", grp.Language), update.Message.Chat.Id);
+                        return;
+                    }
+                    else
+                    {
+                        List<IRole> finalList = new List<IRole>();
+                        var cards = cardList.Split(',');
+                        foreach (var card in cards)
+                        {
+                            var role = GetRoleFromEmoji(card, finalList, cards);
+                            if (role != null)
+                                finalList.Add((IRole)role);
+                            else
+                            {
+                                Send(GetLocaleString("InvalidRolelist", grp.Language), update.Message.Chat.Id);
+                                return;
+                            }
+                        }
+                        if (!finalList.Take(4).Any(x => x == IRole.Wolf || x == IRole.WolfCub || x == IRole.AlphaWolf || x == IRole.Lycan || x == IRole.HungryWolf || x == IRole.RabidWolf || x == IRole.SerialKiller || x == IRole.Pyro || x == IRole.Cultist))
+                        {
+                            Send(GetLocaleString("NotEnoughBaddies", grp.Language), update.Message.Chat.Id);
+                            return;
+                        }
+                        node.StartGame(update, gmode, finalList);
+                    }
+                }
                 node.nextHela = false;
                 node.nextJiro = false;
                 node.nextLara = false;
@@ -184,7 +218,137 @@ namespace Werewolf_Control
             return Bot.Send(message, id, clearKeyboard, customMenu);
         }
 
-
+        private static IRole? GetRoleFromEmoji(string emoji, List<IRole> list, string[] cards)
+        {
+            switch (emoji)
+            {
+                case "🍻":
+                    return IRole.Drunk;
+                case "🖕":
+                    return IRole.Traitor;
+                case "🔫":
+                    return IRole.Gunner;
+                case "👺":
+                    return IRole.Tanner;
+                case "🃏":
+                    return IRole.Fool;
+                case "👶":
+                    return IRole.WildChild;
+                case "👁":
+                    return IRole.Beholder;
+                case "🏹":
+                    if (!list.Contains(IRole.Cupid))
+                        return IRole.Cupid;
+                    else
+                        return IRole.Villager;
+                case "🤕":
+                    return IRole.ClumsyGuy;
+                case "🎖":
+                    return IRole.Mayor;
+                case "👑":
+                    return IRole.Prince;
+                case "⛺️":
+                    return IRole.Survivor;
+                case "❌":
+                    return IRole.Imposter;
+                case "🍞":
+                    return IRole.Baker;
+                case "😴":
+                    return IRole.Sleepwalker;
+                case "💨":
+                    return IRole.Ninja;
+                case "💋":
+                    return IRole.Harlot;
+                case "🍃":
+                    return IRole.Herbalist;
+                case "🔮":
+                    return IRole.Sorcerer;
+                case "🌟":
+                    return IRole.Healer;
+                case "👼":
+                    return IRole.GuardianAngel;
+                case "😾":
+                    return IRole.Cursed;
+                case "💤":
+                    return IRole.Sandman;
+                case "🤠":
+                    return IRole.Sheriff;
+                case "🔥":
+                    return IRole.Pyro;
+                case "🎭":
+                    return IRole.Doppelgänger;
+                case "👦":
+                    return IRole.Atheist;
+                case "🎯":
+                    return IRole.Hunter;
+                case "🌀":
+                    return IRole.Oracle;
+                case "⚒":
+                    return IRole.Blacksmith;
+                case "📚":
+                    return IRole.WiseElder;
+                case "☮️":
+                    return IRole.Pacifist;
+                case "🐺":
+                    return IRole.Wolf;
+                case "🔪":
+                    return IRole.SerialKiller;
+                case "⚡️":
+                    return IRole.AlphaWolf;
+                case "🐶":
+                    return IRole.WolfCub;
+                case "🐺🌝":
+                    return IRole.Lycan;
+                case "🐺🤢":
+                    return IRole.RabidWolf;
+                case "🐺❄️":
+                    return IRole.SnowWolf;
+                case "🐺🍽":
+                    return IRole.HungryWolf;
+                case "👤":
+                    return IRole.Cultist;
+                default:
+                    if (emoji[1] == '\uDD75') // detective
+                    {
+                        return IRole.Detective;
+                    }
+                    else if (emoji[1] == '\uDC73')
+                    { // seer
+                        return IRole.Seer;
+                    }
+                    else if (emoji[1] == '\uDC71') // villager and wolfman
+                    {
+                        if (emoji[5] == '\uDF1A')
+                        {
+                            return IRole.WolfMan;
+                        }
+                        else
+                        {
+                            return IRole.Villager;
+                        }
+                    }
+                    else if (emoji[1] == '\uDC6E') // police
+                    {
+                        return IRole.Police;
+                    }
+                    else if (emoji[1] == '\uDE47') // app seer
+                    {
+                        return IRole.ApprenticeSeer;
+                    }
+                    else if (emoji[1] == '\uDC77') // mason
+                    {
+                        return IRole.Mason;
+                    }
+                    else if (emoji[1] == '\uDC82') // ch
+                    {
+                        return IRole.CultistHunter;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+            }
+        }
 
         private static string GetLocaleString(string key, string language, params object[] args)
         {

@@ -57,13 +57,12 @@ namespace Werewolf_Control.Models
                     var roleInfo = db.PlayerRoles(u.Id).ToList();
                     var killed = db.PlayerMostKilled(u.Id).FirstOrDefault();
                     var killedby = db.PlayerMostKilledBy(u.Id).FirstOrDefault();
-                    var ach = (Achievements) (p.Achievements ?? 0);
-                    var count = ach.GetUniqueFlags().Count();
+                    var ach = p.Achievements == null ? new System.Collections.BitArray(200) : new System.Collections.BitArray(p.Achievements);
                     var score = p.Score;
 
-                    Content = String.IsNullOrWhiteSpace(u.Username)
-                        ? $"{u.FirstName.FormatHTML()} the {roleInfo.OrderByDescending(x => x.times).FirstOrDefault()?.role ?? "Noob"}"
-                        : $"<a href=\"https://telegram.me/{u.Username}\">{u.FirstName.FormatHTML()} the {roleInfo.OrderByDescending(x => x.times).FirstOrDefault()?.role ?? "Noob"}</a>";
+                    var count = ach.GetUniqueFlags().Count();
+
+                    Content = $"<a href='tg://user?id={p.TelegramId}'>{p.Name.FormatHTML()} the {roleInfo.OrderByDescending(x => x.times).FirstOrDefault()?.role ?? "Noob"}</a>";
                     Content += $"\n{count.Pad()}Achievements Unlocked!\n" +
                                $"{score.Pad()}Score\n" +
                                $"{won.Pad()}Games won ({won*100/gamesPlayed}%)\n" +

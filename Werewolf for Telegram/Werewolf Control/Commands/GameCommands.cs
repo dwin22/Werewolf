@@ -68,6 +68,20 @@ namespace Werewolf_Control
             StartGame(10, update);
         }
 
+        [Command(Trigger = "startcustom", Blockable = true, InGroupOnly = true)]
+        public static void StartCustom(Update update, string[] args)
+        {
+            if (!Program.MaintMode)
+            {
+                StartGame(4, update, args[1]);
+            }
+            else
+            {
+                Send("Pronto se reiniciará el bot, por lo que no se pueden iniciar partidas por unos minutos.",
+                    update.Message.Chat.Id);
+            }
+        }
+
         [Command(Trigger = "nextjiro", Blockable = true, InGroupOnly = true)]
         public static void NextJiro(Update update, string[] args)
         {
@@ -226,6 +240,23 @@ namespace Werewolf_Control
             else
             {
                 game.ShowPlayers();
+            }
+
+        }
+
+        [Command(Trigger = "roles", Blockable = true, InGroupOnly = true)]
+        public static void Roles(Update update, string[] args)
+        {
+            var id = update.Message.Chat.Id;
+
+            var game = GetGroupNodeAndGame(id);
+            if (game == null)
+            {
+                Send(GetLocaleString("NoGame", GetLanguage(id)), id);
+            }
+            else
+            {
+                game.ShowRoles();
             }
 
         }

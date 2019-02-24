@@ -1035,60 +1035,6 @@ namespace Werewolf_Control.Handler
                             //start the build process
                             Updater.DoBuild(query);
                             return;
-                        case "ohai":
-                            //update ohaider achievement
-                            var userid = int.Parse(args[2]);
-                            try
-                            {
-                                var para = DB.Players.FirstOrDefault(x => x.Id == userid);
-
-                                //get all the players Para has played with
-                                var ohaiplayers = (from g in DB.Games
-                                                   join gp in DB.GamePlayers on g.Id equals gp.GameId
-                                                   join gp2 in DB.GamePlayers on g.Id equals gp2.GameId
-                                                   join pl in DB.Players on gp2.PlayerId equals pl.Id
-                                                   where gp.PlayerId == para.Id
-                                                   select pl).Distinct();
-
-                                //figure out which players don't have the achievement
-
-                                //update the message
-                                var ohaimsg = $"Found {ohaiplayers.Count()} players that have earned OHAIDER.";
-                                Bot.Edit(query, ohaimsg);
-                                var count = 0;
-                                foreach (var player in ohaiplayers)
-                                {
-                                    //add the achievement
-                                    if (player.Achievements == null)
-                                        player.Achievements = 0;
-                                    var ach = (Achievements)player.Achievements;
-                                    if (ach.HasFlag(Achievements.OHAIDER)) continue;
-                                    count++;
-                                    var a = Achievements.OHAIDER;
-                                    player.Achievements = (long)(ach | a);
-                                    //log these ids, just in case....
-                                    using (var sw = new StreamWriter(Path.Combine(Bot.RootDirectory, "..\\Logs\\ohaider.log"), true))
-                                    {
-                                        sw.WriteLine(player.Id);
-                                    }
-                                    Send($"Achievement Unlocked!\n{a.GetName().ToBold()}\n{a.GetDescription()}", player.TelegramId);
-                                    Thread.Sleep(200);
-                                }
-                                DB.SaveChanges();
-                                ohaimsg += $"\nAchievement added to {count} players\nFinished";
-                                Bot.Edit(query, ohaimsg);
-                            }
-                            catch (AggregateException e)
-                            {
-                                Send(e.InnerExceptions.First().Message, query.From.Id);
-                            }
-                            catch (Exception e)
-                            {
-                                while (e.InnerException != null)
-                                    e = e.InnerException;
-                                Send(e.Message, query.From.Id);
-                            }
-                            return;
                         case "restore":
                             var oldid = int.Parse(args[1]);
                             var newid = int.Parse(args[2]);

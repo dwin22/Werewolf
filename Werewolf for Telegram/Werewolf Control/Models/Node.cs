@@ -31,12 +31,13 @@ namespace Werewolf_Control.Models
         public string Version { get; set; }
         public int MessagesSent { get; set; }
 
-        public void StartGame(Update update, int gm = 0)
+        public void StartGame(Update update, int gm = 0, List<IRole> cardList = null)
         {
             var info = new GameStartInfo
             {
                 Chat = update.Message.Chat,
                 gameMode = gm,
+                CList = cardList,
                 User = update.Message.From,
                 nHela = nextHela,
                 nJiro = nextJiro,
