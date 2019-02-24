@@ -5402,8 +5402,8 @@ namespace Werewolf_Node
                         if (Players.Count(x => !x.IsDead) > 1)
                         {
                             var alive = Players.Where(x => !x.IsDead);
-                            var otherPerson = alive.FirstOrDefault(x => x.PlayerRole != IRole.SerialKiller);
                             var sk = alive.FirstOrDefault(x => x.PlayerRole == IRole.SerialKiller);
+                            var otherPerson = alive.FirstOrDefault(x => x != sk);
                             if (otherPerson.PlayerRole != IRole.Survivor)
                             {
                                 SendWithQueue(GetLocaleString("SerialKillerWinsOverpower", sk.GetName(), otherPerson.GetName()));

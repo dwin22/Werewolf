@@ -318,13 +318,17 @@ namespace Werewolf_Control
                     }
                     else if (emoji[1] == '\uDC71') // villager and wolfman
                     {
-                        if (emoji[5] == '\uDF1A')
+                        if (emoji.Length < 6)
+                        {
+                            return IRole.Villager;
+                        }
+                        else if (emoji[5] == '\uDF1A')
                         {
                             return IRole.WolfMan;
                         }
                         else
                         {
-                            return IRole.Villager;
+                            return null;
                         }
                     }
                     else if (emoji[1] == '\uDC6E') // police
