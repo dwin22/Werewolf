@@ -675,11 +675,15 @@ namespace Werewolf_Control
         [Command(Trigger = "helpcustom")]
         public static void HelpCustom(Update update, string[] args)
         {
-            var reply = "Cómo iniciar una partida custom:\n\n";
-            reply.ToBold();
-            reply += "Para iniciar una partida custom, debes usar el comando /startcustom seguido de la lista de roles que quieras usar, con sus emojis, separados por comas. No puede haber espacios ni nada que no sea comas o emojis de roles. Además, debe haber al menos un malo entre los 4 primeros roles, ya que, si se unen menos jugadores que roles haya en la lista, se cogeran los roles por orden.";
+            var reply = GetHelpCustom(update);
             Send(reply, update.Message.From.Id);
+        }
 
+        [Command(Trigger = "emojiscustom")]
+        public static void EmojisCustom(Update update, string[] args)
+        {
+            var reply = GetEmojisCustom(update);
+            Send(reply, update.Message.From.Id);
         }
     }
 }

@@ -2026,4 +2026,48 @@
     <value>No ha comenzado la partida.</value>
   </string>
   
+  <string key="Random">
+    <value>rol aleatorio ❓</value>
+  </string>
+  <string key="RandomVillagerNoAlly">
+    <value>aldea (sin aliados) ✅</value>
+  </string>
+  <string key="RandomVillager">
+    <value>aldea (con aliados) ✅</value>
+  </string>
+  <string key="RandomKiller">
+    <value>rol asesino aleatorio ⚠️</value>
+  </string>
+  <string key="RandomBaddie">
+    <value>rol asesino o culto ⚠👤</value>
+  </string>
+  <string key="RandomWolf">
+    <value>lobo aleatorio 🆘</value>
+  </string>
+  <string key="RandomAlly">
+    <value>aliado de lobo ☢️</value>
+  </string>
+  <string key="RandomNeutral">
+    <value>rol neutral aleatorio ✳️</value>
+  </string>
+  <string key="Random120">
+    <value>rol 120 aleatorio</value>
+  </string>
+  <string key="RandomSkyro">
+    <value>asesina o pirómano 🔪🔥</value>
+  </string>
+  <string key="RandomCultable">
+    <value>siempre culteable aleatorio 💯</value>
+  </string>
+  <string key="RandomLowCultable">
+    <value>poco culteable aleatorio ❇️</value>
+  </string>
+  
+  <string key="HelpCustom">
+    <value>Cómo crear una partida custom:\n\nPara iniciar una partida custom debes poner el comando /startcustom seguido de la lista de roles a usar. Esta lista está formada por los emojis de los roles que quieres que salgan, separados por comas y SIN espacios. Si se unen menos jugadores que los que hay en la lista, cogerá roles empezando desde la izquierda, por lo que debes poner un malo en los 4 primeros roles como mínimo. La partida empieza automáticamente en cuanto se unan tantos jugadores como roles haya en la lista. Para ver qué emojis puedes usar, pon /emojisCustom.\n</value>
+  </string>
+  <string key="EmojisCustom">
+    <value>Roles específicos: su emoji de rol, puedes verlo en /rolelist\n❓ - Rol aleatorio entre todos\n✅ - Rol aleatorio de aldea (sin traidor, maldito, niño)\n❎ - Rol aleatorio de aldea (con traidor, maldito, niño)\n⚠️ - Lobo aleatorio, asesina o pirómano\n⚠️👤 - Lobo aleatorio, asesina, pirómano o culto\n🆘 - Lobo aleatorio\n☢️ - Aliado de lobo aleatorio\n✳️ - Superviviente, doppel o veterano\n120 - Cupido, niño, doppel o impostor\n🔪🔥 - Asesina o pirómano\n💯 - Siempre culteable aleatorio\n❇️ - Poco culteable aleatorio (sin ramera y ángel)</value>
+  </string>
+  
 </strings>

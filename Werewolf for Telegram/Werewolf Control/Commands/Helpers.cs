@@ -42,6 +42,16 @@ namespace Werewolf_Control
             node.Notify.Add(update.Message.From.Id);
         }
 
+        private static string GetHelpCustom(Update update)
+        {
+            return GetLocaleString("HelpCustom", "Spanish.xml");
+        }
+
+        private static string GetEmojisCustom(Update update)
+        {
+            return GetLocaleString("EmojisCustom", "Spanish.xml");
+        }
+
         private static void StartGame(int gmode, Update update, string cardList = null)
         {
             if (update.Message.Chat.Type == ChatType.Private)
@@ -151,20 +161,27 @@ namespace Werewolf_Control
                     }
                     else
                     {
-                        List<IRole> finalList = new List<IRole>();
+                        List<string> finalList = new List<string>();
                         var cards = cardList.Split(',');
                         foreach (var card in cards)
                         {
-                            var role = GetRoleFromEmoji(card, finalList, cards);
+                            for (int i = 0; i < card.Length; i++)
+                            {
+                                if (card[i] == ' ')
+                                {
+                                    card.Remove(i, 1);
+                                }
+                            }
+                            var role = TranslateEmoji(card, finalList, cards);
                             if (role != null)
-                                finalList.Add((IRole)role);
+                                finalList.Add(role);
                             else
                             {
                                 Send(GetLocaleString("InvalidRolelist", grp.Language), update.Message.Chat.Id);
                                 return;
                             }
                         }
-                        if (!finalList.Take(4).Any(x => x == IRole.Wolf || x == IRole.WolfCub || x == IRole.AlphaWolf || x == IRole.Lycan || x == IRole.HungryWolf || x == IRole.RabidWolf || x == IRole.SerialKiller || x == IRole.Pyro || x == IRole.Cultist))
+                        if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
                         {
                             Send(GetLocaleString("NotEnoughBaddies", grp.Language), update.Message.Chat.Id);
                             return;
@@ -218,113 +235,137 @@ namespace Werewolf_Control
             return Bot.Send(message, id, clearKeyboard, customMenu);
         }
 
-        private static IRole? GetRoleFromEmoji(string emoji, List<IRole> list, string[] cards)
+        private static string TranslateEmoji(string emoji, List<string> list, string[] cards)
         {
             switch (emoji)
             {
                 case "🍻":
-                    return IRole.Drunk;
+                    return "Drunk";
                 case "🖕":
-                    return IRole.Traitor;
+                    return "Traitor";
                 case "🔫":
-                    return IRole.Gunner;
+                    return "Gunner";
                 case "👺":
-                    return IRole.Tanner;
+                    return "Tanner";
                 case "🃏":
-                    return IRole.Fool;
+                    return "Fool";
                 case "👶":
-                    return IRole.WildChild;
+                    return "WildChild";
                 case "👁":
-                    return IRole.Beholder;
+                    return "Beholder";
                 case "🏹":
-                    if (!list.Contains(IRole.Cupid))
-                        return IRole.Cupid;
+                    if (!list.Contains("Cupid"))
+                        return "Cupid";
                     else
-                        return IRole.Villager;
+                        return "Villager";
                 case "🤕":
-                    return IRole.ClumsyGuy;
+                    return "ClumsyGuy";
                 case "🎖":
-                    return IRole.Mayor;
+                    return "Mayor";
                 case "👑":
-                    return IRole.Prince;
+                    return "Prince";
                 case "⛺️":
-                    return IRole.Survivor;
+                    return "Survivor";
                 case "❌":
-                    return IRole.Imposter;
+                    return "Imposter";
                 case "🍞":
-                    return IRole.Baker;
+                    return "Baker";
                 case "😴":
-                    return IRole.Sleepwalker;
+                    return "Sleepwalker";
                 case "💨":
-                    return IRole.Ninja;
+                    return "Ninja";
                 case "💋":
-                    return IRole.Harlot;
+                    return "Harlot";
                 case "🍃":
-                    return IRole.Herbalist;
+                    return "Herbalist";
                 case "🔮":
-                    return IRole.Sorcerer;
+                    return "Sorcerer";
                 case "🌟":
-                    return IRole.Healer;
+                    return "Healer";
                 case "👼":
-                    return IRole.GuardianAngel;
+                    return "GuardianAngel";
                 case "😾":
-                    return IRole.Cursed;
+                    return "Cursed";
                 case "💤":
-                    return IRole.Sandman;
+                    return "Sandman";
                 case "🤠":
-                    return IRole.Sheriff;
+                    return "Sheriff";
                 case "🔥":
-                    return IRole.Pyro;
+                    return "Pyro";
                 case "🎭":
-                    return IRole.Doppelgänger;
+                    return "Doppelgänger";
                 case "👦":
-                    return IRole.Atheist;
+                    return "Atheist";
                 case "🎯":
-                    return IRole.Hunter;
+                    return "Hunter";
                 case "🌀":
-                    return IRole.Oracle;
+                    return "Oracle";
                 case "⚒":
-                    return IRole.Blacksmith;
+                    return "Blacksmith";
                 case "📚":
-                    return IRole.WiseElder;
+                    return "WiseElder";
                 case "☮️":
-                    return IRole.Pacifist;
+                    return "Pacifist";
                 case "🐺":
-                    return IRole.Wolf;
+                    return "Wolf";
                 case "🔪":
-                    return IRole.SerialKiller;
+                    return "SerialKiller";
                 case "⚡️":
-                    return IRole.AlphaWolf;
+                    return "AlphaWolf";
                 case "🐶":
-                    return IRole.WolfCub;
+                    return "WolfCub";
                 case "🐺🌝":
-                    return IRole.Lycan;
+                    return "Lycan";
                 case "🐺🤢":
-                    return IRole.RabidWolf;
+                    return "RabidWolf";
                 case "🐺❄️":
-                    return IRole.SnowWolf;
+                    return "SnowWolf";
                 case "🐺🍽":
-                    return IRole.HungryWolf;
+                    return "HungryWolf";
                 case "👤":
-                    return IRole.Cultist;
+                    return "Cultist";
+                case "❓":
+                    return "Random";
+                case "❎":
+                    return "RandomVillager";
+                case "✅":
+                    return "RandomVillagerNoAlly";
+                case "⚠️":
+                    return "RandomKiller";
+                case "⚠️👤":
+                    return "RandomBaddie";
+                case "🆘":
+                    return "RandomWolf";
+                case "☢️":
+                    return "RandomAlly";
+                case "✳️":
+                    return "RandomNeutral";
+                case "120":
+                    return "Random120";
+                case "🔪🔥":
+                    return "RandomSkyro";
+                case "💯":
+                    return "RandomCultable";
+                case "❇️":
+                    return "RandomLowCultable";
                 default:
                     if (emoji[1] == '\uDD75') // detective
                     {
-                        return IRole.Detective;
+                        return "Detective";
                     }
                     else if (emoji[1] == '\uDC73')
                     { // seer
-                        return IRole.Seer;
+                        return "Seer";
                     }
                     else if (emoji[1] == '\uDC71') // villager and wolfman
                     {
                         if (emoji.Length < 6)
                         {
-                            return IRole.Villager;
+                            return "Villager";
                         }
                         else if (emoji[5] == '\uDF1A')
                         {
-                            return IRole.WolfMan;
+                            return "WolfMan";
                         }
                         else
                         {
@@ -333,19 +374,19 @@ namespace Werewolf_Control
                     }
                     else if (emoji[1] == '\uDC6E') // police
                     {
-                        return IRole.Police;
+                        return "Police";
                     }
                     else if (emoji[1] == '\uDE47') // app seer
                     {
-                        return IRole.ApprenticeSeer;
+                        return "ApprenticeSeer";
                     }
                     else if (emoji[1] == '\uDC77') // mason
                     {
-                        return IRole.Mason;
+                        return "Mason";
                     }
                     else if (emoji[1] == '\uDC82') // ch
                     {
-                        return IRole.CultistHunter;
+                        return "CultistHunter";
                     }
                     else
                     {

@@ -42,7 +42,7 @@ namespace Werewolf_Control.Models
     {
         public string JType { get; set; } = "GameStartInfo";
         public int gameMode { get; set; }
-        public List<IRole> CList { get; set; } = new List<IRole>();
+        public List<string> CList { get; set; } = new List<string>();
         public User User { get; set; }
         public Chat Chat { get; set; }
         public bool nHela { get; set; }
