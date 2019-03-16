@@ -15,6 +15,7 @@ namespace Werewolf_Control.Models
         public List<int> Notify = new List<int>();
         public TcpClient TcpClient { get; set; }
         public bool ShuttingDown { get; set; }
+        public bool Stay { get; set; } = false;
         public bool nextHela { get; set; } = false;
         public bool nextJiro { get; set; } = false;
         public bool nextLara { get; set; } = false;

@@ -424,7 +424,7 @@
   <string key="WildChildTransform">
     <!-- 0 - role's name -->
     <!-- 0 - teamate's names -->
-    <value>¡{0} ha muerto! En un ataque de rabia, ¡te has convertido en hombre lobo! Tus nuevos compañeros son: {1}</value>
+    <value>¡{0} ha muerto! En un ataque de rabia, ¡te has convertido en hombre lobo!</value>
   </string>
   <!-- Villager, Drunk, Harlot, Seer, Traitor, GuardianAngel, Detective, Wolf, Cursed, Gunner, Tanner, Fool, WildChild, Beholder, ApprenticeSeer, Cultist, CultistHunter-->
   <string key="Villager">
@@ -1497,21 +1497,21 @@
   <string key="AllowThiefA">
     <value>El ladrón ahora: {0}</value>
   </string>
-  <string key="ThiefFullQ">
-    <value>¿Usar el ladrón cada noche?\nCurrent: {0}</value>
+  <string key="RankPerksQ">
+    <value>¿Pueden recibir los jugadores con rango ventajas?\nActual: {0}</value>
   </string>
-  <string key="ThiefFullA">
-    <value>El ladrón puede usarse cada noche: {0}</value>
+  <string key="RankPerksA">
+    <value>Ventajas de rango: {0}</value>
   </string>
   <string key="AllowThief">
     <value>Permitir Ladrón</value>
   </string>
-  <string key="ThiefFull">
-    <value>Juego con Ladrón Completo</value>
+  <string key="RankPerks">
+    <value>Activar Ventajas de Rango</value>
   </string>
 
   <string key="RoleInfoWolfMan">
-    <value>Eres un simple aldeano. Sin embargo, debido a que pasas mucho tiempo en el bosque junto a los lobos, la vidente te percibirá como uno. ¡Oh, no!</value>
+    <value>Eres el guardabosques, un aldeano más. Sin embargo, debido a que pasas mucho tiempo en el bosque junto a los lobos, la vidente te percibirá como uno. ¡Oh, no!</value>
   </string>
   <string key="WolfMan">
     <value>el guardabosques 👱🌚</value>
@@ -1572,13 +1572,13 @@
   </string>
 
   <string key="RoleInfoThief">
-    <value></value>
+    <value>Eres el ladrón. Cada día puedes robarle el voto a un jugador. Si tienes éxito, sus linchamientos no valdrán nada y aumentarás el valor de los tuyos. Si muere un jugador cuyo voto robaste, perderás el valor de su voto. Tu objetivo es robar a todos los jugadores vivos.</value>
   </string>
   <string key="Thief">
     <value>el ladrón 😈</value>
   </string>
   <string key="AboutThief">
-    <value></value>
+    <value>El ladrón es un personaje solitario, como la asesina. Cada día puedes robar el voto de un jugador. La probabilidad de éxito es la misma que de culteo, excepto que los roles inculteables tienen 100% de ser robados, y el alcalde 0%. Los votos del ladrón valen inicialmente 0, y suma 1 por cada jugador vivo al que haya robado. Los jugadores robados podrán seguir votando pero sus votos no valen nada.</value>
   </string>
   
   <string key="AskPacifist">
@@ -1698,7 +1698,7 @@
 	<value>El lobo de nieve, {0}, se preparaba para congelar a alguien durante la noche, pero accidentalmente visitó a la asesina en serie; esta se ha percatado de su inesperado visitante y ha apuñalado a {0}.</value>
   </string>
   <string key="SnowWolfTurnWolf">
-	<value>Los otros lobos han muerto, y eres el último miembro de la manada. Para obtener algo de carne fresca de aldeano, te has convertido en un hombre lobo normal que prefiere comer en lugar de helar por la noche.</value>
+	<value>Los otros lobos han muerto, y eres el último miembro de la manada. Para obtener algo de carne fresca de aldeano, te has convertido en un hombre lobo normal.</value>
   </string>
   <string key="SnowFrozeHunter">
     <!-- 0 - nombre del objetivo-->
@@ -1714,11 +1714,11 @@
   
   <string key="PoliceInnocent">
     <!-- 0 - target's name -->
-    <value>Tras interrogar a {0}, concluyes que no es sospechoso.</value>
+    <value>¡Tras la visita a {0}, sabes con certeza que es inocente!</value>
   </string> 
   <string key="PoliceGuilty">
     <!-- 0 - target's name -->
-    <value>¡Qué sospechoso! {0} se comportaba de manera muy extraña, como si ocultara algo...</value>
+    <value>La visita a {0} no te ha aportado nada, sigues sin saber si es culpable o no...</value>
   </string>
   <string key="AskPolice">
     <value>¿A quién quieres interrogar esta noche?</value>
@@ -1726,11 +1726,11 @@
   
   <string key="SheriffVisitHome">
     <!-- 0 - target's name -->
-    <value>Ha sido una noche tranquila. {0} parecía estar durmiendo, así que te volviste a casa.</value>
+    <value>Ha sido una noche tranquila. {0} parecía estar durmiendo, así que te volviste a casa. (Tu objetivo se quedó en casa).</value>
   </string>
   <string key="SheriffVisitNotHome">
     <!-- 0 - target's name -->
-    <value>¡Qué extraño! Mientras patrullabas la casa de {0}, viste como la abandonaba.</value>
+    <value>¡Qué extraño! Mientras patrullabas la casa de {0}, viste como la abandonaba. (Tu objetivo salió de casa).</value>
   </string>
   <string key="AskSheriff">
     <value>¿A quién quieres vigilar esta noche?</value>
@@ -1774,23 +1774,23 @@
     <value>La función del sheriff es muy importante. Es un rol investigador y protector a la vez. Cada noche puede saber si un jugador tiene rol visitante y evitar que le conviertan al culto. Eso sí, vuelve pronto a casa, por lo que el culto puede convertirle aunque salga de patrulla.</value>
   </string>
 	<string key="RoleInfoPolice">
-    <value>Eres un policía. Cada noche puedes interrogar a un jugador para saber si es sospechoso (es decir, malo). Sin embargo, hay un 20% de que tu resultado sea el contrario.</value>
+    <value>Eres un policía. Cada noche puedes interrogar a un jugador. Si es inocente, tienes un 50% de saberlo. Además, puede haber varios policías.</value>
   </string>
   <string key="Police">
     <value>un policía 👮</value>
   </string>
   <string key="AboutPolice">
-    <value>El policía es como el aldeano o el masón: puede haber varios. Cada noche sabrás si un jugador es sospechoso o no. Sospechoso incluye lobos, culto, pirómano y asesina. Sin embargo, cada noche hay un 20% de que tu resultado sea el contrario al esperado. ¡Compara resultados con otros policías o mira varias veces a la misma persona para asegurarte!</value>
+    <value>El policía es como el aldeano o el masón: puede haber varios. Cada noche puedes interrogar a un jugador. Si es inocente, tienes un 50% de saberlo. En caso contrario no sabrás nada. Inocente incluye todo menos lobos, culto, pirómano y asesina.</value>
   </string>
   
   <string key="RoleInfoPyro">
-    <value>¡Eres el pirómano! Cada noche elige a un jugador para rociar gasolina por su casa. Si te eliges a ti mismo, encenderás fuego y matarás a todos los que hayas rociado anteriormente. Tu objetivo es ser el último vivo.</value>
+    <value>¡Eres el pirómano! Cada noche elige a un jugador para rociar gasolina por su casa. También puedes encender fuego y matar a todos los que hayas rociado anteriormente. Tu objetivo es ser el último vivo.</value>
   </string>
   <string key="Pyro">
     <value>el pirómano 🔥</value>
   </string>
   <string key="AboutPyro">
-    <value>El pirómano va por solitario, como la asesina. Cada noche puedes rociar con gasolina la casa de un jugador. Si te visitas a ti mismo matarás a todos los que hayas visitado anteriormente, ¡escoge el momento adecuado! Como no estás en casa, los lobos no te podrán comer. Además, la ramera no te puede detectar.</value>
+    <value>El pirómano va por solitario, como la asesina. Cada noche puedes rociar con gasolina la casa de un jugador, o encender fuego para matar a todos los que hayas visitado anteriormente, ¡escoge el momento adecuado! Como no estás en casa, los lobos no te podrán comer. Además, la ramera no te puede detectar.</value>
   </string>
   
   <string key="RoleInfoHungryWolf">
@@ -1806,6 +1806,9 @@
   <string key="AskDouse">
     <value>¿A quién quieres rociar con gasolina?</value>
   </string>
+  <string key="Ignite">
+    <value>¡Encender fuego! 🔥</value>
+  </string>
   <string key="ExtraDouse">
     <value>Como no quedan hombres lobo, la aldea ha bajado la guardia y tú aprovechas la oportunidad para rociar a otra persona.</value>
   </string>
@@ -1819,13 +1822,17 @@
   <string key="PyroWins" isgif="true">
     <value>¡Toda la aldea ha sido incenciada! El pirómano ha ganado.</value>
   </string>
+  <string key="PyroVisitHunter">
+    <!-- 0 - target's name -->
+    <value>¡Boom! Resuena un disparo por toda la aldea. Tras salir de sus casas, los aldeanos encuentran el cadáver de {0}, rodeado de charcos de gasolina y sangre. Parece que al cazador no le gusta ser rociado.</value>
+  </string>
   <string key="DousedDrunkNight">
     <!-- 0 - target's name -->
     <value>¡Vaya! {0} era el borracho y, por no ir con cuidado, ha muerto en llamas inmediatamente.</value>
   </string>
   <string key="GuardBlockedArso">
     <!-- 0 - target's name -->
-    <value>Mientras te acercas a la casa de {0}, comienzas a sentir una fuerte presencia. Decides retirarte a tiempo, antes de ser descubierto.</value>
+    <value>Mientras te acercas a la casa de {0}, comienzas a sentir una fuerte presencia. Descubres al ángel de la guarda protegiéndole, y rápidamente huyes.</value>
   </string>
   
   <string key="PlayerDevouredWolves">
@@ -1942,13 +1949,13 @@
   </string>
   
   <string key="RoleInfoHerbalist">
-    <value>Eres el herborista. Debido a la amenaza de los hombres lobo, decides usar tus conocimientos para envenenar a una persona cada dos noches. Esa persona sabrá que ha sido envenenada, y morirá la próxima noche. Solo tú conoces el antídoto, y podrás decidir si dárselo la próxima noche y salvarla o dejarla morir. Eres parte de la aldea.</value>
+    <value>Eres la herborista. Debido a la amenaza de los hombres lobo, decides usar tus conocimientos para envenenar a una persona cada dos noches. Esa persona sabrá que ha sido envenenada, y morirá la próxima noche. Solo tú conoces el antídoto, y podrás decidir si dárselo la próxima noche y salvarla o dejarla morir. Eres parte de la aldea.</value>
   </string>
   <string key="Herbalist">
-    <value>el herborista 🍃</value>
+    <value>la herborista 🍃</value>
   </string>
   <string key="AboutHerbalist">
-    <value>El herborista es un aldeano experto en hierbas medicinales... y no tan medicinales. A causa de la aparición de hombres lobo en la aldea, cada dos noches visitará a otro jugador para envenenarlo. El objetivo sabrá que ha sido envenenado y morirá la próxima noche. Existe un antídoto, pero sólo lo conoce el propio herborista, el cual se lo podrá dar la próxima noche si se arrepiente de su decisión.</value>
+    <value>La herborista es una aldeana experta en hierbas medicinales... y no tan medicinales. A causa de la aparición de hombres lobo en la aldea, cada dos noches visitará a otro jugador para envenenarlo. El objetivo sabrá que ha sido envenenado y morirá la próxima noche. Existe un antídoto, pero sólo lo conoce la propia herborista, la cual se lo podrá dar la próxima noche si se arrepiente de su decisión.</value>
   </string>
   <string key="HerbalistPoisonedYou">
     <value>A medida que terminas de desayunar empiezas a sentirte mareado... ¡parece que te han envenenado! Morirás la próxima noche si no consigues un antídoto.</value>
@@ -1968,7 +1975,7 @@
   <string key="DefaultPoisoned">
     <!-- 0 - target's name -->
     <!-- 1 - target's role -->
-    <value>Al llegar la mañana, los aldeanos comienzan a abrir los ojos y despertarse... excepto {0}, el cual ha decidido dormir para siempre. Parece que murió envenenado por el herborista. {1}.</value>
+    <value>Al llegar la mañana, los aldeanos comienzan a abrir los ojos y despertarse... excepto {0}, el cual ha decidido dormir para siempre. Parece que murió envenenado por la herborista. {1}.</value>
   </string>
   <string key="AskPoison">
     <value>¿A quién quieres envenenar esta noche?</value>
@@ -1981,13 +1988,13 @@
   </string>
   
   <string key="RoleInfoNinja">
-    <value>Eres el ninja. Cada noche podrás decidir si quedarte despierto o dormir. Si decides quedarte despierto, estarás alerta y te ocultarás de las visitas, pero deberás descansar la próxima noche.</value>
+    <value>Eres el ninja. Cada noche podrás decidir si quedarte despierto o dormir. Si decides quedarte despierto, estarás alerta y te ocultarás del primer atacante que te visite. Sin embargo, si no te visitan, deberás descansar la próxima noche.</value>
   </string>
   <string key="Ninja">
     <value>el ninja 💨</value>
   </string>
   <string key="AboutNinja">
-    <value>El ninja es un rol de la aldea. Cada noche puede decidir si dormir o no. Si se queda despierto, estará alerta y usará sus habilidades para ocultarse de los visitantes. Sin embargo, todo el mundo necesita descanso. Por ello, si decide pasar una noche despierto, deberá dormir la próxima obligatoriamente, le hayan visitado o no. Además, tiene un 50% de ser encontrado por la asesina mientras se oculta.</value>
+    <value>El ninja es un rol de la aldea. Cada noche puede decidir si dormir o no. Si se queda despierto, estará alerta y usará sus habilidades para ocultarse del primer atacante que le visite. Sin embargo, todo el mundo necesita descanso. Por ello, si decide pasar una noche despierto y no le visitan, deberá dormir la próxima obligatoriamente, le hayan visitado o no. Además, tiene un 50% de ser encontrado por la asesina mientras se oculta.</value>
   </string>
   <string key="NinjaHidden">
     <value>Mientras vigilas, notas que alguien se acerca. En silencio ocultas tu presencia hasta que se marcha. (Alguien te ha visitado)</value>
@@ -2070,4 +2077,97 @@
     <value>Roles específicos: su emoji de rol, puedes verlo en /rolelist\n❓ - Rol aleatorio entre todos\n✅ - Rol aleatorio de aldea (sin traidor, maldito, niño)\n❎ - Rol aleatorio de aldea (con traidor, maldito, niño)\n⚠️ - Lobo aleatorio, asesina o pirómano\n⚠️👤 - Lobo aleatorio, asesina, pirómano o culto\n🆘 - Lobo aleatorio\n☢️ - Aliado de lobo aleatorio\n✳️ - Superviviente, doppel o veterano\n120 - Cupido, niño, doppel o impostor\n🔪🔥 - Asesina o pirómano\n💯 - Siempre culteable aleatorio\n❇️ - Poco culteable aleatorio (sin ramera y ángel)</value>
   </string>
   
+  <string key="SKStabbedYou">
+    <value>¡Oh, no! La asesina en serie te ha asesinado.</value>
+  </string>
+  <string key="PyroBurnedYou">
+    <value>¡FUEGOOOOOO! Te despiertas entre llamas, pero ya es demasiado tarde. Has muerto.</value>
+  </string>
+  
+  <string key="RoleInfoSnooper">
+    <value>Eres el lobo husmeador. Cada noche puedes husmear a un jugador para averiguar si tiene acción nocturna o no. Además, debido a su fuerte olor, podrás diferenciar al borracho, al panadero o a la herborista.</value>
+  </string>
+  <string key="Snooper">
+    <value>el lobo husmeador 🐾</value>
+  </string>
+  <string key="AboutSnooper">
+    <value>El lobo husmeador es un lobo de apoyo, como el lobo de nieve. Cada noche puede husmear a un jugador para averiguar si tiene acción nocturna o no. Además, debido a su fuerte olor, puede identificar si su objetivo es el borracho, el panadero o la herborista. Si el resto de lobos muere, se convertirá en un lobo normal. Además, si el alfa infecta al detective, éste se convertirá en lobo husmeador.</value>
+  </string>
+  <string key="AskSnoop">
+    <value>¿A quién quieres husmear?</value>
+  </string>
+  <string key="SnoopAction">
+    <value>Al acercarte a la casa de {0}, oyes movimiento, por lo que parece que está despierto. (Tiene acción nocturna). </value>
+  </string>
+  <string key="SnoopNoAction">
+    <value>Tras inspeccionar la casa de {0}, no oyes ni hueles nada inusual, parece que duerme. (No tiene acción nocturna).</value>
+  </string>
+  <string key="SnoopDrunk">
+    <value>Al acercarte a la casa de {0}, reconoces un fuerte olor a alcohol. ¡Así que {0} es {1}!</value>
+  </string>
+  <string key="SnoopHerbalist">
+    <value>Al acercarte a la casa de {0}, notas un olor a plantas y hierbas medicinales. ¡Así que {0} es {1}!</value>
+  </string>
+  <string key="SnoopBaker">
+    <value>Al acercarte a la casa de {0}, distingues un delicioso olor a pan recién hecho. ¡Así que {0} es {1}!</value>
+  </string>
+  <string key="PlayerStartedRankedGame">
+   <!-- 0 - Player name -->
+   <value>¡{0} ha empezado una partida con puntos! Pulsa el botón para unirte a la competición... y probablemente morir :P</value>
+   <value>¡{0} ha iniciado una nueva partida con puntos! ¿Lograrás entrar en el top 10?</value>
+ </string>
+ <string key="NotEnoughMembersRanked">
+    <value>Para iniciar una partida con puntos, el grupo debe tener al menos 30 miembros. Puedes jugar el mismo tipo de partida, pero sin puntos, con /startgame.</value>
+  </string>
+  
+  <string key="DisableVillagerQ">
+    <value>¿Desactivar aldeanos (y licántropo)?\nActualmente: {0}</value>
+  </string>
+  <string key="DisableVillagerA">
+    <value>Aldeanos desactivados: {0}</value>
+  </string>
+  <string key="DisableVillager">
+    <value>Quitar aldeanos 👱‍ (y licántropo)</value>
+  </string>
+  
+  <string key="StrongModeQ">
+    <value>¿Activar modo fuerte? No aparecerán roles inútiles o perjudiciales para su equipo (aldeano, torpe, panadero...)\nActualmente: {0}</value>
+  </string>
+  <string key="StrongModeA">
+    <value>Modo fuerte: {0}</value>
+  </string>
+  <string key="StrongMode">
+    <value>Modo Fuerte</value>
+  </string>
+  
+  <string key="ShowRankEnabled">
+    <value>Tu rango de puntuación se mostrará en las partidas ranked.</value>
+  </string>
+  <string key="ShowRankDisabled">
+    <value>Tu rango de puntuación no se mostrará en ninguna partida.</value>
+  </string>
+  <string key="CantShowRank">
+    <value>Tu rango es demasiado bajo para usar este comando. Alcanza primero 1000 puntos.</value>
+  </string>
+  <string key="CantStartClumsy">
+    <value>Tu rango es demasiado bajo para iniciar este modo de juego. Alcanza 1400 puntos para desbloquearlo.</value>
+  </string>
+  <string key="NoRoleProvided">
+    <value>Debes usar el comando /toprole seguido del emoji de un rol.</value>
+  </string>
+  
+  <string key="CantSetRolelist">
+    <value>Tu rango es demasiado bajo para usar este comando. Alcanza primero 1600 puntos.</value>
+  </string>
+  <string key="RolelistSaved">
+    <value>Changes saved!</value>
+  </string>
+  <string key="IsThisAmnesia">
+  <!-- Put "Yes" if it's an amnesia language! If not, anything else works -->
+    <value>No</value>
+  </string>
+  <string key="NewDGRoleModel">
+    <!-- 0 - target's name -->
+    <value>Eres el doppelgänger. Tu modelo a seguir es {0}</value>
+  </string>
 </strings>

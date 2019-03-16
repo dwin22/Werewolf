@@ -1507,19 +1507,19 @@
     <value>Allow thief as a role option?\nCurrent: {0}</value>
   </string>
   <string key="AllowThiefA">
-    <value>Thief as a role set to: {0}</value>
+    <value>Current thief: {0}</value>
   </string>
-  <string key="ThiefFullQ">
-    <value>Thief can be used every night?\nCurrent: {0}</value>
+  <string key="RankPerksQ">
+    <value>¿Pueden recibir los jugadores con rango ventajas?\nActual: {0}</value>
   </string>
-  <string key="ThiefFullA">
-    <value>Thief will play every night: {0}</value>
+  <string key="RankPerksA">
+    <value>Ventajas de rango: {0}</value>
   </string>
   <string key="AllowThief">
     <value>Allow Thief</value>
   </string>
-  <string key="ThiefFull">
-    <value>Thief Full Game</value>
+  <string key="RankPerks">
+    <value>Activar Ventajas de Rango</value>
   </string>
 
   <string key="RoleInfoWolfMan">
@@ -1560,6 +1560,26 @@
   </string>
   <string key="AboutSandman">
     <value> Once per game, the sandman can make all players sleep so deeply that nobody can use their night actions</value>
+  </string>
+  
+  <string key="DisableVillagerQ">
+    <value>¿Desactivar aldeanos (y licántropo)?\nActualmente: {0}</value>
+  </string>
+  <string key="DisableVillagerA">
+    <value>Aldeanos desactivados: {0}</value>
+  </string>
+  <string key="DisableVillager">
+    <value>Quitar aldeanos 👱‍ (y licántropo)</value>
+  </string>
+  
+  <string key="StrongModeQ">
+    <value>¿Activar modo fuerte? No aparecerán roles inútiles o perjudiciales para su equipo (aldeano, torpe, panadero...)\nActualmente: {0}</value>
+  </string>
+  <string key="StrongModeA">
+    <value>Modo fuerte: {0}</value>
+  </string>
+  <string key="StrongMode">
+    <value>Modo Fuerte</value>
   </string>
 </strings>
 

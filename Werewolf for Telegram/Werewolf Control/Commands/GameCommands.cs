@@ -62,10 +62,16 @@ namespace Werewolf_Control
             }
         }
 
-        [Command(Trigger = "testgame", Blockable = true, InGroupOnly = true)]
-        public static void TestGame(Update update, string[] args)
+        [Command(Trigger = "startranked", Blockable = true, InGroupOnly = true)]
+        public static void StartRanked(Update update, string[] args)
         {
-            StartGame(10, update);
+            if (!Program.MaintMode)
+                StartGame(5, update);
+            else
+            {
+                Send("Pronto se reiniciará el bot, por lo que no se pueden iniciar partidas por unos minutos.",
+                    update.Message.Chat.Id);
+            }
         }
 
         [Command(Trigger = "startcustom", Blockable = true, InGroupOnly = true)]
@@ -178,9 +184,9 @@ namespace Werewolf_Control
                     }
 
                     //player is not in game, they need to join, if they can
-                    //game?.AddPlayer(update);
+                    game?.AddPlayer(update);
 
-                    game?.ShowJoinButton();
+                    //game?.ShowJoinButton();
                     if (game == null)
                         Program.Log($"{update.Message.From.FirstName} tried to join a game on node {node?.ClientId}, but game object was null", true);
                     return;

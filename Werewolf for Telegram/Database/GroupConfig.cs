@@ -34,8 +34,12 @@ namespace Database
         AllowNSFW = 512,
         [Editable(true), Question("allowthief"), DefaultValue(true)]
         AllowThief = 1024,
-        [Editable(true), Question("thieffull", SettingQuestion.YesNo), DefaultValue(true)]
-        ThiefFull = 2048,
+        [Editable(true), Question("rankperks", SettingQuestion.YesNo), DefaultValue(true)]
+        RankPerks = 2048,
+        [Editable(true), Question("disablevillager", SettingQuestion.YesNo), DefaultValue(false)]
+        DisableVillager = 4096,
+        [Editable(true), Question("strongmode", SettingQuestion.YesNo), DefaultValue(false)]
+        StrongMode = 8192,
 
 
         //this is a flag that will be set on ALL groups indicating we need to update the settings

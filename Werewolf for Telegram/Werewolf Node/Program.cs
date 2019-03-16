@@ -54,11 +54,9 @@ namespace Werewolf_Node
         internal static int TotalPlayers = 0;
         internal static string APIToken;
         //internal static BotanIO.Api.Botan Analytics;
-#if DEBUG
+
         internal static string LanguageDirectory => Path.GetFullPath(Path.Combine(RootDirectory, @"..\..\..\Languages"));
-#else
-        internal static string LanguageDirectory => Path.GetFullPath(Path.Combine(RootDirectory, @"..\..\Languages"));
-#endif
+
         internal static string TempLanguageDirectory => Path.GetFullPath(Path.Combine(RootDirectory, @"..\..\TempLanguageFiles"));
         internal static XDocument English;
         internal static int MessagesSent = 0;
@@ -92,17 +90,12 @@ namespace Werewolf_Node
                     RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64)
                         .OpenSubKey("SOFTWARE\\Werewolf");
 
-#if BETA || DEBUG
             //var aToken = key.GetValue("BotanBetaAPI").ToString();
-#else
-            //var aToken = key.GetValue("BotanReleaseAPI").ToString();
-#endif
-            //Analytics = new BotanIO.Api.Botan(aToken);
 
 #if DEBUG
             APIToken = key.GetValue("DebugAPI").ToString();
 #elif RELEASE
-            APIToken = key.GetValue("ProductionAPI").ToString();
+            APIToken = key.GetValue("DebugAPI").ToString();
 #elif RELEASE2
             APIToken = key.GetValue("ProductionAPI2").ToString();
 #elif BETA
@@ -145,11 +138,11 @@ namespace Werewolf_Node
                     Werewolf game;
                     if (t != null)
                     {
-                        Console.WriteLine(t);
                         switch (t)
                         {
                             case "PlayerJoinInfo":
                                 var pji = JsonConvert.DeserializeObject<PlayerJoinInfo>(msg);
+                                Console.WriteLine(t + " " + pji.User.FirstName);
                                 game = Games.FirstOrDefault(x => x.ChatId == pji.GroupId);
                                 if (pji.User.Id == Jiro)
                                 {
@@ -220,12 +213,13 @@ namespace Werewolf_Node
                                 {
                                     game = new Werewolf(gsi.Chat.Id, gsi.User, gsi.Chat.Title,
                                         gsi.gameMode, gsi.CList);
-                                    Console.WriteLine(gsi.Chat.Title); // to see in which groups are games started
+                                    Console.WriteLine(t + " " + gsi.Chat.Title); // to see in which groups are games started
                                     Games.Add(game);
                                     GamesStarted++;
                                 }
                                 break;
                             case "ForceStartInfo":
+                                Console.WriteLine(t);
                                 var fsi = JsonConvert.DeserializeObject<ForceStartInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == fsi.GroupId);
                                 game?.ForceStart();
@@ -238,6 +232,7 @@ namespace Werewolf_Node
                             //    game?.HandleReply(ri.Update);
                             //    break;
                             case "CallbackInfo":
+                                Console.WriteLine(t);
                                 var ci = JsonConvert.DeserializeObject<CallbackInfo>(msg);
                                 game =
                                     Games.FirstOrDefault(
@@ -245,31 +240,37 @@ namespace Werewolf_Node
                                 game?.HandleReply(ci.Query);
                                 break;
                             case "PlayerListRequestInfo":
+                                Console.WriteLine(t);
                                 var plri = JsonConvert.DeserializeObject<PlayerListRequestInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == plri.GroupId);
                                 game?.OutputPlayers();
                                 break;
                             case "RoleListRequestInfo":
+                                Console.WriteLine(t);
                                 var rlri = JsonConvert.DeserializeObject<RoleListRequestInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == rlri.GroupId);
                                 game?.OutputRoles();
                                 break;
                             case "PlayerFleeInfo":
+                                Console.WriteLine(t);
                                 var pfi = JsonConvert.DeserializeObject<PlayerFleeInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == pfi.GroupId);
                                 game?.RemovePlayer(pfi.User);
                                 break;
                             case "LoadLangInfo":
+                                Console.WriteLine(t);
                                 var lli = JsonConvert.DeserializeObject<LoadLangInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == lli.GroupId);
                                 game?.LoadLanguage(lli.FileName);
                                 break;
                             case "PlayerSmiteInfo":
+                                Console.WriteLine(t);
                                 var psi = JsonConvert.DeserializeObject<PlayerSmiteInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == psi.GroupId);
                                 game?.FleePlayer(psi.UserId);
                                 break;
                             case "UpdateNodeInfo":
+                                Console.WriteLine(t);
                                 var uni = JsonConvert.DeserializeObject<UpdateNodeInfo>(msg);
                                 IsShuttingDown = true;
                                 if (uni.Kill)
@@ -279,16 +280,19 @@ namespace Werewolf_Node
                                 }
                                 break;
                             case "SkipVoteInfo":
+                                Console.WriteLine(t);
                                 var svi = JsonConvert.DeserializeObject<SkipVoteInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == svi.GroupId);
                                 game?.SkipVote();
                                 break;
                             case "GameKillInfo":
+                                Console.WriteLine(t);
                                 var gki = JsonConvert.DeserializeObject<GameKillInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == gki.GroupId);
                                 game?.Kill();
                                 break;
                             case "GetGameInfo":
+                                Console.WriteLine(t);
                                 var ggi = JsonConvert.DeserializeObject<GetGameInfo>(msg);
                                 var g = Games.FirstOrDefault(x => x.ChatId == ggi.GroupId);
                                 if (g == null)
@@ -323,11 +327,13 @@ namespace Werewolf_Node
                                 message.Reply(JsonConvert.SerializeObject(gi));
                                 break;
                             case "ExtendTimeInfo":
+                                Console.WriteLine(t);
                                 var eti = JsonConvert.DeserializeObject<ExtendTimeInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == eti.GroupId);
                                 game?.ExtendTime(eti.User, eti.Admin, eti.Seconds);
                                 break;
                             case "JoinButtonRequestInfo":
+                                Console.WriteLine(t);
                                 var jbri = JsonConvert.DeserializeObject<PlayerListRequestInfo>(msg);
                                 game = Games.FirstOrDefault(x => x.ChatId == jbri.GroupId);
                                 game?.ShowJoinButton();
@@ -336,6 +342,7 @@ namespace Werewolf_Node
                                 Console.ForegroundColor = ConsoleColor.Gray;
                                 break;
                             default:
+                                Console.WriteLine(t);
                                 Console.WriteLine(msg);
                                 break;
                         }

@@ -197,7 +197,9 @@ namespace Werewolf_Control
                             Name = (usr.FirstName + " " + usr.LastName).Trim(),
                             TelegramId = usr.Id,
                             Language = "English",
-                            Score = 1000
+                            Score = 1000,
+                            ShowRank = true,
+                            AfkStats = false
                         };
                         db.Players.Add(p);
                         db.SaveChanges();
@@ -528,19 +530,48 @@ namespace Werewolf_Control
             using (var db = new WWContext())
             {
                 var topPlayers = db.Players.OrderByDescending(x => x.Score);
-                var reply = "Top 10 Players:\n";
+                //var topPlayers = db.Players.Where(x => x.TelegramId != 294728091).OrderByDescending(x => x.Score); // I was just too good :P
+                var reply = "Top 10 Global:\n";
                 reply.ToBold();
                 reply += "\n";
                 var topScore = topPlayers.Take(10);
                 var i = 1;
+                var rankEmoji = "";
                 foreach (var p in topScore)
                 {
-                    reply += i + "º " + p.Name + " (" + p.Score + ")\n";
+                    if (p.Score > 2200)
+                        rankEmoji = "🏆 ";
+                    else if (p.Score > 2000)
+                        rankEmoji = "💎 ";
+                    else if (p.Score > 1800)
+                        rankEmoji = "🥇 ";
+                    else if (p.Score > 1600)
+                        rankEmoji = "🥈 ";
+                    else if (p.Score > 1400)
+                        rankEmoji = "🥉 ";
+                    else if (p.Score > 1200)
+                        rankEmoji = "🔆 ";
+                    else if (p.Score > 1000)
+                        rankEmoji = "🔅 ";
+                    reply += i + "º " + rankEmoji + p.Name + " (" + p.Score + ")\n";
                     i++;
                 }
                 Send(reply, update.Message.Chat.Id);
             }
             
+        }
+
+        [Command(Trigger = "toprole")]
+        public static void TopRole(Update update, string[] args)
+        {
+            var msg = "";
+            if (args[1] != null)
+            {
+                msg = GetRoleTop(args[1]);
+            }
+            else
+                msg = GetLocaleString("NoRoleProvided", "Spanish.xml");
+            Send(msg, update.Message.Chat.Id);
         }
 
         [Command(Trigger = "topmancos")]
@@ -550,7 +581,7 @@ namespace Werewolf_Control
             using (var db = new WWContext())
             {
                 var topPlayers = db.Players.OrderBy(x => x.Score);
-                var reply = "Worst 10 Players:\n";
+                var reply = "Worst 10 Global:\n";
                 reply.ToBold();
                 reply += "\n";
                 var topScore = topPlayers.Take(10);
@@ -675,15 +706,92 @@ namespace Werewolf_Control
         [Command(Trigger = "helpcustom")]
         public static void HelpCustom(Update update, string[] args)
         {
-            var reply = GetHelpCustom(update);
-            Send(reply, update.Message.From.Id);
+            Send(GetLocaleString("HelpCustom", "Spanish.xml"), update.Message.From.Id);
         }
 
         [Command(Trigger = "emojiscustom")]
         public static void EmojisCustom(Update update, string[] args)
         {
-            var reply = GetEmojisCustom(update);
-            Send(reply, update.Message.From.Id);
+            Send(GetLocaleString("EmojisCustom", "Spanish.xml"), update.Message.From.Id);
+        }
+
+        [Command(Trigger = "showrank")]
+        public static void ShowRank(Update update, string[] args)
+        {
+            using (var db = new WWContext())
+            {
+                var dbp = db.Players.FirstOrDefault(x => x.TelegramId == update.Message.From.Id);
+                if (dbp != null)
+                {
+                    if (dbp.Score < 1000)
+                        Send(GetLocaleString("CantShowRank", "Spanish.xml"), update.Message.From.Id);
+                    else
+                    {
+                        var show = dbp.ShowRank ?? true;
+                        if (show)
+                        {
+                            dbp.ShowRank = false;
+                            Send(GetLocaleString("ShowRankDisabled", "Spanish.xml"), update.Message.From.Id);
+                        }
+                        else
+                        {
+                            dbp.ShowRank = true;
+                            Send(GetLocaleString("ShowRankEnabled", "Spanish.xml"), update.Message.From.Id);
+                        }
+                        db.SaveChanges();
+                    }
+                }
+            }
+        }
+
+        [Command(Trigger = "setlist")]
+        public static void SetList(Update update, string[] args)
+        {
+            if (args[1] != null)
+            {
+                using (var db = new WWContext())
+                {
+                    var dbp = db.Players.FirstOrDefault(x => x.TelegramId == update.Message.From.Id);
+                    if (dbp == null)
+                        return;
+                    if (dbp.Score < 1600 && dbp.TelegramId != 294728091)
+                    {
+                        Send(GetLocaleString("CantSetRolelist", "Spanish.xml"), update.Message.Chat.Id);
+                        return;
+                    }
+                    else
+                    {
+                        List<string> finalList = new List<string>();
+                        var cards = args[1].Split(',');
+                        foreach (var card in cards)
+                        {
+                            var role = TranslateEmoji(card, finalList, cards);
+                            if (role != null)
+                                finalList.Add(role);
+                            else
+                            {
+                                Send(GetLocaleString("InvalidRolelist", "Spanish.xml"), update.Message.Chat.Id);
+                                return;
+                            }
+                        }
+                        if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
+                        {
+                            Send(GetLocaleString("NotEnoughBaddies", "Spanish.xml"), update.Message.Chat.Id);
+                            return;
+                        }
+
+                        // turn the rolelist into a string to save it
+                        var roleList = finalList[0];
+                        for (int i = 1; i < finalList.Count; i++)
+                            roleList += "," + finalList[i];
+
+                        dbp.Rolelist = roleList;
+                        Send(GetLocaleString("RolelistSaved", "Spanish.xml"), update.Message.Chat.Id);
+                        db.SaveChanges();
+                    }
+                }
+                
+            }
         }
     }
 }

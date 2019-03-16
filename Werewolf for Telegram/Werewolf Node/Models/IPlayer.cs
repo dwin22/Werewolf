@@ -40,6 +40,7 @@ namespace Werewolf_Node.Models
         /// If the Arsonist ignites... good bye!
         /// </summary>
         public bool IsDoused { get; set; } = false;
+        public bool IsStolen { get; set; } = false;
 
         /// <summary>
         /// If the Sheriff visited you
@@ -70,6 +71,7 @@ namespace Werewolf_Node.Models
         /// How many votes against them they have (lynching)
         /// </summary>
         public int Votes { get; set; } = 0;
+        public int VotePower { get; set; } = 0;
 
         /// <summary>
         /// For the gunner only
@@ -85,6 +87,11 @@ namespace Werewolf_Node.Models
         /// Indicates whether user has PM'd the bot.  this is required by telegram.
         /// </summary>
         public bool HasPM { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether user wants to have their rank shown or not. Defaults to true
+        /// </summary>
+        public bool ShowRank { get; set; } = true;
 
         public bool Fled { get; set; } = false;
         [JsonConverter(typeof(StringEnumConverter))]
@@ -116,7 +123,7 @@ namespace Werewolf_Node.Models
         public string Language { get; set; } = "English";
         public bool Won { get; set; } = false;
 
-        public int Score { get; set; } = 0;
+        public int Score { get; set; } = 1000;
         public double PointsToAdd { get; set; } = 0;
 
         public int Id;
@@ -167,7 +174,7 @@ namespace Werewolf_Node.Models
         Sorcerer, AlphaWolf, WolfCub, Blacksmith, ClumsyGuy, Mayor, Prince,
         Lycan, Pacifist, WiseElder, Oracle, Sandman, WolfMan, Thief, SnowWolf,
         //new roles
-        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf, Sleepwalker, Herbalist, Ninja
+        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf, Sleepwalker, Herbalist, Ninja, Snooper
     }
 
     public enum ITeam

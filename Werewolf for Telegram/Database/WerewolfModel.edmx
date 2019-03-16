@@ -287,6 +287,9 @@ warning 6002: The table/view 'werewolf.dbo.NotifyGame' does not have a primary k
           <Property Name="CustomGifSet" Type="nvarchar(max)" />
           <Property Name="GifPurchased" Type="bit" />
 		  <Property Name="Score" Type="int" Nullable="false" />
+		  <Property Name="ShowRank" Type="bit" />
+		  <Property Name="AfkStats" Type="bit" />
+		  <Property Name="Rolelist" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="PlayerStats">
           <Key>
@@ -908,6 +911,9 @@ warning 6002: The table/view 'werewolf.dbo.v_IdleKill24HoursMain' does not have 
           <Property Name="CustomGifSet" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="GifPurchased" Type="Boolean" />
 		  <Property Name="Score" Type="Int32" Nullable="false" />
+		  <Property Name="ShowRank" Type="Boolean" />
+		  <Property Name="AfkStats" Type="Boolean" />
+		  <Property Name="Rolelist" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="NotifyGame">
           <Key>
@@ -1635,6 +1641,9 @@ warning 6002: The table/view 'werewolf.dbo.v_IdleKill24HoursMain' does not have 
                 <ScalarProperty Name="HasPM" ColumnName="HasPM" />
                 <ScalarProperty Name="BanReason" ColumnName="BanReason" />
 				<ScalarProperty Name="Score" ColumnName="Score" />
+				<ScalarProperty Name="ShowRank" ColumnName="ShowRank" />
+				<ScalarProperty Name="AfkStats" ColumnName="AfkStats" />
+				<ScalarProperty Name="Rolelist" ColumnName="Rolelist" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -42,16 +42,6 @@ namespace Werewolf_Control
             node.Notify.Add(update.Message.From.Id);
         }
 
-        private static string GetHelpCustom(Update update)
-        {
-            return GetLocaleString("HelpCustom", "Spanish.xml");
-        }
-
-        private static string GetEmojisCustom(Update update)
-        {
-            return GetLocaleString("EmojisCustom", "Spanish.xml");
-        }
-
         private static void StartGame(int gmode, Update update, string cardList = null)
         {
             if (update.Message.Chat.Type == ChatType.Private)
@@ -83,8 +73,16 @@ namespace Werewolf_Control
 #endif
 
             Group grp;
+            var playerScore = 1000;
+            var playerRoleList = "";
             using (var db = new WWContext())
             {
+                var dbp = db.Players.FirstOrDefault(x => x.TelegramId == update.Message.From.Id);
+                if (dbp != null)
+                {
+                    playerScore = dbp.Score;
+                    playerRoleList = dbp.Rolelist;
+                }
                 grp = db.Groups.FirstOrDefault(x => x.GroupId == update.Message.Chat.Id);
                 if (grp == null)
                 {
@@ -116,6 +114,16 @@ namespace Werewolf_Control
                 }
                 db.SaveChanges();
             } // DATABASE
+            if (grp.MemberCount < 30 && gmode == 5)
+            {
+                Send(GetLocaleString("NotEnoughMembersRanked", grp.Language), update.Message.Chat.Id);
+                return;
+            }
+            if (playerScore < 1400 && gmode == 2)
+            {
+                Send(GetLocaleString("CantStartClumsy", grp.Language), update.Message.Chat.Id);
+                return;
+            }
             //check nodes to see if player is in a game
             var node = GetPlayerNode(update.Message.From.Id);
             var game = GetGroupNodeAndGame(update.Message.Chat.Id);
@@ -137,8 +145,8 @@ namespace Werewolf_Control
                 }
 
                 //player is not in game, they need to join, if they can
-                //game?.AddPlayer(update);
-                game?.ShowJoinButton();
+                game?.AddPlayer(update);
+                //game?.ShowJoinButton();
                 if (game == null)
                     Program.Log($"{update.Message.From.FirstName} tried to join a game on node {node?.ClientId}, but game object was null", true);
                 return;
@@ -156,8 +164,21 @@ namespace Werewolf_Control
                     if (cardList == null)
                     {
                         //node.StartGame(update, gmode);
-                        Send(GetLocaleString("NeedRolelist", grp.Language), update.Message.Chat.Id);
-                        return;
+                        if (playerRoleList != null)
+                        {
+                            List<string> finalList = playerRoleList.Split(',').ToList();
+                            if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
+                            {
+                                Send(GetLocaleString("NotEnoughBaddies", grp.Language), update.Message.Chat.Id);
+                                return;
+                            }
+                            node.StartGame(update, gmode, finalList);
+                        }
+                        else
+                        {
+                            Send(GetLocaleString("NeedRolelist", grp.Language), update.Message.Chat.Id);
+                            return;
+                        }
                     }
                     else
                     {
@@ -230,9 +251,181 @@ namespace Werewolf_Control
             }
         }
 
+        private static string GetRoleTop(string emoji)
+        {
+            var getDatRole = TransEmoji(emoji);
+            if (getDatRole == null)
+                return "Invalid emoji.";
+            var reply = "Top " + GetLocaleString(getDatRole, "Spanish.xml").ToBold() + "\n";
+            using (var db = new WWContext())
+            {
+                var list = new List<KeyValuePair<int, double>>();
+                var rankedPlayers = db.Players.Where(x => x.Score >= 1200);
+                foreach (var p in rankedPlayers)
+                {
+                    var pair = new KeyValuePair<int, double>(p.Id, 0);
+                    var total = p.GamePlayers.Count(x => x.Role == getDatRole);
+                    if (total > 5)
+                    {
+                        var won = p.GamePlayers.Count(x => x.Role == getDatRole && x.Won);
+                        pair = new KeyValuePair<int, double>(p.Id, won * 100 / total);
+                    }
+                    list.Add(pair);
+                }
+                var orderedList = list.OrderByDescending(x => x.Value).Take(5);
+                reply += "\n";
+                var i = 1;
+                foreach (var p in orderedList)
+                {
+                    if (p.Value > 0)
+                    {
+                        var pl = db.Players.FirstOrDefault(x => x.Id == p.Key);
+                        reply += i + "º " + pl.Name + " " + p.Value + "%\n";
+                        i++;
+                    }
+                }
+            }
+            return reply;
+        }
+
         internal static Task<Message> Send(string message, long id, bool clearKeyboard = false, InlineKeyboardMarkup customMenu = null)
         {
             return Bot.Send(message, id, clearKeyboard, customMenu);
+        }
+
+        private static string TransEmoji(string emoji)
+        {
+            switch (emoji)
+            {
+                case "🍻":
+                    return "Drunk";
+                case "🖕":
+                    return "Traitor";
+                case "🔫":
+                    return "Gunner";
+                case "👺":
+                    return "Tanner";
+                case "🃏":
+                    return "Fool";
+                case "👶":
+                    return "WildChild";
+                case "👁":
+                    return "Beholder";
+                case "🏹":
+                    return "Cupid";
+                case "🤕":
+                    return "ClumsyGuy";
+                case "🎖":
+                    return "Mayor";
+                case "👑":
+                    return "Prince";
+                case "⛺️":
+                    return "Survivor";
+                case "❌":
+                    return "Imposter";
+                case "🍞":
+                    return "Baker";
+                case "😴":
+                    return "Sleepwalker";
+                case "💨":
+                    return "Ninja";
+                case "💋":
+                    return "Harlot";
+                case "🍃":
+                    return "Herbalist";
+                case "🔮":
+                    return "Sorcerer";
+                case "🌟":
+                    return "Healer";
+                case "👼":
+                    return "GuardianAngel";
+                case "😾":
+                    return "Cursed";
+                case "💤":
+                    return "Sandman";
+                case "🤠":
+                    return "Sheriff";
+                case "🔥":
+                    return "Pyro";
+                case "🎭":
+                    return "Doppelgänger";
+                case "👦":
+                    return "Atheist";
+                case "🎯":
+                    return "Hunter";
+                case "🌀":
+                    return "Oracle";
+                case "⚒":
+                    return "Blacksmith";
+                case "📚":
+                    return "WiseElder";
+                case "☮️":
+                    return "Pacifist";
+                case "🐺":
+                    return "Wolf";
+                case "🔪":
+                    return "SerialKiller";
+                case "⚡️":
+                    return "AlphaWolf";
+                case "🐶":
+                    return "WolfCub";
+                case "🐺🌝":
+                    return "Lycan";
+                case "🐺🤢":
+                    return "RabidWolf";
+                case "🐺❄️":
+                    return "SnowWolf";
+                case "🐺🍽":
+                    return "HungryWolf";
+                case "👤":
+                    return "Cultist";
+                case "🐾":
+                    return "Snooper";
+                default:
+                    if (emoji[1] == '\uDD75') // detective
+                    {
+                        return "Detective";
+                    }
+                    else if (emoji[1] == '\uDC73')
+                    { // seer
+                        return "Seer";
+                    }
+                    else if (emoji[1] == '\uDC71') // villager and wolfman
+                    {
+                        if (emoji.Length < 6)
+                        {
+                            return "Villager";
+                        }
+                        else if (emoji[5] == '\uDF1A')
+                        {
+                            return "WolfMan";
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    else if (emoji[1] == '\uDC6E') // police
+                    {
+                        return "Police";
+                    }
+                    else if (emoji[1] == '\uDE47') // app seer
+                    {
+                        return "ApprenticeSeer";
+                    }
+                    else if (emoji[1] == '\uDC77') // mason
+                    {
+                        return "Mason";
+                    }
+                    else if (emoji[1] == '\uDC82') // ch
+                    {
+                        return "CultistHunter";
+                    }
+                    else
+                    {
+                        return null;
+                    }
+            }
         }
 
         private static string TranslateEmoji(string emoji, List<string> list, string[] cards)
@@ -324,6 +517,8 @@ namespace Werewolf_Control
                     return "HungryWolf";
                 case "👤":
                     return "Cultist";
+                case "🐾":
+                    return "Snooper";
                 case "❓":
                     return "Random";
                 case "❎":
@@ -438,8 +633,8 @@ namespace Werewolf_Control
                 AllowFool = true,
                 AllowTanner = true,
                 AllowCult = true,
-                DisableFlee = false,
-                MaxPlayers = 35,
+                DisableFlee = true,
+                MaxPlayers = 50,
                 CreatedBy = createdBy,
                 AllowExtend = false,
                 MaxExtend = 300,

@@ -213,6 +213,64 @@ namespace Werewolf_Control
 
         }
 
+        [Attributes.Command(Trigger = "killallnodes", GlobalAdminOnly = true)]
+        public static void KillAllNodes(Update u, string[] args)
+        {
+            //get the nodes
+            try
+            {
+                foreach (var n in Bot.Nodes)
+                {
+                    n.ShutDown();
+                    if (n != null)
+                        Send($"Node {n.ClientId} will shut down", u.Message.Chat.Id);
+                }
+            }
+            catch
+            {
+                Send("/killnode <node guid>", u.Message.Chat.Id);
+            }
+
+        }
+
+        [Attributes.Command(Trigger = "updatenodes", GlobalAdminOnly = true)]
+        public static void UpdateNodes(Update u, string[] args)
+        {
+            //get the nodes
+            try
+            {
+                var updating = false;
+                if (Bot.Nodes.Any(x => x.Stay))
+                    updating = true;
+                foreach (var n in Bot.Nodes)
+                {
+                    n.ShuttingDown = true;
+                    n.Stay = false;
+                }
+                var file = Directory.GetFiles(@"C:\Users\skyji\Desktop\ww-new\Werewolf\Werewolf for Telegram\Werewolf Node\bin\Release", "Werewolf Node.exe").First();
+                if (updating)
+                    file = Directory.GetFiles(@"C:\Users\skyji\Desktop\ww-new\Werewolf\Werewolf for Telegram\Werewolf Node\bin\Debug", "Werewolf Node.exe").First();
+                var text = "Mode 1/2";
+                if (updating)
+                    text = "Mode 2/2";
+                Bot.Send($"Updating nodes... " + text, u.Message.Chat.Id);
+                Process.Start(file);
+                Thread.Sleep(5000);
+                Process.Start(file);
+                Bot.Send($"Nodes updated!", u.Message.Chat.Id);
+                if (!updating)
+                {
+                    foreach (var n in Bot.Nodes.Where(x => !x.ShuttingDown))
+                        n.Stay = true;
+                }
+            }
+            catch
+            {
+                
+            }
+
+        }
+
         //[Command(Trigger = "sendonline", DevOnly = true)]
         //public static void SendOnline(Update update, string[] args)
         //{

@@ -35,6 +35,7 @@
         Freeze,
         Poison,
         Cure,
-        Hide
+        Hide,
+        Snoop
     }
 }

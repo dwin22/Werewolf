@@ -40,6 +40,7 @@ namespace Werewolf_Control.Models
         /// If the Arsonist ignites... good bye!
         /// </summary>
         public bool IsDoused { get; set; } = false;
+        public bool IsStolen { get; set; } = false;
 
         /// <summary>
         /// If the Sheriff visited you
@@ -70,6 +71,7 @@ namespace Werewolf_Control.Models
         /// How many votes against them they have (lynching)
         /// </summary>
         public int Votes { get; set; } = 0;
+        public int VotePower { get; set; } = 0;
 
         /// <summary>
         /// For the gunner only

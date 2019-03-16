@@ -35,7 +35,6 @@ namespace Werewolf_Control
         //internal static BotanIO.Api.Botan Analytics;
         static void Main(string[] args)
         {
-#if !DEBUG
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
             {
                 //drop the error to log file and exit
@@ -49,7 +48,6 @@ namespace Werewolf_Control
                         Environment.Exit(5);
                 }
             };
-#endif
 
             //get the version of the bot and set the window title
             Assembly assembly = Assembly.GetExecutingAssembly();
@@ -108,12 +106,12 @@ namespace Werewolf_Control
 
             while (true)
             {
-                if (Bot.Nodes.Count < nodecount)
+                if (Bot.Nodes.Count(x => !x.ShuttingDown) < nodecount)
                 {
                     NewNode();
                     Thread.Sleep(5000);
                 }
-                else if (Bot.Nodes.Count > nodecount)
+                else if (Bot.Nodes.Count(x => !x.ShuttingDown) > nodecount)
                 {
                     Bot.Nodes?.FirstOrDefault(x => x.Games.Count == 0)?.ShutDown(true);
                 }
@@ -289,9 +287,7 @@ namespace Werewolf_Control
         {
             //wait a bit to allow nodes to register
             Thread.Sleep(2000);
-#if !DEBUG
-            new Task(Updater.MonitorUpdates).Start();
-#endif
+            //new Task(Updater.MonitorUpdates).Start();
             while (Running)
             {
                 try
@@ -373,9 +369,8 @@ namespace Werewolf_Control
                     _writingInfo = false;
 
 
-#if !DEBUG
                     //now, let's manage our nodes.
-                    if (Nodes.All(x => x.Games.Count <= Settings.ShutDownNodesAt & !x.ShuttingDown) && Nodes.Count > 1)
+                    /*if (Nodes.All(x => x.Games.Count <= Settings.ShutDownNodesAt & !x.ShuttingDown) && Nodes.Count > 1)
                     {
                         //we have too many nodes running, kill one.
                         Nodes.First().ShutDown();
@@ -394,8 +389,7 @@ namespace Werewolf_Control
                             NewNode();
                             Thread.Sleep(5000); //give the node time to register
                         }
-                    }
-#endif
+                    }*/
                 }
                 finally
                 {
