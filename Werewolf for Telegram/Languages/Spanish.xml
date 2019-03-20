@@ -306,7 +306,7 @@
     <value>¡Fuiste a proteger a {0}, pero no había nadie en casa! [Estaba visitando a otro jugador].</value>
   </string>
   <string key="GuardSavedYou" >
-    <value >¡Tu ángel de la guarda estuvo velando por ti anoche y luchó contra el atacante que te acechaba! (Fuiste elegido por un atacante, pero te salvaron).</value>
+    <value >¡Alguien estuvo velando por ti anoche y luchó contra el atacante que te acechaba! (Fuiste elegido por un atacante, pero te salvaron).</value>
   </string>
   <string key="HarlotEaten" >
     <!-- 0 - player name -->
@@ -1961,7 +1961,7 @@
     <value>A medida que terminas de desayunar empiezas a sentirte mareado... ¡parece que te han envenenado! Morirás la próxima noche si no consigues un antídoto.</value>
   </string>
   <string key="GuardBlockedHerbalist">
-    <value>Trataste de envenenar a {0} esta noche, pero el ángel de la guarda le estaba protegiendo, y se encargó de purificar todo tipo de veneno.</value>
+    <value>Trataste de envenenar a {0} esta noche, pero alguien le estaba protegiendo, y te impidió acercarte.</value>
   </string>
   <string key="PoisonedAlreadyDead">
     <value>Como tu anterior objetivo ya ha muerto, decides descansar esta noche y continuar envenenando mañana.</value>
@@ -2005,7 +2005,7 @@
   <string key="AskHide">
     <value>¿Quieres mantenerte despierto esta noche y evitar visitas?</value>
   </string>
-  <string key="NinjaKilled">
+  <string key="NinjaBackstabbed">
     <value>Tras un buen rato de búsqueda, los aldeanos encuentran el cuerpo de {0}, escondido entre unos arbustos. Parece que el ninja fue descubierto por la asesina mientras se ocultaba.</value>
   </string>
   
@@ -2169,5 +2169,81 @@
   <string key="NewDGRoleModel">
     <!-- 0 - target's name -->
     <value>Eres el doppelgänger. Tu modelo a seguir es {0}</value>
+  </string>
+  
+  <string key="RoleInfoSpeedWolf">
+    <value>¡Eres el lobo veloz! Eres el más rápido de la manada, y una vez por partida puedes salir corriendo para evitar ser linchado ese día. Sin embargo, al hacerlo todos sabrán que eres el lobo veloz, y te lincharán el próximo día. ¡Espera al momento adecuado!</value>
+  </string>
+  <string key="SpeedWolf">
+    <value>el lobo veloz 🐺💨</value>
+  </string>
+  <string key="AboutSpeedWolf">
+    <value>El lobo veloz es un lobo más, que puede salir corriendo una vez en toda la partida. Si lo hace, se revelará ante todos como lobo veloz, pero no podrá ser linchado ese día. Es un rol muy poderoso, ya que puede evitar el linchamiento una vez por partida, logrando así comer a una persona extra.</value>
+  </string>
+  
+  <string key="RoleInfoLookout">
+    <value>Eres el vigía. Cada noche puedes mirar la casa de un jugador, para saber quién le visita. Si le atacan, sólo podrás identificar a un lobo.</value>
+  </string>
+  <string key="Lookout">
+    <value>el vigía 🔭</value>
+  </string>
+  <string key="AboutLookout">
+    <value>El vigía es un aldeano muy cotilla que puede mirar la casa de alguien cada noche. Sabrá todos los nombres de la gente que le haya visitado esa noche. Sin embargo, si su objetivo es atacado, solo podrá ver el nombre de uno de los lobos.</value>
+  </string>
+  
+  <string key="RoleInfoGuard">
+    <value>Eres un guardia. Cada noche puedes defender a un jugador. Por cada guardia defendiéndole, tenéis un 20% de salvarle si es atacado.</value>
+  </string>
+  <string key="Guard">
+    <value>un guardia 🛡</value>
+  </string>
+  <string key="AboutGuard">
+    <value>El guardia es un rol que se repite, como el aldeano. Cada noche puede defender a un jugador, teniendo un 20% de salvarle si es atacado. Si varios guardias defienden a la misma persona, sus probabilidades se suman, haciendo que 5 guardias hagan una defensa perfecta. Además, si hay guardias, habrá mínimo 2.</value>
+  </string>
+  
+  <string key="SpeedWolfRunning">
+    <value>«¡Ahí os quedáis, pringados!» dice {0}, antes de salir corriendo, y desaparecer ante todos. {0} es el lobo veloz, y hoy no podrá ser linchado.</value>
+  </string>
+  <string key="AskRunaway">
+    <value>¿Quieres salir corriendo y evitar ser linchado? OJO, te revelarás como lobo al hacerlo.</value>
+  </string>
+  <string key="RunAway">
+    <value>¡Huir!</value>
+  </string>
+  <string key="SpeedWolfLynched">
+    <value>Os disponéis a linchar a {0}, pero... ¡ha desaparecido! Parece que ha escapado del linchamiento. Mañana le mantendréis más vigilado.</value>
+  </string>
+  
+  <string key="GuardsStopWolf">
+    <!-- 0 - target's name -->
+    <value>La manada se dirige a la casa de {0} para darse un festín con su cuerpo, pero se encuentran la zona rodeada de guardias. Atacar una zona tan protegida no es buena idea, así que dan media vuelta.</value>
+  </string>
+  <string key="GuardsStopArso">
+    <value>Mientras te acercas a la casa de {0}, observas a los guardias protegiéndole, por lo que te retiras por ahora.</value>
+  </string>
+  <string key="GuardsStopKiller">
+    <value>Quisiste incorporar el cuerpo de {0} a tu colección, ¡pero los guardias le protegieron! Aun así, lograste matar a uno de ellos antes de salir corriendo.</value>
+  </string>
+  <string key="GuardsFail" >
+    <value>¡{0} ha sido atacado! Sin embargo, no erais suficientes guardias, y no lograsteis detener el ataque. :(</value>
+  </string>
+  <string key="GuardSacrificed" >
+    <value>El choque del metal se oye por la aldea esta noche. Los guardias se enfrentaron a la asesina para salvar a una persona. Lo lograron, pero {0} murió en la pelea.</value>
+  </string>
+  <string key="GuardHero" >
+    <value>¡Has salvado la vida de {0}! Sin embargo, el combate contra la asesina te ha dejado muy malherido, y has muerto...</value>
+  </string>
+  <string key="AskProtect" >
+    <value>¿A quién quieres defender?</value>
+  </string>
+  
+  <string key="LookoutNoVisits">
+    <value>Te pasaste toda la noche mirando la casa de {0}, pero nadie le visitó.</value>
+  </string>
+  <string key="LookoutVisits">
+    <value>Mientras mirabas la casa de {0}, viste que le visitaron estas personas: {1}.</value>
+  </string>
+  <string key="AskLook" >
+    <value>¿A quién quieres mirar?</value>
   </string>
 </strings>

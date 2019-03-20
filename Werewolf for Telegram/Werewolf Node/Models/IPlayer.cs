@@ -108,17 +108,20 @@ namespace Werewolf_Node.Models
         public bool DiedByVisitingKiller { get; set; } = false;
         public bool DiedByVisitingVictim { get; set; } = false;
         public bool WasSavedLastNight { get; set; } = false;
+        public bool GuardedLastNight { get; set; } = false;
         public int MessageId { get; set; }
         public string Name { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public IRole OriginalRole { get; set; }
         public bool InLove { get; set; } = false;
         public int LoverId { get; set; } = 0;
+        public int LastPoisoned { get; set; } = 0;
         public int DBPlayerId { get; set; } = 0;
         public int DBGamePlayerId { get; set; } = 0;
         public DateTime TimeDied { get; set; } = DateTime.MaxValue;
         public int DayOfDeath { get; set; } = 0;
         public bool Frozen { get; set; } = false;
+        public bool RanAway { get; set; } = false;
 
         public string Language { get; set; } = "English";
         public bool Won { get; set; } = false;
@@ -174,7 +177,9 @@ namespace Werewolf_Node.Models
         Sorcerer, AlphaWolf, WolfCub, Blacksmith, ClumsyGuy, Mayor, Prince,
         Lycan, Pacifist, WiseElder, Oracle, Sandman, WolfMan, Thief, SnowWolf,
         //new roles
-        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf, Sleepwalker, Herbalist, Ninja, Snooper
+        Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf, Sleepwalker, Herbalist,
+        //more new roles
+        Ninja, Snooper, SpeedWolf, Lookout, Guard
     }
 
     public enum ITeam

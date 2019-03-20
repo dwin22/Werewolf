@@ -156,15 +156,18 @@ namespace Werewolf_Control
             reply += "/aboutHungryWolf - Lobo Voraz 🍽\n";
             reply += "/aboutPyro - Pirómano 🔥\n";
             reply += "/aboutImposter - Impostor ❌\n";
+            reply += "/aboutBaker - Panadero 🍞\n";
+            reply += "/aboutHealer - Curandero 🌟\n";
             Send(reply, update.Message.From.Id);
             Thread.Sleep(300);
-            reply = "/aboutBaker - Panadero 🍞\n";
-            reply += "/aboutHealer - Curandero 🌟\n";
-            reply += "/aboutRabidWolf - Lobo Rabioso 🐺🤢\n";
+            reply = "/aboutRabidWolf - Lobo Rabioso 🐺🤢\n";
             reply += "/aboutSleepwalker - Sonámbulo 😴\n";
             reply += "/aboutHerbalist - Herborista 🍃\n";
             reply += "/aboutNinja - Ninja 💨\n";
             reply += "/aboutSnooper - Lobo Husmeador 🐾\n";
+            reply += "/aboutSpeedWolf - Lobo Veloz 🐺💨\n";
+            reply += "/aboutLookout - Vigía 🔭\n";
+            reply += "/aboutGuard - Guardia 🛡\n";
             Send(reply, update.Message.From.Id);
         }
     }

@@ -36,6 +36,9 @@
         Poison,
         Cure,
         Hide,
-        Snoop
+        Snoop,
+        SpeedWolf,
+        Protect,
+        Look
     }
 }

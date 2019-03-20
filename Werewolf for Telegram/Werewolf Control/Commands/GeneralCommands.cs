@@ -619,6 +619,7 @@ namespace Werewolf_Control
                     case "🍞":
                     case "😴":
                     case "💨":
+                    case "🛡":
                         Send(args[1] + " 100%", update.Message.Chat.Id);
                         break;
                     case "💋":
@@ -633,6 +634,7 @@ namespace Werewolf_Control
                     case "😾":
                     case "💤":
                     case "🤠":
+                    case "🔭":
                         Send(args[1] + " 60%", update.Message.Chat.Id);
                         break;
                     case "🔥":
@@ -661,6 +663,7 @@ namespace Werewolf_Control
                     case "🐺🤢":
                     case "🐺❄️":
                     case "🐺🍽":
+                    case "🐺💨":
                         Send(args[1] + " 💀", update.Message.Chat.Id);
                         break;
                     default:
@@ -774,7 +777,7 @@ namespace Werewolf_Control
                                 return;
                             }
                         }
-                        if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
+                        if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SpeedWolf" || x == "SnowWolf" || x == "Snooper" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
                         {
                             Send(GetLocaleString("NotEnoughBaddies", "Spanish.xml"), update.Message.Chat.Id);
                             return;

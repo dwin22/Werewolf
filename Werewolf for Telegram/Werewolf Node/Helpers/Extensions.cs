@@ -168,7 +168,7 @@ namespace Werewolf_Node.Helpers
                 case IRole.Cupid:
                     return -2;
                 case IRole.Hunter:
-                    return 6;
+                    return 5;
                 case IRole.SerialKiller:
                     return 12 - ((allRoles.Any(x => x == IRole.Cultist || x == IRole.Pyro || WolfRoles.Contains(x)) && allRoles.Count() > 7) ? 4 : 0);
                 case IRole.Sorcerer:
@@ -197,7 +197,7 @@ namespace Werewolf_Node.Helpers
                 case IRole.Sandman:
                     return 6;
                 case IRole.Lycan:
-                    return 12;
+                    return 10 + (allRoles.Any(x => x == IRole.Seer) ? 2 : 0); //only good if seer is present!
                 case IRole.Thief:
                     return 4;
                 case IRole.Survivor:
@@ -230,6 +230,12 @@ namespace Werewolf_Node.Helpers
                     return 12 + allRoles.Count(x => x == IRole.Herbalist || x == IRole.Drunk || x == IRole.Baker);
                 case IRole.Ninja:
                     return 5 - (!allRoles.Any(x => WolfRoles.Contains(x) || x == IRole.Cultist || x == IRole.SerialKiller) ? 3 : 0); // not that good against pyro
+                case IRole.SpeedWolf:
+                    return 14;
+                case IRole.Lookout:
+                    return 5;
+                case IRole.Guard:
+                    return 3;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }
@@ -242,7 +248,7 @@ namespace Werewolf_Node.Helpers
             {
                 case IRole.SerialKiller:
                 case IRole.Pyro:
-                    return won ? (playercount + 5) : -2;
+                    return won ? (playercount + 3) : -2;
                 case IRole.Wolf:
                 case IRole.AlphaWolf:
                 case IRole.WolfCub:
@@ -253,15 +259,16 @@ namespace Werewolf_Node.Helpers
                 case IRole.Imposter:
                 case IRole.Snooper:
                 case IRole.SnowWolf:
-                    return won ? ((playercount / Math.Max(1, initialww)) + 3) : -4;
+                case IRole.SpeedWolf:
+                    return won ? ((playercount / Math.Max(1, initialww)) + 2) : -4;
                 case IRole.Tanner:
-                    return won ? 18 : -3;
+                    return won ? 16 : -3;
                 case IRole.CultistHunter:
-                    return won ? 11 : -5;
+                    return won ? 9 : -5;
                 case IRole.Survivor:
-                    return won ? 7 : -2;
+                    return won ? 6 : -2;
                 case IRole.Cultist:
-                    return won ? 6 : -4;
+                    return won ? 5 : -4;
                 case IRole.Doppelgänger:
                     return won ? 5 : -2;
                 default:
@@ -375,6 +382,12 @@ namespace Werewolf_Node.Helpers
                     return "💨";
                 case IRole.Snooper:
                     return "🐾";
+                case IRole.SpeedWolf:
+                    return "🐺💨";
+                case IRole.Lookout:
+                    return "🔭";
+                case IRole.Guard:
+                    return "🛡";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }
