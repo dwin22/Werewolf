@@ -21,7 +21,7 @@ namespace Werewolf_Control
                 StartGame(0, update);
             else
             {
-                Send("El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
+                Send(Program.MaintMessage ?? "El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
                     update.Message.Chat.Id);
             }
         }
@@ -33,7 +33,7 @@ namespace Werewolf_Control
                 StartGame(1, update);
             else
             {
-                Send("El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
+                Send(Program.MaintMessage ?? "El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
                     update.Message.Chat.Id);
             }
         }
@@ -45,7 +45,7 @@ namespace Werewolf_Control
                 StartGame(2, update);
             else
             {
-                Send("El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
+                Send(Program.MaintMessage ?? "El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
                     update.Message.Chat.Id);
             }
         }
@@ -57,7 +57,7 @@ namespace Werewolf_Control
                 StartGame(3, update);
             else
             {
-                Send("El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
+                Send(Program.MaintMessage ?? "El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
                     update.Message.Chat.Id);
             }
         }
@@ -69,7 +69,7 @@ namespace Werewolf_Control
                 StartGame(5, update);
             else
             {
-                Send("El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
+                Send(Program.MaintMessage ?? "El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
                     update.Message.Chat.Id);
             }
         }
@@ -83,7 +83,7 @@ namespace Werewolf_Control
             }
             else
             {
-                Send("El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
+                Send(Program.MaintMessage ?? "El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
                     update.Message.Chat.Id);
             }
         }

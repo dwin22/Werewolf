@@ -86,6 +86,10 @@ namespace Werewolf_Control
         {
             //stop accepting all new games.
             Program.MaintMode = !Program.MaintMode;
+            if (args[1] != null)
+                Program.MaintMessage = args[1];
+            else
+                Program.MaintMessage = null;
             Send($"Maintenance Mode: {Program.MaintMode}", u.Message.Chat.Id);
         }
 

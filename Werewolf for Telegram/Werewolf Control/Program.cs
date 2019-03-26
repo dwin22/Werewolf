@@ -32,6 +32,7 @@ namespace Werewolf_Control
         public static int MaxGames;
         public static DateTime MaxTime = DateTime.MinValue;
         public static bool MaintMode = false;
+        public static string MaintMessage;
         //internal static BotanIO.Api.Botan Analytics;
         static void Main(string[] args)
         {

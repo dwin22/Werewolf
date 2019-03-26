@@ -796,5 +796,58 @@ namespace Werewolf_Control
                 
             }
         }
+
+        [Command(Trigger = "topachievements")]
+        public static void TopAchievements(Update update, string[] args)
+        {
+
+            using (var db = new WWContext())
+            {
+                var topPlayers = db.Players.Where(x => x.Score > 1200 && x.Achievements != null);
+                var list = new List<KeyValuePair<string, int>>();
+                //var listaOrd = topPlayers.OrderByDescending(x => new System.Collections.BitArray(x.Achievements).GetUniqueFlags().Count());
+                var reply = "Top 10 Logros:\n";
+                reply.ToBold();
+                reply += "\n";
+                foreach (var p in topPlayers)
+                {
+                    var count = new System.Collections.BitArray(p.Achievements).GetUniqueFlags().Count();
+                    var pair = new KeyValuePair<string, int>(p.Name, count);
+                    list.Add(pair);
+                }
+                var orderedList = list.OrderByDescending(x => x.Value).Take(10);
+                var i = 1;
+                foreach (var p in orderedList)
+                {
+                    reply += i + "º " + p.Key + " (" + p.Value + ")\n";
+                    i++;
+                }
+                Send(reply, update.Message.Chat.Id);
+            }
+
+        }
+
+        [Command(Trigger = "topafk")]
+        public static void TopAfk(Update update, string[] args)
+        {
+
+            using (var db = new WWContext())
+            {
+                var topPlayers = db.Players.OrderByDescending(x => x.GameKills.Count(y => y.KillMethodId == 16));
+                var reply = "Top 10 Afk:\n";
+                reply.ToBold();
+                reply += "\n";
+                var topScore = topPlayers.Take(10);
+                var i = 1;
+                foreach (var p in topScore)
+                {
+                    var count = p.GameKills.Count(y => y.KillMethodId == 16);
+                    reply += i + "º " + p.Name + " (" + count + ")\n";
+                    i++;
+                }
+                Send(reply, update.Message.Chat.Id);
+            }
+
+        }
     }
 }

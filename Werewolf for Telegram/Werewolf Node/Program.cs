@@ -80,7 +80,7 @@ namespace Werewolf_Node
                     sw.WriteLine("--------------------------------------------------------");
                 }
             };
-            English = XDocument.Load(Path.Combine(LanguageDirectory, "English.xml"));
+            English = XDocument.Load(Path.Combine(LanguageDirectory, "Spanish.xml"));
 
 
 

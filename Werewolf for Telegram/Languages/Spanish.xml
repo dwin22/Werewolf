@@ -965,7 +965,7 @@
     <value>No eres un administrador global.</value>
   </string>
   <string key="NotPara">
-    <value>¡Quita de aquí, tú no eres Para!</value>
+    <value>¡Quita de aquí, tú no eres Jiro!</value>
   </string>
   <string key="Yes">
     <value>Sí</value>
@@ -2052,7 +2052,7 @@
     <value>lobo aleatorio 🆘</value>
   </string>
   <string key="RandomAlly">
-    <value>aliado de lobo ☢️</value>
+    <value>aliado de lobo 🚫</value>
   </string>
   <string key="RandomNeutral">
     <value>rol neutral aleatorio ✳️</value>
@@ -2074,7 +2074,7 @@
     <value>Cómo crear una partida custom:\n\nPara iniciar una partida custom debes poner el comando /startcustom seguido de la lista de roles a usar. Esta lista está formada por los emojis de los roles que quieres que salgan, separados por comas y SIN espacios. Si se unen menos jugadores que los que hay en la lista, cogerá roles empezando desde la izquierda, por lo que debes poner un malo en los 4 primeros roles como mínimo. La partida empieza automáticamente en cuanto se unan tantos jugadores como roles haya en la lista. Para ver qué emojis puedes usar, pon /emojisCustom.\n</value>
   </string>
   <string key="EmojisCustom">
-    <value>Roles específicos: su emoji de rol, puedes verlo en /rolelist\n❓ - Rol aleatorio entre todos\n✅ - Rol aleatorio de aldea (sin traidor, maldito, niño)\n❎ - Rol aleatorio de aldea (con traidor, maldito, niño)\n⚠️ - Lobo aleatorio, asesina o pirómano\n⚠️👤 - Lobo aleatorio, asesina, pirómano o culto\n🆘 - Lobo aleatorio\n☢️ - Aliado de lobo aleatorio\n✳️ - Superviviente, doppel o veterano\n120 - Cupido, niño, doppel o impostor\n🔪🔥 - Asesina o pirómano\n💯 - Siempre culteable aleatorio\n❇️ - Poco culteable aleatorio (sin ramera y ángel)</value>
+    <value>Roles específicos: su emoji de rol, puedes verlo en /rolelist\n❓ - Rol aleatorio entre todos\n✅ - Rol aleatorio de aldea (sin traidor, maldito, niño)\n❎ - Rol aleatorio de aldea (con traidor, maldito, niño)\n⚠️ - Lobo aleatorio, asesina o pirómano\n⚠️👤 - Lobo aleatorio, asesina, pirómano o culto\n🆘 - Lobo aleatorio\n🚫 - Aliado de lobo aleatorio\n✳️ - Superviviente, doppel o veterano\n120 - Cupido, niño, doppel o impostor\n🔪🔥 - Asesina o pirómano\n💯 - Siempre culteable aleatorio\n❇️ - Poco culteable aleatorio (sin ramera y ángel)</value>
   </string>
   
   <string key="SKStabbedYou">
@@ -2245,5 +2245,34 @@
   </string>
   <string key="AskLook" >
     <value>¿A quién quieres mirar?</value>
+  </string>
+  
+  <string key="WolfVotedFreeze">
+    <value>{0} ha decidido congelar a {1}.</value>
+  </string>
+  <string key="WolfVotedSnoop">
+    <value>{0} ha decidido husmear a {1}.</value>
+  </string>
+  
+  <string key="RandomTip">
+	<value>¿Sabías qué? Soy un consejo. Podemos aparecer de forma aleatoria durante partidas, para compartir información curiosa del bot. ¿Lograrás leerlos todos?</value>
+	<value>¿Sabías qué? El rol de guardia nunca puede aparecer solo. No siempre aparece, pero si lo hace, habrá mínimo 2 (o más).</value>
+	<value>¿Sabías qué? En las partidas, cada rol es único, a excepción de: aldeano, policía, masón, guardia, hombre lobo y cultista, que pueden no serlo. Sin embargo, en el modo superchaos se puede repetir casi cualquier rol.</value>
+	<value>¿Sabías qué? El modo superchaos tiende a repetir los roles. Es decir, es más fiable alguien con un rol repetido, que alguien que dice tener un rol que nadie más tiene.</value>
+	<value>¿Sabías qué? El lobo alfa, el alcalde y Cupido no se repiten en el modo superchaos. Todos los demás sí.</value>
+	<value>¿Sabías qué? Si la asesina falla su ataque a causa de los guardias, matará a uno de ellos al azar.</value>
+	<value>¿Sabías qué? La herborista es el rol de la aldea con mayor fuerza. Por lo tanto, como la vidente, debe ocultarse, pues su muerte pondría en gran desventaja a los aldeanos. Si eres ángel o guardia, ¡no dudes en protegerla!</value>
+	<value>¿Sabías qué? El detective ha mejorado su técnica, y ahora solo puede ser descubierto por lobos normales, lobo alfa y husmeador. Los demás lobos ya no pueden descubirle.</value>
+	<value>¿Sabías qué? El sheriff impide que conviertan al culto a sus objetivos, durante la noche que los visita, además de saber si salen de casa. ¿Proteger o investigar? ¡La vida del sheriff no es sencilla!</value>
+	<value>¿Sabías qué? La ramera no puede diferenciar al pirómano. Sin embargo, sigue siendo útil, pues puede confirmarse a sí misma como buena gracias a sus visitas.</value>
+	<value>¿Sabías qué? La vidente, necio y hechicera pueden percibir al mismo segundo de pulsar su objetivo. De esta forma, una vidente puede ser revivida y no morir inmediatamente siendo inútil.</value>
+	<value>¿Sabías qué? El curandero solo puede revivir roles de aldea. Es decir, si alguien murió devorado y no te deja revivirlo, ¡puedes concluir que no era de la aldea!</value>
+	<value>¿Sabías qué? Si alguien aparece muerto como "Devorado", significa que fue matado por el lobo voraz, el cual puede ocultar el rol de sus víctimas para confundir a la aldea.</value>
+	<value>¿Sabías qué? El ninja ha estado entrenando, y ahora puede ocultarse varias noches seguidas, siempre que le hayan atacado en la anterior. Sin embargo, si se esconde y no le atacan, deberá descansar la próxima noche.</value>
+	<value>¿Sabías qué? Cada rol tiene cierta resistencia a ser convertido por los cultistas. Puedes comprobarla usando el comando /cult seguido del emoji del rol.</value>
+	<value>¿Sabías qué? Existen dos lobos que no comen, y tienen acciones de apoyo: el lobo de nieve y el husmeador. Si eres lobo, ten esto en cuenta, y no votes comer al mismo al que visitaron ellos, pues (normalmente) malgastarías su habilidad.</value>
+	<value>¿Sabías qué? Este bot permite jugar partidas de sólo 4 personas, pero ciertos roles como la ramera, maldito o lobo alfa están desactivados en esas partidas.</value>
+	<value>¿Sabías qué? Este bot permite jugar partidas de hasta 50 jugadores. Además, el rol de veterano se desactiva a partir de los 30 jugadores, para poder disfrutar de las partidas especiales al completo.</value>
+    <value>¿Sabías qué? El torpe tiene 50% de linchar a una persona al azar. Pero esa persona al azar puede ser la misma que votó inicialmente. Es decir, si quedan 2 personas a las que votar, ¡tiene 75% de acertar el voto!</value>
   </string>
 </strings>

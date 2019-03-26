@@ -116,12 +116,12 @@ namespace Werewolf_Control
             } // DATABASE
             if (grp.MemberCount < 30 && gmode == 5)
             {
-                Send(GetLocaleString("NotEnoughMembersRanked", grp.Language), update.Message.Chat.Id);
+                Send(GetLocaleString("NotEnoughMembersRanked", grp?.Language ?? "Spanish.xml"), update.Message.Chat.Id);
                 return;
             }
             if (playerScore < 1400 && gmode == 2)
             {
-                Send(GetLocaleString("CantStartClumsy", grp.Language), update.Message.Chat.Id);
+                Send(GetLocaleString("CantStartClumsy", grp?.Language ?? "Spanish.xml"), update.Message.Chat.Id);
                 return;
             }
             //check nodes to see if player is in a game
@@ -169,14 +169,14 @@ namespace Werewolf_Control
                             List<string> finalList = playerRoleList.Split(',').ToList();
                             if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SpeedWolf" || x == "SnowWolf" || x == "Snooper" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
                             {
-                                Send(GetLocaleString("NotEnoughBaddies", grp.Language), update.Message.Chat.Id);
+                                Send(GetLocaleString("NotEnoughBaddies", grp?.Language ?? "Spanish.xml"), update.Message.Chat.Id);
                                 return;
                             }
                             node.StartGame(update, gmode, finalList);
                         }
                         else
                         {
-                            Send(GetLocaleString("NeedRolelist", grp.Language), update.Message.Chat.Id);
+                            Send(GetLocaleString("NeedRolelist", grp?.Language ?? "Spanish.xml"), update.Message.Chat.Id);
                             return;
                         }
                     }
@@ -198,13 +198,13 @@ namespace Werewolf_Control
                                 finalList.Add(role);
                             else
                             {
-                                Send(GetLocaleString("InvalidRolelist", grp.Language), update.Message.Chat.Id);
+                                Send(GetLocaleString("InvalidRolelist", grp?.Language ?? "Spanish.xml"), update.Message.Chat.Id);
                                 return;
                             }
                         }
                         if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SpeedWolf" || x == "SnowWolf" || x == "Snooper" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
                         {
-                            Send(GetLocaleString("NotEnoughBaddies", grp.Language), update.Message.Chat.Id);
+                            Send(GetLocaleString("NotEnoughBaddies", grp?.Language ?? "Spanish.xml"), update.Message.Chat.Id);
                             return;
                         }
                         node.StartGame(update, gmode, finalList);
@@ -242,6 +242,10 @@ namespace Werewolf_Control
                     //just to be sure...
                     //db.Database.ExecuteSqlCommand($"DELETE FROM NotifyGame WHERE GroupId = {update.Message.Chat.Id}");
                     db.SaveChanges();
+
+                    game = GetGroupNodeAndGame(update.Message.Chat.Id);
+                    if (game != null)
+                        game?.AddPlayer(update);
                 } //DATABASE
             }
             else
@@ -543,7 +547,7 @@ namespace Werewolf_Control
                     return "RandomBaddie";
                 case "🆘":
                     return "RandomWolf";
-                case "☢️":
+                case "🚫":
                     return "RandomAlly";
                 case "✳️":
                     return "RandomNeutral";
