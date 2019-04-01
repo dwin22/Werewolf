@@ -81,6 +81,7 @@ namespace Werewolf_Node
         public int WolfTarget1 = 0;
         public int WolfTarget2 = 0;
         public int CultTarget = 0;
+        public bool Inverted = false;
         public List<string> customList = new List<string>();
 
         public List<string> VillagerDieImages,
@@ -99,7 +100,8 @@ namespace Werewolf_Node
             SuperChaos,
             StartCustom,
             SkStab,
-            PyroBurn;
+            PyroBurn,
+            StartInverted;
         
         #region Constructor
         /// <summary>
@@ -142,6 +144,7 @@ namespace Werewolf_Node
                 StartCustom = new List<string> { "CgADBAADoAADwhSMU58OfazPxYIMAg" };
                 SkStab = new List<string> { "CgADBAADBwADnjokUeYfwyvDdWJsAg" };
                 PyroBurn = new List<string> { "CgADBAADnwAD0XvcU80nnXzfQIZaAg" };
+                StartInverted = new List<string> { "CgADBAADKgEAAkGuFFEgG7lRwazpFAI" };
 
                 new Thread(GroupQueue).Start();
 
@@ -157,7 +160,9 @@ namespace Werewolf_Node
                 {
                     Chaos = false;
                 }
-                //Chaos = chaos;
+
+                if (gameMode == 6)
+                    Inverted = true;
 
                 using (var db = new WWContext())
 
@@ -284,6 +289,10 @@ namespace Werewolf_Node
                     case 5:
                         FirstMessage = GetLocaleString("PlayerStartedRankedGame", u.FirstName);
                         _joinMsgId = Program.Bot.SendDocumentAsync(chatid, new FileToSend(GetRandomImage(StartGame)), FirstMessage, replyMarkup: _joinButton).Result.MessageId;
+                        break;
+                    case 6:
+                        FirstMessage = GetLocaleString("PlayerStartedInverted", u.FirstName);
+                        _joinMsgId = Program.Bot.SendDocumentAsync(chatid, new FileToSend(GetRandomImage(StartInverted)), FirstMessage, replyMarkup: _joinButton).Result.MessageId;
                         break;
                     default:
                         break;
@@ -2553,6 +2562,52 @@ namespace Werewolf_Node
             }
         }
 
+        /*private void ChooseOrRandomTarget()
+        {
+            List<IPlayer> targets = new List<IPlayer>();
+            foreach (var p in Players.Where(x => x.Choice <= 0))
+            {
+                switch (p.PlayerRole)
+                {
+                    case IRole.Healer:
+                        targets = Players.Where(x => x.IsDead && x.Team == ITeam.Village).ToList();
+                        break;
+                    case IRole.Pyro:
+                        break;
+                    case IRole.SnowWolf:
+                        break;
+                    case IRole.Wolf:
+                    case IRole.AlphaWolf:
+                    case IRole.WolfCub:
+                    case IRole.Lycan:
+                    case IRole.HungryWolf:
+                    case IRole.RabidWolf:
+                    case IRole.SpeedWolf:
+                    case IRole.Snooper:
+                        break;
+                    case IRole.Cultist:
+                        break;
+                    default:
+                        break;
+                }
+
+                try
+                {
+                    targets.Shuffle();
+                    targets.Shuffle();
+                    p.Choice = targets[0].Id;
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(ex.Message);
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    Send("Unable to choose random player\n" + Program.Version.FileVersion + $"\nGroup: {ChatId} ({ChatGroup})\nLanguage: {DbGroup?.Language ?? "null"}\n{Program.ClientId}\n{ex.Message}\n{ex.StackTrace}", Program.ErrorGroup);
+                    p.Choice = -1;
+                }
+            }
+        }*/
+
         private void ValidateSpecialRoleChoices()
         {
             if (GameDay != 1) return;
@@ -3208,6 +3263,23 @@ namespace Werewolf_Node
             if (CheckForGameEnd()) return;
             foreach (var p in Players.Where(x => !x.IsDead))
             {
+                if (Inverted)
+                {
+                    if (p.Choice == 0 || p.Choice == -1)
+                    {
+                        var others = Players.Where(x => !x.IsDead && x.Id != p.Id).ToList();
+                        if (others.Any())
+                        {
+                            others.Shuffle();
+                            others.Shuffle();
+                            p.Choice = others[0].Id;
+                            Send(GetLocaleString("RandomTargetChosen", p.GetName()), p.Id);
+                            var msg = GetLocaleString("PlayerVotedLynch", p.GetName(), others[0].GetName());
+                            SendWithQueue(msg);
+                        }
+                    }
+                }
+
                 if (p.Choice != 0 && p.Choice != -1)
                 {
                     var target = Players.FirstOrDefault(x => x.Id == p.Choice);
@@ -3259,6 +3331,7 @@ namespace Werewolf_Node
                     }
                     p.PointsToAdd -= 3 + idles24;
                     p.IsDead = true;
+                    p.DiedAFK = true;
                     p.TimeDied = DateTime.Now;
                     p.DayOfDeath = GameDay;
                     CheckRoleChanges();
@@ -3321,6 +3394,9 @@ namespace Werewolf_Node
                         //update the database
                         DBKill(Players.Where(x => x.Choice == lynched.Id), lynched, KillMthd.Lynch);
 
+                        foreach (var player in Players.Where(x => x.LynchedWolf))
+                            player.LynchedWolf = false;
+
                         //effects on game depending on the lynched's role
                         switch (lynched.PlayerRole)
                         {
@@ -3345,6 +3421,9 @@ namespace Werewolf_Node
                                 HunterFinalShot(lynched, KillMthd.Lynch);
                                 break;
                         }
+
+                        if (WolfRoles.Contains(lynched.PlayerRole) || SupportWolves.Contains(lynched.PlayerRole))
+                            lynched.LynchedWolf = true;
 
                         CheckRoleChanges(true);
                     }
@@ -3622,6 +3701,12 @@ namespace Werewolf_Node
             SendWithQueue(GetLocaleString("NightTime", nightTime.ToBold()));
             SendPlayerList();
             SendNightActions();
+
+            if (Inverted)
+            {
+                if (GameDay == 1)
+                    SendWithQueue(GetLocaleString("StartingInverse"));
+            }
 
             var nightPlayers = Players.Where(x => !x.IsDead & !x.Drunk && x.HasNightAction);
             // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
@@ -3946,7 +4031,7 @@ namespace Werewolf_Node
 
             var wolves = nightPlayers.GetPlayersForRoles(WolfRoles).ToList();
 
-            var voteWolves = wolves.Where(x => !x.Drunk);
+            var voteWolves = wolves.Where(x => !x.Drunk && !x.NoEat);
             var voteWolvesCount = voteWolves.Count();
 
             if (voteWolves.Any())
@@ -3979,6 +4064,27 @@ namespace Werewolf_Node
                 choices.Add(WolfTarget2);
                 int eatCount = 0;
                 int bittenCount = 0;
+
+                if (Inverted)
+                {
+                    if (!choices.Any(x => x != 0 && x != -1))
+                    {
+                        var nonWolves = Players.Where(x => !x.IsDead && !WolfRoles.Contains(x.PlayerRole) && !SupportWolves.Contains(x.PlayerRole)).ToList();
+                        if (nonWolves.Any())
+                        {
+                            nonWolves.Shuffle();
+                            nonWolves.Shuffle();
+                            choices.Add(nonWolves[0].Id);
+                            foreach (var ww in voteWolves)
+                            {
+                                Send(GetLocaleString("RandomTargetChosen", nonWolves[0].GetName()), ww.Id);
+                                ww.Choice = nonWolves[0].Id;
+                            }
+                            WolfTarget1 = nonWolves[0].Id;
+                        }
+                    }
+                }
+
                 foreach (var choice in choices.Where(x => x != 0 && x != -1))
                 {
                     if (!voteWolves.Any()) break; //if wolf dies from first choice, and was alone...
@@ -4421,6 +4527,9 @@ namespace Werewolf_Node
                 bittenCount = 0;
             }
             WolfCubKilled = false;
+
+            foreach (var ww in Players.Where(x => x.NoEat))
+                ww.NoEat = false;
             #endregion
 
             #endregion
@@ -4433,6 +4542,23 @@ namespace Werewolf_Node
                 foreach (var arso in pyros)
                 {
                     var doused = Players.FirstOrDefault(x => x.Id == arso.Choice && !x.IsDead);
+
+                    if (Inverted)
+                    {
+                        if (doused == null)
+                        {
+                            var others = Players.Where(x => !x.IsDead && x.Id != arso.Id).ToList();
+                            if (others.Any())
+                            {
+                                others.Shuffle();
+                                others.Shuffle();
+                                doused = others[0];
+                                arso.Choice = doused.Id;
+                                Send(GetLocaleString("RandomTargetChosen", others[0].GetName()), arso.Id);
+                            }
+                        }
+                    }
+
                     if (doused != null)
                     {
                         var guarded = Program.R.Next(100) < (guards.Count(x => x.Choice == doused.Id) * 20);
@@ -4558,6 +4684,23 @@ namespace Werewolf_Node
                 foreach (var sk in sks)
                 {
                     var skilled = Players.FirstOrDefault(x => x.Id == sk.Choice && !x.IsDead);
+
+                    if (Inverted)
+                    {
+                        if (skilled == null)
+                        {
+                            var others = Players.Where(x => !x.IsDead && x.Id != sk.Id).ToList();
+                            if (others.Any())
+                            {
+                                others.Shuffle();
+                                others.Shuffle();
+                                skilled = others[0];
+                                sk.Choice = skilled.Id;
+                                Send(GetLocaleString("RandomTargetChosen", others[0].GetName()), sk.Id);
+                            }
+                        }
+                    }
+
                     if (skilled != null)
                     {
                         var guarded = Program.R.Next(100) < (guards.Count(x => x.Choice == skilled.Id) * 20);
@@ -4672,6 +4815,23 @@ namespace Werewolf_Node
                 foreach (var hunter in hunters)
                 {
                     var hunted = Players.FirstOrDefault(x => x.Id == hunter.Choice);
+
+                    if (Inverted)
+                    {
+                        if (hunted == null)
+                        {
+                            var others = Players.Where(x => !x.IsDead && x.Id != hunter.Id).ToList();
+                            if (others.Any())
+                            {
+                                others.Shuffle();
+                                others.Shuffle();
+                                hunted = others[0];
+                                hunter.Choice = hunted.Id;
+                                Send(GetLocaleString("RandomTargetChosen", others[0].GetName()), hunter.Id);
+                            }
+                        }
+                    }
+
                     if (hunted != null)
                     {
                         hunted.BeingVisitedSameNightCount++;
@@ -4871,6 +5031,25 @@ namespace Werewolf_Node
                 if (votechoice.Any())
                 {
                     choice = votechoice.GroupBy(x => x.Choice).OrderByDescending(x => x.Count()).First().Key;
+                }
+
+                if (Inverted)
+                {
+                    if (choice == 0 || choice == -1)
+                    {
+                        var others = Players.Where(x => !x.IsDead && x.PlayerRole != IRole.Cultist).ToList();
+                        if (others.Any())
+                        {
+                            others.Shuffle();
+                            others.Shuffle();
+                            choice = others[0].Id;
+                            foreach (var cult in voteCult)
+                            {
+                                Send(GetLocaleString("RandomTargetChosen", others[0].GetName()), cult.Id);
+                                cult.Choice = choice;
+                            }
+                        }
+                    }
                 }
 
                 CultTarget = choice;
@@ -6089,36 +6268,36 @@ namespace Werewolf_Node
                         }
                     }
                 }
-            foreach (var surv in Players.Where(x => x.PlayerRole == IRole.Survivor))
-            {
-                if (!surv.IsDead)
+                foreach (var surv in Players.Where(x => x.PlayerRole == IRole.Survivor))
                 {
-                    surv.Won = true;
-                    if (gameMode != 4)
-                        {
-                            var p = GetDBGamePlayer(surv, db);
-                            p.Won = true;
-                        }
-                        if (surv.InLove)
+                    if (!surv.IsDead)
                     {
-                        //find lover
-                        var lover = Players.FirstOrDefault(x => x.Id == surv.LoverId);
-                        if (lover != null)
+                        surv.Won = true;
+                        if (gameMode != 4)
+                            {
+                                var p = GetDBGamePlayer(surv, db);
+                                p.Won = true;
+                            }
+                        if (surv.InLove)
                         {
-                            lover.Won = true;
+                            //find lover
+                            var lover = Players.FirstOrDefault(x => x.Id == surv.LoverId);
+                            if (lover != null)
+                            {
+                                lover.Won = true;
                                 if (gameMode != 4)
                                 {
                                     GetDBGamePlayer(lover, db).Won = true;
                                 }
+                            }
                         }
                     }
+                    else
+                    {
+                        surv.Won = false;
+                    }
                 }
-                else
-                {
-                    surv.Won = false;
-                }
-            }
-            switch (team)
+                switch (team)
                 {
                     case ITeam.NoOne:
                         var alives = Players.Where(x => !x.IsDead);
@@ -6261,6 +6440,24 @@ namespace Werewolf_Node
                         //var aux = Program.Bot.SendDocumentAsync(ChatId, new FileToSend(GetRandomImage(VillagersWin)), msg).Result.MessageId;
                         break;
                 }
+
+                if (Inverted)
+                {
+                    foreach (var w in Players)
+                    {
+                        bool won;
+                        won = !w.Won;
+                        if (w.DiedAFK)
+                            won = false;
+                        w.Won = won;
+                        if (gameMode != 4)
+                        {
+                            var p = GetDBGamePlayer(w, db);
+                            p.Won = won;
+                        }
+                    }
+                }
+
                 if (gameMode == 5)
                 {
                     foreach (var pl in Players.Where(x => !BadRoles.Contains(x.PlayerRole)))
@@ -6354,6 +6551,10 @@ namespace Werewolf_Node
                                 p.PointsToAdd = p.PointsToAdd * 1.5;
                         }
                         p.PointsToAdd = Math.Truncate(p.PointsToAdd);
+
+                        if (Inverted)
+                            p.PointsToAdd = 0;
+
                         p.Score = p.Score + (int)p.PointsToAdd;
                         dbp.Score = p.Score;
                     }
@@ -6842,6 +7043,12 @@ namespace Werewolf_Node
                         new InlineKeyboardCallbackButton(GetLocaleString("Yes"), $"vote|{Program.ClientId}|yes"), new InlineKeyboardCallbackButton(GetLocaleString("No"), $"vote|{Program.ClientId}|no")
                     }
                 }.ToList();
+                }
+
+                foreach (var wolf in Players.Where(x => WolfRoles.Contains(x.PlayerRole) || SupportWolves.Contains(x.PlayerRole)))
+                {
+                    if (wolf.Drunk || _silverSpread)
+                        wolf.NoEat = true;
                 }
 
                 if (!player.Drunk && !String.IsNullOrWhiteSpace(msg))
@@ -7418,6 +7625,8 @@ namespace Werewolf_Node
                             newAch.Set(Achievements.President);
                         if (!ach.HasFlag(Achievements.ItWasABusyNight) && player.BusyNight)
                             newAch.Set(Achievements.ItWasABusyNight);
+                        if (!ach.HasFlag(Achievements.TannerWolf) && player.LynchedWolf)
+                            newAch.Set(Achievements.TannerWolf);
                         //now save
                         p.Achievements = ach.Or(newAch).ToByteArray();
                         var newPoints = 0;

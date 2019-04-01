@@ -30,6 +30,10 @@ namespace Werewolf_Control
                 -1001094155678, -1001077134233, -1001229366250
             };
 #endif
+        internal static int[] BlackList =
+        {
+            647791868
+        };
 
         private static Player GetDBPlayer(int id, WWContext db)
         {
@@ -51,6 +55,26 @@ namespace Werewolf_Control
                 return;
             }
 
+            foreach (var bannedGuy in BlackList)
+            {
+                ChatMemberStatus status;
+                try
+                {
+                    status = Bot.Api.GetChatMemberAsync(update.Message.Chat.Id, bannedGuy).Result.Status;
+                    if (status == ChatMemberStatus.Member)
+                    {
+                        var troll = Bot.Api.GetChatMemberAsync(update.Message.Chat.Id, bannedGuy).Result.User;
+                        Send("Se ha encontrado un usuario troll en el grupo (" + troll.FirstName + " - " + troll.Id + "). Estos usuarios son conocidos por perjudicar usuarios y grupos, por lo que el bot abandonará el grupo mientras esté.", update.Message.Chat.Id);
+                        Bot.Api.LeaveChatAsync(update.Message.Chat.Id);
+                        return;
+                    }
+                }
+                catch (AggregateException)
+                {
+
+                }
+            }
+
             //-1001052326089,
 #if BETA
             if (!BetaGroups.Contains(update.Message.Chat.Id) & !UpdateHelper.Devs.Contains(update.Message.From.Id))
@@ -59,7 +83,7 @@ namespace Werewolf_Control
                 return;
             }
 #endif
-    
+
 
 #if RELEASE2
 

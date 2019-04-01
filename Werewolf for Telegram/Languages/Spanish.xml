@@ -2275,4 +2275,19 @@
 	<value>¿Sabías qué? Este bot permite jugar partidas de hasta 50 jugadores. Además, el rol de veterano se desactiva a partir de los 30 jugadores, para poder disfrutar de las partidas especiales al completo.</value>
     <value>¿Sabías qué? El torpe tiene 50% de linchar a una persona al azar. Pero esa persona al azar puede ser la misma que votó inicialmente. Es decir, si quedan 2 personas a las que votar, ¡tiene 75% de acertar el voto!</value>
   </string>
+  
+  <string key="RandomTargetChosen">
+    <!-- 0 - target's name -->
+    <value>No has elegido un objetivo, el moderador eligió por ti: {0}</value>
+  </string>
+  <string key="StartingInverse">
+    <value>¡ATENCIÓN, ALDEANOS! La partida ha sido invertida. Vuestros objetivos de victoria son el contrario, por lo que debéis perder para ganar.</value>
+  </string>
+
+  <string key="PlayerStartedInverted">
+    <!-- 0 - Player name -->
+    <value>¡{0} ha empezado una partida inversa! Pulsa el botón para unirte a la diversión… ¡rirom etnemelbaborp y!</value>
+    <value>¡{0} ha empezado una partida inversa! ¿Quién será el mejor perdedor?</value>
+    <value>¡{0} ha iniciado una nueva partida inversa! ¡odimoc res arap nótob le asluP!</value>
+  </string>
 </strings>

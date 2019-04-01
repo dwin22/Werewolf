@@ -31,10 +31,13 @@ namespace Werewolf_Node.Models
 
         public int Choice2 { get; set; } = 0;
 
+        public int NightAFKCount { get; set; } = 0;
+
         /// <summary>
         /// Whooops! you died...
         /// </summary>
         public bool IsDead { get; set; } = false;
+        public bool DiedAFK { get; set; } = false;
 
         /// <summary>
         /// If the Arsonist ignites... good bye!
@@ -82,6 +85,7 @@ namespace Werewolf_Node.Models
         /// Werewolf gets drunk after killing the drunk, so sits out one turn
         /// </summary>
         public bool Drunk { get; set; } = false;
+        public bool NoEat { get; set; } = false;
 
         /// <summary>
         /// Indicates whether user has PM'd the bot.  this is required by telegram.
@@ -162,6 +166,8 @@ namespace Werewolf_Node.Models
         public int MayorLynchAfterRevealCount { get; set; } = 0;
         public int BeingVisitedSameNightCount { get; set; } = 0;
         public bool BusyNight { get; set; } = false;
+        public bool LynchedWolf { get; set; } = false;
+
         public int DonationLevel { get; set; } = 0;
         public bool Founder { get; set; } = false;
         public CustomGifData GifPack { get; set; } = null;

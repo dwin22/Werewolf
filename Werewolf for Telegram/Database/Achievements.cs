@@ -136,6 +136,8 @@ namespace Database
         IHelped = 60,
         [Display(Name = "¡Menuda Noche!"), Description("Sé visitado por 3 o más roles distintos en una misma noche")]
         ItWasABusyNight = 61,
+        [Display(Name = "Vetelobo"), Description("Como lobo, gana la partida justo tras ser linchado")]
+        TannerWolf = 62,
     } // MAX VALUE: 9223372036854775807
       //            
 

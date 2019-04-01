@@ -88,6 +88,18 @@ namespace Werewolf_Control
             }
         }
 
+        [Command(Trigger = "startinverted", Blockable = true, InGroupOnly = true)]
+        public static void StartInverted(Update update, string[] args)
+        {
+            if (!Program.MaintMode)
+                StartGame(6, update);
+            else
+            {
+                Send(Program.MaintMessage ?? "El bot está siendo actualizado para meter cosas nuevas :D Prueba a iniciar en unos minutos.",
+                    update.Message.Chat.Id);
+            }
+        }
+
         [Command(Trigger = "nextjiro", Blockable = true, InGroupOnly = true)]
         public static void NextJiro(Update update, string[] args)
         {
