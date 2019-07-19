@@ -62,6 +62,7 @@ namespace Werewolf_Node
         public readonly IRole[] Roles120 = { IRole.WildChild, IRole.Doppelgänger, IRole.Cupid, IRole.Imposter };
         public readonly IRole[] LowCultables = { IRole.Pacifist, IRole.Blacksmith, IRole.Cursed, IRole.Detective, IRole.Healer, IRole.Herbalist, IRole.Hunter, IRole.Ninja, IRole.Oracle, IRole.Sandman, IRole.Seer, IRole.Sheriff, IRole.Sleepwalker, IRole.WiseElder, IRole.Lookout };
         public readonly IRole[] Cultables = { IRole.ApprenticeSeer, IRole.Baker, IRole.Beholder, IRole.ClumsyGuy, IRole.Cupid, IRole.Drunk, IRole.Fool, IRole.Mason, IRole.Mayor, IRole.Police, IRole.Prince, IRole.Survivor, IRole.Villager, IRole.WildChild, IRole.WolfMan, IRole.Guard };
+        public readonly IRole[] SafeRoles = { IRole.Seer, IRole.GuardianAngel, IRole.Detective, IRole.Harlot, IRole.Herbalist };
         public List<long> HaveExtended = new List<long>();
         private List<IPlayer> _joined = new List<IPlayer>(); 
         private int _joinMsgId;
@@ -82,6 +83,7 @@ namespace Werewolf_Node
         public int WolfTarget2 = 0;
         public int CultTarget = 0;
         public bool Inverted = false;
+        public int SpecialCount = 0;
         public List<string> customList = new List<string>();
 
         public List<string> VillagerDieImages,
@@ -163,6 +165,29 @@ namespace Werewolf_Node
 
                 if (gameMode == 6)
                     Inverted = true;
+
+                if (gameMode == 20)
+                {
+                    SpecialCount = int.Parse(cList[0]);
+                    for (int i = 0; i < SpecialCount; i++)
+                    {
+                        var p = new IPlayer
+                        {
+                            Name = "TestBoi " + i
+                        };
+                        p.Id = i + 1;
+                        p.Score = 1000;
+                        Players.Add(p);
+                    }
+                    LoadLanguage("Spanish");
+                    AssignRoles();
+                    var msg = $"{GetLocaleString("PlayersAlive")}: {Players.Count(x => !x.IsDead)} / {Players.Count}\n" + Players.OrderBy(x => x.TimeDied).Aggregate("", (current, p) => current + ($"{p.Name}: {(p.IsDead ? (p.Fled ? GetLocaleString("RanAway") : GetLocaleString("Dead")) : GetLocaleString("Alive")) + " - " + GetEndDescription(p)}\n"));
+                    SendWithQueue(msg);
+
+                    Thread.Sleep(10000);
+                    Program.RemoveGame(this);
+                    return;
+                }
 
                 using (var db = new WWContext())
 
@@ -1679,7 +1704,7 @@ namespace Werewolf_Node
                 int playersPerWolf = 4;
                 //need to set the max wolves so game doesn't end immediately - 25% max wolf population
                 //25% was too much, max it at 5 wolves.
-                var possiblewolves = new List<IRole>() { IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.Lycan, IRole.HungryWolf, IRole.SpeedWolf };
+                var possiblewolves = new List<IRole>() { IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.Lycan, IRole.HungryWolf, IRole.SpeedWolf, IRole.RabidWolf };
                 if (playerCount < 5)
                 {
                     possiblewolves.Remove(IRole.AlphaWolf);
@@ -1777,30 +1802,36 @@ namespace Werewolf_Node
                 //add a couple more masons
                 rolesToAssign.Add(IRole.Mason);
                 rolesToAssign.Add(IRole.Mason);
+                if (playerCount > 30) rolesToAssign.Add(IRole.Mason);
                 //for smaller games, all roles will be available and chosen randomly.  For large games, it will be about the
                 //same as it was before....
 
 
                 if (rolesToAssign.Any(x => x == IRole.CultistHunter))
                 {
-                    if (playerCount > 6) rolesToAssign.Add(IRole.Cultist);
-                    if (playerCount > 6) rolesToAssign.Add(IRole.Cultist);
-                    if (playerCount > 10) rolesToAssign.Add(IRole.Cultist);
-                    if (playerCount > 30) rolesToAssign.Add(IRole.Cultist);
+                    rolesToAssign.Add(IRole.Cultist);
+                    rolesToAssign.Add(IRole.Cultist);
+                    rolesToAssign.Add(IRole.Cultist);
+                    if (playerCount > 40) rolesToAssign.Add(IRole.Cultist);
+                    if (playerCount > 70) rolesToAssign.Add(IRole.Cultist);
                 }
                 //now fill rest of the slots with villagers (for large games)
 
                 if ((!DisableVillager && !StrongMode) || gameMode == 5)
                 {
-                    for (int i = 0; i < playerCount / 4; i++)
+                    for (int i = 0; i < playerCount / 5; i++)
                         rolesToAssign.Add(IRole.Villager);
                 }
 
-                for (int i = 0; i < playerCount / 4; i++)
+                rolesToAssign.Add(IRole.Police);
+                for (int i = 0; i < playerCount / 6; i++)
                     rolesToAssign.Add(IRole.Police);
 
-                for (int i = 0; i < playerCount / 4; i++)
+                rolesToAssign.Add(IRole.Guard);
+                for (int i = 0; i < playerCount / 6; i++)
                     rolesToAssign.Add(IRole.Guard);
+
+                if (playerCount > 40) rolesToAssign.Add(IRole.ApprenticeSeer);
             }
             else
             {
@@ -1888,13 +1919,20 @@ namespace Werewolf_Node
                     var gameConditions = new[] { IRole.Pyro, IRole.SerialKiller, IRole.Cultist };
 
                     int forcedWolves = 0; // with so many roles, wolves appear rarely. This will be used to set the amount of wolves the game will 100% have
-                    int chancePerWolf = 60;
+                    int chancePerWolf = 75;
 
                     for (int i = 0; i < Math.Min(Math.Max(count / 5, 1), 10); i++)
                     {
                         if (Program.R.Next(100) < chancePerWolf)
                             forcedWolves++;
                     }
+
+                    int forcedSafes = 0;
+
+                    if (count > 10) forcedSafes = 1;
+                    if (count > 20) forcedSafes = 2;
+                    if (count > 30) forcedSafes = 3;
+                    if (count > 40) forcedSafes = 4;
 
                     do
                     {
@@ -2008,6 +2046,10 @@ namespace Werewolf_Node
                             if (rolesToAssign.Count(x => WolfRoles.Contains(x) || SupportWolves.Contains(x)) < forcedWolves)
                                 balanced = false;
 
+                            // make sure we have a minimum amount of safes
+                            if (rolesToAssign.Count(x => SafeRoles.Contains(x)) < forcedSafes)
+                                balanced = false;
+
                             // make sure we have a minimum amount of vgs
                             int maxBaddies = ((count - 1) / 2) - 1;
                             if (count == 4)
@@ -2031,7 +2073,7 @@ namespace Werewolf_Node
                             //big games usually have few evils
                             if (count > 10)
                             {
-                                villageStrength += (count / 3);
+                                villageStrength += ((count / 3) - 3);
                             }
 
                             //check balance
@@ -3273,7 +3315,7 @@ namespace Werewolf_Node
                             others.Shuffle();
                             others.Shuffle();
                             p.Choice = others[0].Id;
-                            Send(GetLocaleString("RandomTargetChosen", p.GetName()), p.Id);
+                            Send(GetLocaleString("RandomTargetChosen", others[0].GetName()), p.Id);
                             var msg = GetLocaleString("PlayerVotedLynch", p.GetName(), others[0].GetName());
                             SendWithQueue(msg);
                         }
@@ -3699,6 +3741,24 @@ namespace Werewolf_Node
                 return;
             }
             SendWithQueue(GetLocaleString("NightTime", nightTime.ToBold()));
+            var moonMsg = GetLocaleString("NightPhase", GameDay.ToBold()) + " - ";
+            var moonType = GameDay % 4;
+            switch (moonType)
+            {
+                case 1:
+                    moonMsg += GetLocaleString("FullMoon").ToBold();
+                    break;
+                case 2:
+                    moonMsg += GetLocaleString("LastQuarter");
+                    break;
+                case 3:
+                    moonMsg += GetLocaleString("NewMoon");
+                    break;
+                case 0:
+                    moonMsg += GetLocaleString("FirstQuarter");
+                    break;
+            }
+            SendWithQueue(moonMsg);
             SendPlayerList();
             SendNightActions();
 
@@ -7625,7 +7685,7 @@ namespace Werewolf_Node
                             newAch.Set(Achievements.President);
                         if (!ach.HasFlag(Achievements.ItWasABusyNight) && player.BusyNight)
                             newAch.Set(Achievements.ItWasABusyNight);
-                        if (!ach.HasFlag(Achievements.TannerWolf) && player.LynchedWolf)
+                        if (!ach.HasFlag(Achievements.TannerWolf) && player.LynchedWolf && player.Won)
                             newAch.Set(Achievements.TannerWolf);
                         //now save
                         p.Achievements = ach.Or(newAch).ToByteArray();

@@ -2290,4 +2290,21 @@
     <value>¡{0} ha empezado una partida inversa! ¿Quién será el mejor perdedor?</value>
     <value>¡{0} ha iniciado una nueva partida inversa! ¡odimoc res arap nótob le asluP!</value>
   </string>
+
+  <string key="NightPhase">
+    <!--0 - Day -->
+    <value>Noche {0}</value>
+  </string>
+  <string key="FullMoon">
+    <value>Luna llena 🌕</value>
+  </string>
+  <string key="LastQuarter">
+    <value>Cuarto menguante 🌗</value>
+  </string>
+  <string key="NewMoon">
+    <value>Luna nueva 🌑</value>
+  </string>
+  <string key="FirstQuarter">
+    <value>Cuarto creciente 🌓</value>
+  </string>
 </strings>

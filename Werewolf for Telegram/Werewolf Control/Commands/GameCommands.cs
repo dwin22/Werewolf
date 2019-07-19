@@ -100,6 +100,15 @@ namespace Werewolf_Control
             }
         }
 
+        [Command(Trigger = "testeoroles", Blockable = true, InGroupOnly = true)]
+        public static void TesteoRoles(Update update, string[] args)
+        {
+            if (args[1] == null)
+                Send("Por favor, especifica el número de jugadores.", update.Message.Chat.Id);
+            else
+                StartGame(20, update, args[1]);
+        }
+
         [Command(Trigger = "nextjiro", Blockable = true, InGroupOnly = true)]
         public static void NextJiro(Update update, string[] args)
         {

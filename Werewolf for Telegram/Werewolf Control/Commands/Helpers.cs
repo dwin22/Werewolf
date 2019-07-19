@@ -179,18 +179,20 @@ namespace Werewolf_Control
             node = Bot.GetBestAvailableNode();
             if (node != null)
             {
-                if (gmode != 4)
+                List<string> finalList = new List<string>();
+                if (gmode == 20)
                 {
-                    node.StartGame(update, gmode);
+                    finalList.Add(cardList);
+                    node.StartGame(update, gmode, finalList);
                 }
-                else
+                else if (gmode == 4)
                 {
                     if (cardList == null)
                     {
                         //node.StartGame(update, gmode);
                         if (playerRoleList != null)
                         {
-                            List<string> finalList = playerRoleList.Split(',').ToList();
+                            finalList = playerRoleList.Split(',').ToList();
                             if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SpeedWolf" || x == "SnowWolf" || x == "Snooper" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
                             {
                                 Send(GetLocaleString("NotEnoughBaddies", grp?.Language ?? "Spanish.xml"), update.Message.Chat.Id);
@@ -206,7 +208,6 @@ namespace Werewolf_Control
                     }
                     else
                     {
-                        List<string> finalList = new List<string>();
                         var cards = cardList.Split(',');
                         foreach (var card in cards)
                         {
@@ -233,6 +234,10 @@ namespace Werewolf_Control
                         }
                         node.StartGame(update, gmode, finalList);
                     }
+                }
+                else
+                {
+                    node.StartGame(update, gmode);
                 }
                 node.nextHela = false;
                 node.nextJiro = false;
@@ -323,310 +328,326 @@ namespace Werewolf_Control
 
         private static string TransEmoji(string emoji)
         {
-            switch (emoji)
+            try
             {
-                case "🍻":
-                    return "Drunk";
-                case "🖕":
-                    return "Traitor";
-                case "🔫":
-                    return "Gunner";
-                case "👺":
-                    return "Tanner";
-                case "🃏":
-                    return "Fool";
-                case "👶":
-                    return "WildChild";
-                case "👁":
-                    return "Beholder";
-                case "🏹":
-                    return "Cupid";
-                case "🤕":
-                    return "ClumsyGuy";
-                case "🎖":
-                    return "Mayor";
-                case "👑":
-                    return "Prince";
-                case "⛺️":
-                    return "Survivor";
-                case "❌":
-                    return "Imposter";
-                case "🍞":
-                    return "Baker";
-                case "😴":
-                    return "Sleepwalker";
-                case "💨":
-                    return "Ninja";
-                case "💋":
-                    return "Harlot";
-                case "🍃":
-                    return "Herbalist";
-                case "🔮":
-                    return "Sorcerer";
-                case "🌟":
-                    return "Healer";
-                case "👼":
-                    return "GuardianAngel";
-                case "😾":
-                    return "Cursed";
-                case "💤":
-                    return "Sandman";
-                case "🤠":
-                    return "Sheriff";
-                case "🔥":
-                    return "Pyro";
-                case "🎭":
-                    return "Doppelgänger";
-                case "👦":
-                    return "Atheist";
-                case "🎯":
-                    return "Hunter";
-                case "🌀":
-                    return "Oracle";
-                case "⚒":
-                    return "Blacksmith";
-                case "📚":
-                    return "WiseElder";
-                case "☮️":
-                    return "Pacifist";
-                case "🐺":
-                    return "Wolf";
-                case "🔪":
-                    return "SerialKiller";
-                case "⚡️":
-                    return "AlphaWolf";
-                case "🐶":
-                    return "WolfCub";
-                case "🐺🌝":
-                    return "Lycan";
-                case "🐺🤢":
-                    return "RabidWolf";
-                case "🐺❄️":
-                    return "SnowWolf";
-                case "🐺🍽":
-                    return "HungryWolf";
-                case "👤":
-                    return "Cultist";
-                case "🐾":
-                    return "Snooper";
-                case "🐺💨":
-                    return "SpeedWolf";
-                case "🔭":
-                    return "Lookout";
-                case "🛡":
-                    return "Guard";
-                default:
-                    if (emoji[1] == '\uDD75') // detective
-                    {
-                        return "Detective";
-                    }
-                    else if (emoji[1] == '\uDC73')
-                    { // seer
-                        return "Seer";
-                    }
-                    else if (emoji[1] == '\uDC71') // villager and wolfman
-                    {
-                        if (emoji.Length < 6)
+                switch (emoji)
+                {
+                    case "🍻":
+                        return "Drunk";
+                    case "🖕":
+                        return "Traitor";
+                    case "🔫":
+                        return "Gunner";
+                    case "👺":
+                        return "Tanner";
+                    case "🃏":
+                        return "Fool";
+                    case "👶":
+                        return "WildChild";
+                    case "👁":
+                        return "Beholder";
+                    case "🏹":
+                        return "Cupid";
+                    case "🤕":
+                        return "ClumsyGuy";
+                    case "🎖":
+                        return "Mayor";
+                    case "👑":
+                        return "Prince";
+                    case "⛺️":
+                        return "Survivor";
+                    case "❌":
+                        return "Imposter";
+                    case "🍞":
+                        return "Baker";
+                    case "😴":
+                        return "Sleepwalker";
+                    case "💨":
+                        return "Ninja";
+                    case "💋":
+                        return "Harlot";
+                    case "🍃":
+                        return "Herbalist";
+                    case "🔮":
+                        return "Sorcerer";
+                    case "🌟":
+                        return "Healer";
+                    case "👼":
+                        return "GuardianAngel";
+                    case "😾":
+                        return "Cursed";
+                    case "💤":
+                        return "Sandman";
+                    case "🤠":
+                        return "Sheriff";
+                    case "🔥":
+                        return "Pyro";
+                    case "🎭":
+                        return "Doppelgänger";
+                    case "👦":
+                        return "Atheist";
+                    case "🎯":
+                        return "Hunter";
+                    case "🌀":
+                        return "Oracle";
+                    case "⚒":
+                        return "Blacksmith";
+                    case "📚":
+                        return "WiseElder";
+                    case "☮️":
+                        return "Pacifist";
+                    case "🐺":
+                        return "Wolf";
+                    case "🔪":
+                        return "SerialKiller";
+                    case "⚡️":
+                        return "AlphaWolf";
+                    case "🐶":
+                        return "WolfCub";
+                    case "🐺🌝":
+                        return "Lycan";
+                    case "🐺🤢":
+                        return "RabidWolf";
+                    case "🐺❄️":
+                        return "SnowWolf";
+                    case "🐺🍽":
+                        return "HungryWolf";
+                    case "👤":
+                        return "Cultist";
+                    case "🐾":
+                        return "Snooper";
+                    case "🐺💨":
+                        return "SpeedWolf";
+                    case "🔭":
+                        return "Lookout";
+                    case "🛡":
+                        return "Guard";
+                    default:
+                        if (emoji.Length < 2)
+                            return null;
+                        if (emoji[1] == '\uDD75') // detective
                         {
-                            return "Villager";
+                            return "Detective";
                         }
-                        else if (emoji[5] == '\uDF1A')
+                        else if (emoji[1] == '\uDC73')
+                        { // seer
+                            return "Seer";
+                        }
+                        else if (emoji[1] == '\uDC71') // villager and wolfman
                         {
-                            return "WolfMan";
+                            if (emoji.Length < 6)
+                            {
+                                return "Villager";
+                            }
+                            else if (emoji[5] == '\uDF1A')
+                            {
+                                return "WolfMan";
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        }
+                        else if (emoji[1] == '\uDC6E') // police
+                        {
+                            return "Police";
+                        }
+                        else if (emoji[1] == '\uDE47') // app seer
+                        {
+                            return "ApprenticeSeer";
+                        }
+                        else if (emoji[1] == '\uDC77') // mason
+                        {
+                            return "Mason";
+                        }
+                        else if (emoji[1] == '\uDC82') // ch
+                        {
+                            return "CultistHunter";
                         }
                         else
                         {
                             return null;
                         }
-                    }
-                    else if (emoji[1] == '\uDC6E') // police
-                    {
-                        return "Police";
-                    }
-                    else if (emoji[1] == '\uDE47') // app seer
-                    {
-                        return "ApprenticeSeer";
-                    }
-                    else if (emoji[1] == '\uDC77') // mason
-                    {
-                        return "Mason";
-                    }
-                    else if (emoji[1] == '\uDC82') // ch
-                    {
-                        return "CultistHunter";
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 
         private static string TranslateEmoji(string emoji, List<string> list, string[] cards)
         {
-            switch (emoji)
+            try
             {
-                case "🍻":
-                    return "Drunk";
-                case "🖕":
-                    return "Traitor";
-                case "🔫":
-                    return "Gunner";
-                case "👺":
-                    return "Tanner";
-                case "🃏":
-                    return "Fool";
-                case "👶":
-                    return "WildChild";
-                case "👁":
-                    return "Beholder";
-                case "🏹":
-                    if (!list.Contains("Cupid"))
-                        return "Cupid";
-                    else
-                        return "Villager";
-                case "🤕":
-                    return "ClumsyGuy";
-                case "🎖":
-                    return "Mayor";
-                case "👑":
-                    return "Prince";
-                case "⛺️":
-                    return "Survivor";
-                case "❌":
-                    return "Imposter";
-                case "🍞":
-                    return "Baker";
-                case "😴":
-                    return "Sleepwalker";
-                case "💨":
-                    return "Ninja";
-                case "💋":
-                    return "Harlot";
-                case "🍃":
-                    return "Herbalist";
-                case "🔮":
-                    return "Sorcerer";
-                case "🌟":
-                    return "Healer";
-                case "👼":
-                    return "GuardianAngel";
-                case "😾":
-                    return "Cursed";
-                case "💤":
-                    return "Sandman";
-                case "🤠":
-                    return "Sheriff";
-                case "🔥":
-                    return "Pyro";
-                case "🎭":
-                    return "Doppelgänger";
-                case "👦":
-                    return "Atheist";
-                case "🎯":
-                    return "Hunter";
-                case "🌀":
-                    return "Oracle";
-                case "⚒":
-                    return "Blacksmith";
-                case "📚":
-                    return "WiseElder";
-                case "☮️":
-                    return "Pacifist";
-                case "🐺":
-                    return "Wolf";
-                case "🔪":
-                    return "SerialKiller";
-                case "⚡️":
-                    return "AlphaWolf";
-                case "🐶":
-                    return "WolfCub";
-                case "🐺🌝":
-                    return "Lycan";
-                case "🐺🤢":
-                    return "RabidWolf";
-                case "🐺❄️":
-                    return "SnowWolf";
-                case "🐺🍽":
-                    return "HungryWolf";
-                case "👤":
-                    return "Cultist";
-                case "🐾":
-                    return "Snooper";
-                case "🐺💨":
-                    return "SpeedWolf";
-                case "🔭":
-                    return "Lookout";
-                case "🛡":
-                    return "Guard";
-                case "❓":
-                    return "Random";
-                case "❎":
-                    return "RandomVillager";
-                case "✅":
-                    return "RandomVillagerNoAlly";
-                case "⚠️":
-                    return "RandomKiller";
-                case "⚠️👤":
-                    return "RandomBaddie";
-                case "🆘":
-                    return "RandomWolf";
-                case "🚫":
-                    return "RandomAlly";
-                case "✳️":
-                    return "RandomNeutral";
-                case "120":
-                    return "Random120";
-                case "🔪🔥":
-                    return "RandomSkyro";
-                case "💯":
-                    return "RandomCultable";
-                case "❇️":
-                    return "RandomLowCultable";
-                default:
-                    if (emoji[1] == '\uDD75') // detective
-                    {
-                        return "Detective";
-                    }
-                    else if (emoji[1] == '\uDC73')
-                    { // seer
-                        return "Seer";
-                    }
-                    else if (emoji[1] == '\uDC71') // villager and wolfman
-                    {
-                        if (emoji.Length < 6)
-                        {
+                switch (emoji)
+                {
+                    case "🍻":
+                        return "Drunk";
+                    case "🖕":
+                        return "Traitor";
+                    case "🔫":
+                        return "Gunner";
+                    case "👺":
+                        return "Tanner";
+                    case "🃏":
+                        return "Fool";
+                    case "👶":
+                        return "WildChild";
+                    case "👁":
+                        return "Beholder";
+                    case "🏹":
+                        if (!list.Contains("Cupid"))
+                            return "Cupid";
+                        else
                             return "Villager";
-                        }
-                        else if (emoji[5] == '\uDF1A')
+                    case "🤕":
+                        return "ClumsyGuy";
+                    case "🎖":
+                        return "Mayor";
+                    case "👑":
+                        return "Prince";
+                    case "⛺️":
+                        return "Survivor";
+                    case "❌":
+                        return "Imposter";
+                    case "🍞":
+                        return "Baker";
+                    case "😴":
+                        return "Sleepwalker";
+                    case "💨":
+                        return "Ninja";
+                    case "💋":
+                        return "Harlot";
+                    case "🍃":
+                        return "Herbalist";
+                    case "🔮":
+                        return "Sorcerer";
+                    case "🌟":
+                        return "Healer";
+                    case "👼":
+                        return "GuardianAngel";
+                    case "😾":
+                        return "Cursed";
+                    case "💤":
+                        return "Sandman";
+                    case "🤠":
+                        return "Sheriff";
+                    case "🔥":
+                        return "Pyro";
+                    case "🎭":
+                        return "Doppelgänger";
+                    case "👦":
+                        return "Atheist";
+                    case "🎯":
+                        return "Hunter";
+                    case "🌀":
+                        return "Oracle";
+                    case "⚒":
+                        return "Blacksmith";
+                    case "📚":
+                        return "WiseElder";
+                    case "☮️":
+                        return "Pacifist";
+                    case "🐺":
+                        return "Wolf";
+                    case "🔪":
+                        return "SerialKiller";
+                    case "⚡️":
+                        return "AlphaWolf";
+                    case "🐶":
+                        return "WolfCub";
+                    case "🐺🌝":
+                        return "Lycan";
+                    case "🐺🤢":
+                        return "RabidWolf";
+                    case "🐺❄️":
+                        return "SnowWolf";
+                    case "🐺🍽":
+                        return "HungryWolf";
+                    case "👤":
+                        return "Cultist";
+                    case "🐾":
+                        return "Snooper";
+                    case "🐺💨":
+                        return "SpeedWolf";
+                    case "🔭":
+                        return "Lookout";
+                    case "🛡":
+                        return "Guard";
+                    case "❓":
+                        return "Random";
+                    case "❎":
+                        return "RandomVillager";
+                    case "✅":
+                        return "RandomVillagerNoAlly";
+                    case "⚠️":
+                        return "RandomKiller";
+                    case "⚠️👤":
+                        return "RandomBaddie";
+                    case "🆘":
+                        return "RandomWolf";
+                    case "🚫":
+                        return "RandomAlly";
+                    case "✳️":
+                        return "RandomNeutral";
+                    case "120":
+                        return "Random120";
+                    case "🔪🔥":
+                        return "RandomSkyro";
+                    case "💯":
+                        return "RandomCultable";
+                    case "❇️":
+                        return "RandomLowCultable";
+                    default:
+                        if (emoji[1] == '\uDD75') // detective
                         {
-                            return "WolfMan";
+                            return "Detective";
+                        }
+                        else if (emoji[1] == '\uDC73')
+                        { // seer
+                            return "Seer";
+                        }
+                        else if (emoji[1] == '\uDC71') // villager and wolfman
+                        {
+                            if (emoji.Length < 6)
+                            {
+                                return "Villager";
+                            }
+                            else if (emoji[5] == '\uDF1A')
+                            {
+                                return "WolfMan";
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        }
+                        else if (emoji[1] == '\uDC6E') // police
+                        {
+                            return "Police";
+                        }
+                        else if (emoji[1] == '\uDE47') // app seer
+                        {
+                            return "ApprenticeSeer";
+                        }
+                        else if (emoji[1] == '\uDC77') // mason
+                        {
+                            return "Mason";
+                        }
+                        else if (emoji[1] == '\uDC82') // ch
+                        {
+                            return "CultistHunter";
                         }
                         else
                         {
                             return null;
                         }
-                    }
-                    else if (emoji[1] == '\uDC6E') // police
-                    {
-                        return "Police";
-                    }
-                    else if (emoji[1] == '\uDE47') // app seer
-                    {
-                        return "ApprenticeSeer";
-                    }
-                    else if (emoji[1] == '\uDC77') // mason
-                    {
-                        return "Mason";
-                    }
-                    else if (emoji[1] == '\uDC82') // ch
-                    {
-                        return "CultistHunter";
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 
