@@ -85,6 +85,7 @@ namespace Werewolf_Node
         public bool Inverted = false;
         public int SpecialCount = 0;
         public List<string> customList = new List<string>();
+        public bool SomeoneSmited = false;
 
         public List<string> VillagerDieImages,
             WolfWin,
@@ -900,6 +901,7 @@ namespace Werewolf_Node
                     p.TimeDied = DateTime.Now;
                     p.Fled = true;
                     p.DayOfDeath = GameDay;
+                    SomeoneSmited = true;
                     SendWithQueue(GetLocaleString("PlayerRoleWas", p.GetName(), GetDescription(p)));
 
                    /* if (DbGroup.HasFlag(GroupConfig.ShowRolesDeath))
@@ -6518,7 +6520,7 @@ namespace Werewolf_Node
                     }
                 }
 
-                if (gameMode == 5)
+                if (gameMode == 5 && !SomeoneSmited) // if it's ranked and no one was smited/fled, give points
                 {
                     foreach (var pl in Players.Where(x => !BadRoles.Contains(x.PlayerRole)))
                     {
@@ -7165,6 +7167,7 @@ namespace Werewolf_Node
                     p.TimeDied = DateTime.Now;
                     p.DayOfDeath = GameDay;
                     p.Fled = true;
+                    SomeoneSmited = true;
 
                     SendWithQueue(GetLocaleString("PlayerRoleWas", p.GetName(), GetRoleDescription(p.PlayerRole)));
 

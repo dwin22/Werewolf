@@ -138,7 +138,7 @@ namespace Werewolf_Control
                 }
                 db.SaveChanges();
             } // DATABASE
-            if (grp.MemberCount < 30 && gmode == 5)
+            if (grp.MemberCount <= 50 && gmode == 5)
             {
                 Send(GetLocaleString("NotEnoughMembersRanked", grp?.Language ?? "Spanish.xml"), update.Message.Chat.Id);
                 return;
