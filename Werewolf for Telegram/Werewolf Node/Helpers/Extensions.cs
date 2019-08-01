@@ -122,9 +122,9 @@ namespace Werewolf_Node.Helpers
 
         public static int GetStrength(this IRole role, List<IRole> allRoles)
         {
-            IRole[] WolfRoles = { IRole.Wolf, IRole.WolfCub, IRole.AlphaWolf, IRole.Lycan, IRole.HungryWolf, IRole.RabidWolf, IRole.SnowWolf, IRole.Snooper };
+            IRole[] WolfRoles = { IRole.Wolf, IRole.WolfCub, IRole.AlphaWolf, IRole.Lycan, IRole.HungryWolf, IRole.RabidWolf, IRole.SnowWolf, IRole.Snooper, IRole.SpeedWolf, IRole.HowlingWolf };
             IRole[] nonConvertibleRoles = { IRole.GuardianAngel, IRole.Cursed, IRole.Harlot, IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.SerialKiller,
-                IRole.HungryWolf, IRole.Pyro, IRole.Sheriff, IRole.Lycan, IRole.Atheist, IRole.RabidWolf, IRole.SnowWolf, IRole.Sleepwalker, IRole.Snooper };
+                IRole.HungryWolf, IRole.Pyro, IRole.Sheriff, IRole.Lycan, IRole.Atheist, IRole.RabidWolf, IRole.SnowWolf, IRole.Sleepwalker, IRole.Snooper, IRole.SpeedWolf, IRole.HowlingWolf };
             switch (role)
             {
                 case IRole.Villager:
@@ -236,6 +236,14 @@ namespace Werewolf_Node.Helpers
                     return 5;
                 case IRole.Guard:
                     return 3;
+                case IRole.HowlingWolf:
+                    return 12;
+                case IRole.Firefighter:
+                    return 6;
+                case IRole.Ghost:
+                    return 5;
+                case IRole.Miner:
+                    return 4;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }
@@ -260,6 +268,7 @@ namespace Werewolf_Node.Helpers
                 case IRole.Snooper:
                 case IRole.SnowWolf:
                 case IRole.SpeedWolf:
+                case IRole.HowlingWolf:
                     return won ? ((playercount / Math.Max(1, initialww)) + 2) : -4;
                 case IRole.Tanner:
                     return won ? 16 : -3;
@@ -388,6 +397,14 @@ namespace Werewolf_Node.Helpers
                     return "🔭";
                 case IRole.Guard:
                     return "🛡";
+                case IRole.HowlingWolf:
+                    return "🐺🌕";
+                case IRole.Firefighter:
+                    return "👨‍🚒";
+                case IRole.Ghost:
+                    return "👻";
+                case IRole.Miner:
+                    return "⛏";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }

@@ -39,6 +39,7 @@
         Snoop,
         SpeedWolf,
         Protect,
-        Look
+        Look,
+        Save
     }
 }

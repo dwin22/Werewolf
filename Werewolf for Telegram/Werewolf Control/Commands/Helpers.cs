@@ -193,7 +193,7 @@ namespace Werewolf_Control
                         if (playerRoleList != null)
                         {
                             finalList = playerRoleList.Split(',').ToList();
-                            if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SpeedWolf" || x == "SnowWolf" || x == "Snooper" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
+                            if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SpeedWolf" || x == "SnowWolf" || x == "Snooper" || x == "HowlingWolf" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
                             {
                                 Send(GetLocaleString("NotEnoughBaddies", grp?.Language ?? "Spanish.xml"), update.Message.Chat.Id);
                                 return;
@@ -227,7 +227,7 @@ namespace Werewolf_Control
                                 return;
                             }
                         }
-                        if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SpeedWolf" || x == "SnowWolf" || x == "Snooper" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
+                        if (!finalList.Take(4).Any(x => x == "Wolf" || x == "WolfCub" || x == "AlphaWolf" || x == "Lycan" || x == "HungryWolf" || x == "RabidWolf" || x == "SpeedWolf" || x == "SnowWolf" || x == "Snooper" || x == "HowlingWolf" || x == "SerialKiller" || x == "Pyro" || x == "Cultist" || x == "RandomKiller" || x == "RandomBaddie" || x == "RandomWolf" || x == "RandomSkyro"))
                         {
                             Send(GetLocaleString("NotEnoughBaddies", grp?.Language ?? "Spanish.xml"), update.Message.Chat.Id);
                             return;
@@ -422,6 +422,10 @@ namespace Werewolf_Control
                         return "Lookout";
                     case "🛡":
                         return "Guard";
+                    case "🐺🌕":
+                        return "HowlingWolf";
+                    case "👻":
+                        return "Ghost";
                     default:
                         if (emoji.Length < 2)
                             return null;
@@ -463,6 +467,10 @@ namespace Werewolf_Control
                         else if (emoji[1] == '\uDC82') // ch
                         {
                             return "CultistHunter";
+                        }
+                        else if (emoji[1] == '\uDC68') // ffter
+                        {
+                            return "Firefighter";
                         }
                         else
                         {
@@ -575,6 +583,10 @@ namespace Werewolf_Control
                         return "Lookout";
                     case "🛡":
                         return "Guard";
+                    case "🐺🌕":
+                        return "HowlingWolf";
+                    case "👻":
+                        return "Ghost";
                     case "❓":
                         return "Random";
                     case "❎":
@@ -638,6 +650,10 @@ namespace Werewolf_Control
                         else if (emoji[1] == '\uDC82') // ch
                         {
                             return "CultistHunter";
+                        }
+                        else if (emoji[1] == '\uDC68') // ffter
+                        {
+                            return "Firefighter";
                         }
                         else
                         {

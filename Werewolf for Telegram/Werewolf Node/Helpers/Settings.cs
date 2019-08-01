@@ -114,6 +114,8 @@ namespace Werewolf_Node
             HealerConversionChance = 40,
             PacifistConversionChance = 80,
             WiseElderConversionChance = 30,
+            FirefighterConversionChance = 60,
+            GhostConversionChance = 40,
 
             GameJoinTime = 1800,
             MaxJoinTime = 300;

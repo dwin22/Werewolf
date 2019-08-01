@@ -1403,6 +1403,9 @@ namespace Werewolf_Control.Handler
                             buttons.Add(new InlineKeyboardCallbackButton("25", $"setmaxplayer|{groupid}|25"));
                             buttons.Add(new InlineKeyboardCallbackButton("30", $"setmaxplayer|{groupid}|30"));
                             buttons.Add(new InlineKeyboardCallbackButton("35", $"setmaxplayer|{groupid}|35"));
+                            buttons.Add(new InlineKeyboardCallbackButton("40", $"setmaxplayer|{groupid}|40"));
+                            buttons.Add(new InlineKeyboardCallbackButton("45", $"setmaxplayer|{groupid}|45"));
+                            buttons.Add(new InlineKeyboardCallbackButton("50", $"setmaxplayer|{groupid}|50"));
                             buttons.Add(new InlineKeyboardCallbackButton(Cancel, $"setmaxplayer|{groupid}|cancel"));
                             menu = new InlineKeyboardMarkup(buttons.Select(x => new[] { x }).ToArray());
                             Bot.ReplyToCallback(query,

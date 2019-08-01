@@ -113,6 +113,7 @@ namespace Werewolf_Node.Models
         public bool DiedByVisitingVictim { get; set; } = false;
         public bool WasSavedLastNight { get; set; } = false;
         public bool GuardedLastNight { get; set; } = false;
+        public bool FightedLastNight { get; set; } = false;
         public int MessageId { get; set; }
         public string Name { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
@@ -125,6 +126,7 @@ namespace Werewolf_Node.Models
         public DateTime TimeDied { get; set; } = DateTime.MaxValue;
         public int DayOfDeath { get; set; } = 0;
         public bool Frozen { get; set; } = false;
+        public bool SaveWasted { get; set; } = false;
         public bool RanAway { get; set; } = false;
 
         public string Language { get; set; } = "English";
@@ -185,7 +187,7 @@ namespace Werewolf_Node.Models
         //new roles
         Atheist, Pyro, HungryWolf, Survivor, Sheriff, Police, Imposter, Baker, Healer, RabidWolf, Sleepwalker, Herbalist,
         //more new roles
-        Ninja, Snooper, SpeedWolf, Lookout, Guard
+        Ninja, Snooper, SpeedWolf, Lookout, Guard, HowlingWolf, Firefighter, Ghost, Miner
     }
 
     public enum ITeam

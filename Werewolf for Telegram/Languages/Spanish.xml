@@ -2117,7 +2117,7 @@
    <value>¡{0} ha iniciado una nueva partida con puntos! ¿Lograrás entrar en el top 10?</value>
  </string>
  <string key="NotEnoughMembersRanked">
-    <value>Para iniciar una partida con puntos, el grupo debe tener al menos 30 miembros. Puedes jugar el mismo tipo de partida, pero sin puntos, con /startgame.</value>
+    <value>Para iniciar una partida con puntos, el grupo debe tener al menos 50 miembros. Puedes jugar el mismo tipo de partida, pero sin puntos, con /startgame.</value>
   </string>
   
   <string key="DisableVillagerQ">
@@ -2306,5 +2306,58 @@
   </string>
   <string key="FirstQuarter">
     <value>Cuarto creciente 🌓</value>
+  </string>
+  
+  <string key="HowlingNight">
+    <value>¡¡¡AUUUUUUUUUUUUU!!! Se oye un escalofriante aullido por toda la aldea. Asustados, los aldeanos son incapaces de realizar acciones nocturnas. [Es luna llena, y el lobo aullador ha asustado a la aldea].</value>
+  </string>
+  
+  <string key="RoleInfoHowlingWolf">
+    <value>Eres el lobo aullador. Las noches de luna llena aullarás a la luna, asustando a los aldeanos e impidiendo que hagan sus acciones nocturnas.</value>
+  </string>
+  <string key="HowlingWolf">
+    <value>el lobo aullador 🐺🌕</value>
+  </string>
+  <string key="AboutHowlingWolf">
+    <value>El lobo aullador es el lobo más charlatán de la manada. No hace más que hablar, de forma que el resto, cansados, le ignoran. Así que las noches de luna llena libera su frustración aullando a la luna, la única que le escucha. Y, de paso, impide que los que no sean lobos puedan hacer acciones esa noche.</value>
+  </string>
+  
+  <string key="AskSave">
+    <value>¿A quién quieres salvar?</value>
+  </string>
+  <string key="FightedWolf">
+    <value>Mientras os abrís paso en la casa de {0}, buscando a vuestro objetivo, escucháis una alarma acercarse... ¡los bomberos! No os queda otra que huir sin comer, antes de ser descubiertos.</value>
+  </string>
+  <string key="FightedArso">
+    <value>Al acercarte a la casa de {0}, escuchas la alarma de tu mayor enemigo... ¡los bomberos! Huyes despavorido.</value>
+  </string>
+  <string key="FighterFail">
+    <value >{0} no fue atacado anoche. Por las molestias, prometes no volver a asustarle en vano... al menos por un día.</value>
+  </string>
+  <string key="FighterFailSelf">
+    <value >No fuiste atacado anoche. ¿Para esto eres bombero? Se acabó el quedarse escondido en casa, la aldea te necesita. Mañana iras a salvar a otro jugador que no seas tú mismo.</value>
+  </string>
+  <string key="FighterSurvived">
+    <value >¡Eso estuvo cerca! Entraron a atacarte a tu casa esta noche, pero pasaste la noche en el parque de bomberos, a salvo.</value>
+  </string>
+  
+  <string key="RoleInfoFirefighter">
+    <value>Eres el bombero. Cada noche puedes salvar a alguien de los lobos o de las llamas del pirómano. Puedes salvarte a ti mismo, pero si tu objetivo no es atacado, no podrás visitarle la próxima noche.</value>
+  </string>
+  <string key="Firefighter">
+    <value>el bombero 👨‍🚒</value>
+  </string>
+  <string key="AboutFirefighter">
+    <value>El bombero es un rol protector. Cada noche puede ir a salvar a un jugador (incluído él mismo) de cualquier peligro, excepto de la asesina. Sin embargo, si visita por error a alguien que no fue atacado, la vergüenza le impedirá volver a visitarle la próxima noche.\n\nRol ideado por Chris, primer jugador en llegar a 2000 puntos.</value>
+  </string>
+
+  <string key="RoleInfoGhost">
+    <value>¡Eres el fantasma! Eres parte de la aldea. Has poseído el cuerpo de un aldeano, para ayudar a acabar con los lobos. Si mueres, podrás seguir linchando, desde tu forma espiritual.</value>
+  </string>
+  <string key="Ghost">
+    <value>el fantasma 👻</value>
+  </string>
+  <string key="AboutGhost">
+    <value>El fantasma es un rol de la aldea, con el poder de seguir linchando incluso tras su muerte. Por lo demás, es como un aldeano normal.</value>
   </string>
 </strings>
